@@ -2,12 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b4999b72-a3b7-439a-b83d-768b712d0e1d" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/cptac/interactions/corum_correlation.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/interactions/corum_scores.py" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tables/pancan_normalised.csv" afterPath="$PROJECT_DIR$/tables/pancan_normalised.csv" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_BRG1-SIN3A complex.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_BRM-SIN3A complex.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_Exon junction complex (F4A3-MLN51-UPF3B-MAGOH-Y14-PYM).pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_ITGA5-ITGB1-FN1-TGM2 complex.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_NUMAC complex (nucleosomal methylation activator complex).pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PPP4C-PPP4R2-Gemin3-Gemin4 complex.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SMAD3-cSKI-SIN3A-HDAC1 complex.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SMC1-SMC3 complex.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SMN containing complex.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_Ubiquitin E3 ligase (CDT1, DDB1, CUL4A, RBX1).pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_Ubiquitin E3 ligase (DDB1, CUL4A, RBX1).pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_Ubiquitin E3 ligase (FBXO18, SKP1A, CUL1, RBX1).pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_Ubiquitin E3 ligase (FBXW11, SKP1A, CUL1, RBX1).pdf" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/corum_survival.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/corum_survival.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="cptac.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -44,7 +52,7 @@
         <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="23" column="0" selection-start-line="21" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+              <caret line="22" column="5" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="5" />
               <folding>
                 <element signature="e#0#22#0" expanded="true" />
               </folding>
@@ -52,23 +60,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="corum_survival.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="corum_survival.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_survival.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="48" column="60" selection-start-line="48" selection-start-column="54" selection-end-line="48" selection-end-column="60" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="corum_correlation.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_correlation.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.09280743">
-              <caret line="8" column="67" selection-start-line="8" selection-start-column="67" selection-end-line="8" selection-end-column="67" />
+            <state vertical-scroll-proportion="-0.6611296">
+              <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -99,8 +95,8 @@
         <option value="$PROJECT_DIR$/src/cptac/interactions/corum.py" />
         <option value="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/corum_scores.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/corum_survival.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/corum_correlation.py" />
+        <option value="$PROJECT_DIR$/src/cptac/interactions/corum_survival.py" />
       </list>
     </option>
   </component>
@@ -109,8 +105,8 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="y" value="23" />
-    <option name="width" value="2560" />
-    <option name="height" value="1413" />
+    <option name="width" value="1680" />
+    <option name="height" value="1023" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -375,16 +371,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="2560" height="1413" extended-state="6" />
-    <editor active="true" />
+    <frame x="0" y="23" width="1680" height="1023" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17235902" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.17216118" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.38681492" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3943834" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -484,6 +480,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.09966777">
           <caret line="9" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -499,38 +496,36 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5336427">
-          <caret line="46" column="69" selection-start-line="46" selection-start-column="30" selection-end-line="46" selection-end-column="69" />
-          <folding>
-            <element signature="e#0#18#0" expanded="false" />
-          </folding>
+        <state vertical-scroll-proportion="0.36877078">
+          <caret line="33" column="17" selection-start-line="33" selection-start-column="17" selection-end-line="33" selection-end-column="17" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="0" selection-start-line="21" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <caret line="22" column="5" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="5" />
           <folding>
             <element signature="e#0#22#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_survival.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_correlation.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="48" column="60" selection-start-line="48" selection-start-column="54" selection-end-line="48" selection-end-column="60" />
+          <caret line="27" column="55" selection-start-line="27" selection-start-column="55" selection-end-line="27" selection-end-column="55" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_correlation.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_survival.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.09280743">
-          <caret line="8" column="67" selection-start-line="8" selection-start-column="67" selection-end-line="8" selection-end-column="67" />
+        <state vertical-scroll-proportion="-0.6611296">
+          <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
