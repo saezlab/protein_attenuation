@@ -1,17 +1,11 @@
-import itertools as it
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from cptac import wd
-from gdsc import wd as gdsc_wd
-from mtkirc.utils import gkn
 from pandas.stats.misc import zscore
 from sklearn.linear_model.base import LinearRegression
 from pandas import read_csv, DataFrame, concat, Series
-from scipy.stats.stats import spearmanr
-from sklearn.metrics.ranking import roc_curve, auc
 from pymist.utils.corumdb import get_complexes_pairs
-from statsmodels.stats.multitest import multipletests
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
 
@@ -67,5 +61,5 @@ print pancan_n
 
 
 # -- Export
-pancan_n.to_csv('%s/table/pancan_normalised.csv' % wd)
+pancan_n.to_csv('%s/tables/pancan_normalised.csv' % wd)
 print '[INFO] Exported'
