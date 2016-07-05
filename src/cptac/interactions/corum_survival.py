@@ -23,15 +23,10 @@ corum = get_complexes_dict()
 corum = {k: {uniprot[i][0] for i in v if i in uniprot} for k, v in corum.items()}
 
 # protein complexes scores
-c_activity = read_csv('%s/tables/complex_activity.csv' % wd, index_col=0)
-c_activity = c_activity[c_activity.count(1) > (c_activity.shape[1] * .25)]
-samples = {'-'.join(i.split('-')[:4])[:-1].upper() for i in c_activity}
-print c_activity
-
-# correlating pairs
-p_pairs = read_csv('%s/tables/top_correlated_protein_pairs.csv' % wd)
-p_pairs = p_pairs[p_pairs['corum'] == 1]
-print p_pairs
+p_activity = read_csv('%s/tables/protein_activity.csv' % wd, index_col=0)
+p_activity = p_activity[p_activity.count(1) > (p_activity.shape[1] * .25)]
+samples = {'-'.join(i.split('-')[:4])[:-1].upper() for i in p_activity}
+print p_activity
 
 # Clinical data
 clinical = read_csv('%s/data/clinical_data.tsv' % wd, sep='\t', index_col=0).ix[samples, ['DAYS_TO_LAST_FOLLOWUP', 'VITAL_STATUS']]
@@ -42,12 +37,13 @@ print clinical
 # --
 # p1, p2 = 'ACOT2', 'ACOT1'
 # c = 'SNARE complex (VAMP2, SNAP25, STX1a, STX3, CPLX1, CPLX3, CPLX4)'
+# c = 'ABCB8'
 def gmm_survival(c):
     print c
 
     # -- Residuals
     # Get protein measurements
-    scores = DataFrame(c_activity.ix[c].dropna().abs())
+    scores = DataFrame(p_activity.ix[c].dropna().abs())
 
     # -- GMM
     gmm = GMM(n_components=2).fit(scores)
@@ -116,7 +112,7 @@ def gmm_survival(c):
 
     return {'pval': np.nan}
 
-p_survival = DataFrame({c: gmm_survival(c) for c in c_activity.index}).T.dropna()
+p_survival = DataFrame({c: gmm_survival(c) for c in p_activity.index}).T.dropna()
 p_survival['fdr'] = multipletests(p_survival['pval'], method='fdr_bh')[1]
 print p_survival.sort('fdr')
 

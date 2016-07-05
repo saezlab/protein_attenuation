@@ -12,6 +12,7 @@ from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
 # -- Import p-p interactions
 p_scores = read_csv('%s/tables/correlation_matrix.csv' % wd, index_col=0).replace(np.nan, 0)
+# p_scores = p_scores.applymap(lambda x: 1 if x != 0 else 0)
 print p_scores
 
 # -- Import normalised pancan proteomics
@@ -30,6 +31,7 @@ def calc_activity(sample):
     x = x.loc[:, (x != 0).sum() > 1]
 
     lm = Ridge(alpha=.01).fit(x, y)
+    print sample
 
     return dict(zip(*(x.columns, lm.coef_)))
 
