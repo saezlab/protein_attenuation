@@ -2,15 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b4999b72-a3b7-439a-b83d-768b712d0e1d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_20S methylosome and RG-containing Sm protein complex.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_BRCA1-core RNA polymerase II complex.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_EBAFb complex.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_ELMO1-DOCK1-CRKII complex.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_Polyadenylation complex (CSTF1, CSTF2, CSTF3, SYMPK CPSF1, CPSF2, CPSF3).pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_RNA polymerase II core complex.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_Upf complex (UPF1, UPF2, UPF3a).pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/data/brca_proteomics.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/data/brca_proteomics_samplesheet.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/data/coread_proteomics.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/data/hgsc_proteomics.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/data/hgsc_proteomics_samplesheet.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/tables/pancan_normalised.csv" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/interactions/corum.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/roc_corum.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/corum_auc.pdf" afterPath="$PROJECT_DIR$/reports/corum_auc.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tables/hgsc_proteomics_processed.csv" afterPath="$PROJECT_DIR$/tables/hgsc_proteomics_processed.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/__init__.py" afterPath="$PROJECT_DIR$/src/cptac/__init__.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tables/brca_proteomics_processed.csv" afterPath="$PROJECT_DIR$/tables/brca_proteomics_processed.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tables/coread_proteomics_processed.csv" afterPath="$PROJECT_DIR$/tables/coread_proteomics_processed.csv" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/corum_survival.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/corum_survival.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/protein_scores.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/protein_scores.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/preprocess/proteomics.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/proteomics.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="cptac.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -31,11 +38,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="proteomics.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/proteomics.py">
+      <file leaf-file-name="roc_corum.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/cptac/interactions/roc_corum.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.35034803">
+              <caret line="37" column="0" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#22#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pancan_normalise.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="58" column="52" selection-start-line="58" selection-start-column="25" selection-end-line="58" selection-end-column="52" />
+              <caret line="109" column="6" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="6" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -43,38 +62,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="corum_survival.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_survival.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.32482597">
-              <caret line="28" column="16" selection-start-line="28" selection-start-column="16" selection-end-line="28" selection-end-column="16" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="protein_scores.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/cptac/interactions/protein_scores.py">
+      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="20" selection-end-column="12" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="corum_scores.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_scores.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="14" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-              </folding>
+              <caret line="2" column="93" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="93" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -95,16 +88,17 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/src/cptac/interactions.py" />
-        <option value="$PROJECT_DIR$/src/cptac/__init__.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/pip_aroc.py" />
-        <option value="$PROJECT_DIR$/src/cptac/preprocess/proteomics.py" />
         <option value="$PROJECT_DIR$/src/cptac/preprocess/corum_complexes.py" />
-        <option value="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/corum.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/corum_scores.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/corum_correlation.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/protein_scores.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/corum_survival.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/proteomics.py" />
+        <option value="$PROJECT_DIR$/src/cptac/interactions/corum.py" />
+        <option value="$PROJECT_DIR$/src/cptac/__init__.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" />
+        <option value="$PROJECT_DIR$/src/cptac/interactions/roc_corum.py" />
       </list>
     </option>
   </component>
@@ -139,8 +133,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -223,6 +215,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -386,7 +380,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.17196187" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.13145353" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.36656076" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -418,22 +412,131 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/proteomics.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/roc_corum.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="58" column="52" selection-start-line="58" selection-start-column="25" selection-end-line="58" selection-end-column="52" />
+          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2" column="93" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="93" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/roc_corum.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#0#22#0" expanded="false" />
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2" column="132" selection-start-line="2" selection-start-column="132" selection-end-line="2" selection-end-column="132" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/roc_corum.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="109" column="12" selection-start-line="109" selection-start-column="12" selection-end-line="109" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2" column="132" selection-start-line="2" selection-start-column="132" selection-end-line="2" selection-end-column="132" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/roc_corum.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2" column="132" selection-start-line="2" selection-start-column="132" selection-end-line="2" selection-end-column="132" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/proteomics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="58" column="52" selection-start-line="58" selection-start-column="25" selection-end-line="58" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/roc_corum.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -443,7 +546,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="60" column="12" selection-start-line="60" selection-start-column="12" selection-end-line="60" selection-end-column="12" />
           <folding>
-            <element signature="e#0#18#0" expanded="false" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -452,9 +555,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="29" column="23" selection-start-line="29" selection-start-column="23" selection-end-line="29" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -462,9 +562,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -472,90 +569,76 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.8648948">
           <caret line="3211" column="45" selection-start-line="3211" selection-start-column="41" selection-end-line="3211" selection-end-column="45" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/protein_scores.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.016574586">
-          <caret line="1" column="0" selection-start-line="1" selection-start-column="0" selection-end-line="1" selection-end-column="0" />
-          <folding />
+        <state vertical-scroll-proportion="0.19721578">
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="20" selection-end-column="12" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../mtkirc/src/mtkirc/utils.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_scores.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.09966777">
-          <caret line="9" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.41860464">
-          <caret line="55" column="23" selection-start-line="55" selection-start-column="23" selection-end-line="55" selection-end-column="23" />
-          <folding>
-            <element signature="e#0#22#0" expanded="false" />
-          </folding>
+        <state vertical-scroll-proportion="0.16241299">
+          <caret line="14" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/proteomics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="58" column="52" selection-start-line="58" selection-start-column="25" selection-end-line="58" selection-end-column="52" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.36877078">
-          <caret line="33" column="17" selection-start-line="33" selection-start-column="17" selection-end-line="33" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_correlation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.30394432">
-          <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_scores.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="14" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/protein_scores.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="20" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
+          <caret line="27" column="100" selection-start-line="0" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_survival.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.32482597">
-          <caret line="28" column="16" selection-start-line="28" selection-start-column="16" selection-end-line="28" selection-end-column="16" />
+        <state vertical-scroll-proportion="0.7679814">
+          <caret line="105" column="73" selection-start-line="105" selection-start-column="14" selection-end-line="105" selection-end-column="73" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/corum_correlation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="35" column="58" selection-start-line="35" selection-start-column="9" selection-end-line="35" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="2" column="93" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="93" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../mtkirc/src/mtkirc/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.11600928">
+          <caret line="13" column="30" selection-start-line="13" selection-start-column="30" selection-end-line="13" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="109" column="6" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="6" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/roc_corum.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.35034803">
+          <caret line="37" column="0" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#22#0" expanded="true" />
           </folding>
         </state>
       </provider>

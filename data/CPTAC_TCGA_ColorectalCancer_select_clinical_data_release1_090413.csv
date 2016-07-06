@@ -1,0 +1,96 @@
+TCGA barcode,UUID,Disease Code,Hybridization REF,yearstobirth,vitalstatus,daystodeath,daystolastfollowup,primarysiteofdesease,gender,dateofinitialpathologicdiagnosis,daystolastknownalive,histologicaltype,radiations.radiation.regimenindication,distant.metastasis,lymph.node.metastasis,completeness.of.resection,number.of.lymph.nodes,tumor.stagecode,neoplasm.diseasestage,batchnumber
+TCGA-A6-3807-01A-22-2150-27,77a6e910-fde6-434a-ad29-8a217668bba3,COAD,tcga-a6-3807,53,0,NA,332,colon,female,2009,NA,colon adenocarcinoma,yes,m0,n2,r0,5,t3,stage iiic,41.30.0
+TCGA-A6-3808-01A-22-2150-27,1939c2d7-0df4-4110-99e0-09a3c0929aa2,COAD,tcga-a6-3808,73,0,NA,278,colon,male,2009,NA,colon mucinous adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,41.29.0
+TCGA-A6-3810-01A-22-2150-27,683e5429-3018-451b-8faa-2bc131463e75,COAD,tcga-a6-3810,62,0,NA,246,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,41.30.0
+TCGA-AA-3518-01A-11-2150-27,b745c6b2-48b1-49d5-8491-39da86ed821f,COAD,tcga-aa-3518,81,0,NA,31,colon,female,2007,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,29.33.0
+TCGA-AA-3525-01A-12-2150-27,da1bb2b6-c6d4-455a-9468-08198f86756b,COAD,tcga-aa-3525,90,0,NA,0,colon,male,2007,NA,colon adenocarcinoma,yes,m0,n1,r0,2,t3,stage iiib,29.33.0
+TCGA-AA-3526-01A-11-2150-27,40a77161-ca29-47f0-ab89-c0fd342f13c1,COAD,tcga-aa-3526,57,0,NA,30,colon,male,2007,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,28.34.0
+TCGA-AA-3529-01A-12-2150-27,75bbb475-8e48-4dc0-a0f0-4ea890462c33,COAD,tcga-aa-3529,78,1,0,NA,colon,female,2007,NA,colon adenocarcinoma,yes,m0,n2,r0,10,t3,stage iiic,28.34.0
+TCGA-AA-3531-01A-22-2150-27,ec6731b4-c794-4268-bc9d-51598ba06337,COAD,tcga-aa-3531,75,0,NA,0,colon,female,2007,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,28.34.0
+TCGA-AA-3534-01A-22-2150-27,91a6a5fb-56cf-4fef-b6d5-ab7353ff6e38,COAD,tcga-aa-3534,77,0,NA,0,colon,female,2007,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,28.34.0
+TCGA-AA-3552-01A-22-2150-27,96012188-5aa2-4a6c-981c-8d2757053297,COAD,tcga-aa-3552,85,0,NA,0,colon,male,2008,NA,colon adenocarcinoma,yes,m0,n2,r0,10,t3,stage iiic,28.34.0
+TCGA-AA-3554-01A-22-2150-27,2b45d33f-d78b-4076-a6d8-0ffd850cceb3,COAD,tcga-aa-3554,62,0,NA,0,colon,female,2008,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,29.33.0
+TCGA-AA-3558-01A-22-2150-27,154d00dd-d52f-4b7b-9649-8c1d4de3782e,COAD,tcga-aa-3558,70,0,NA,0,colon,male,2008,NA,colon adenocarcinoma,yes,m0,n0,r2,0,t2,stage i,28.34.0
+TCGA-AA-3561-01A-22-2150-27,1783ec55-d52c-4394-9b33-7f7523f87520,COAD,tcga-aa-3561,72,0,NA,0,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n0,r0,NA,t3,stage iia,28.34.0
+TCGA-AA-3664-01A-22-2150-27,9f7db77b-59bc-41f0-a509-7437d5da44bc,COAD,tcga-aa-3664,74,0,NA,0,colon,female,2005,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,36.33.0
+TCGA-AA-3666-01A-31-2150-27,6aabadff-5290-4cc2-89be-2075597f725e,COAD,tcga-aa-3666,68,1,61,NA,colon,male,2005,NA,colon adenocarcinoma,yes,m0,n1,r0,2,t3,stage iii,36.33.0
+TCGA-AA-3672-01A-22-2150-27,cc8e7ab8-c190-4de2-9190-a7293ee81349,COAD,tcga-aa-3672,90,0,NA,0,colon,female,2006,NA,colon adenocarcinoma,yes,m0,n1,r0,4,t3,stage iii,36.33.0
+TCGA-AA-3684-01A-31-2150-27,16958bc1-6804-444c-9178-195ef908360b,COAD,tcga-aa-3684,65,0,NA,0,colon,female,2007,NA,colon mucinous adenocarcinoma,yes,m1,n2,r2,9,t4,stage iv,36.33.0
+TCGA-AA-3695-01A-22-2150-27,075d832b-58e4-4308-814f-c4d07dd37fdb,COAD,tcga-aa-3695,63,0,NA,0,colon,female,2009,NA,colon adenocarcinoma,yes,m1,n2,r2,6,t3,stage iv,36.33.0
+TCGA-AA-3710-01A-22-2150-27,98062f36-9403-43a5-9215-16f8d0e90cf3,COAD,tcga-aa-3710,80,0,NA,31,colon,female,2008,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,41.30.0
+TCGA-AA-3715-01A-22-2150-27,04ada15f-8aaa-4d0e-bc1d-b2237821e5a6,COAD,tcga-aa-3715,77,0,NA,30,colon,male,2006,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,36.33.0
+TCGA-AA-3818-01A-22-2150-27,dc0055bd-52e5-4451-bd3d-1d1845defc92,COAD,tcga-aa-3818,78,1,30,NA,colon,female,2007,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,36.33.0
+TCGA-AA-3848-01A-22-2150-27,8589ef24-bdfd-43fd-a5c3-6d62ac7f5a0c,COAD,tcga-aa-3848,82,0,NA,30,colon,female,2009,NA,colon adenocarcinoma,yes,m0,n2,r0,6,t3,stage iiic,36.33.0
+TCGA-AA-3864-01A-22-2150-27,f96c8363-391c-4f3d-b849-b59427b966e4,COAD,tcga-aa-3864,71,0,NA,0,colon,male,2005,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,41.30.0
+TCGA-AA-3986-01A-12-2150-27,5c5b2fb1-76f4-425e-9e8b-f15f44bf75d5,COAD,tcga-aa-3986,73,0,NA,30,colon,male,2007,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,41.30.0
+TCGA-AA-3989-01A-22-2150-27,71541f7c-2505-49de-8bc3-6c37ac75db05,COAD,tcga-aa-3989,84,0,NA,0,colon,male,2009,NA,colon adenocarcinoma,yes,m1,n2,r2,5,t3,stage iv,41.30.0
+TCGA-AA-A004-01A-22-A20O-27,6b95103c-b92a-40a1-9e5b-fba9d53af702,COAD,tcga-aa-a004,76,0,NA,424,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,33.31.0
+TCGA-AA-A00A-01A-22-A20O-27,ec9f9b32-c4e4-47e3-9176-7c49b5454222,COAD,tcga-aa-a00a,80,0,NA,548,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,30.31.0
+TCGA-AA-A00E-01A-31-A20O-27,b1a19564-2194-4d25-88b3-ae4197d2a755,COAD,tcga-aa-a00e,65,0,NA,913,colon,male,2007,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,30.31.0
+TCGA-AA-A00F-01A-31-A20O-27,105edf7b-7f90-4612-b2e5-f35a4725250d,COAD,tcga-aa-a00f,66,0,NA,1035,colon,male,2007,NA,colon adenocarcinoma,yes,m0,n2,r0,7,t3,stage iiic,30.31.0
+TCGA-AA-A00J-01A-12-A20O-27,e2de8d7d-d064-4127-b03a-596201e54ec2,COAD,tcga-aa-a00j,80,0,NA,548,colon,male,2009,NA,colon mucinous adenocarcinoma,yes,m0,n1,r0,2,t4,stage iiib,30.31.0
+TCGA-AA-A00K-01A-12-A20O-27,36697b47-acc4-4234-b0fd-922807056a65,COAD,tcga-aa-a00k,79,0,NA,548,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,30.31.0
+TCGA-AA-A00N-01A-32-A20O-27,86078205-9514-460f-a407-7c1f856b174c,COAD,tcga-aa-a00n,75,1,122,NA,colon,male,2008,NA,colon mucinous adenocarcinoma,yes,m0,n0,r0,0,t4,stage iib,33.31.0
+TCGA-AA-A00O-01A-13-A20O-27,42315304-6c1e-46a3-87e0-e2efe27cca8a,COAD,tcga-aa-a00o,83,0,NA,822,colon,female,2008,NA,colon adenocarcinoma,yes,m0,n2,r0,32,t3,stage iiic,33.31.0
+TCGA-AA-A00R-01A-22-A20O-27,6a1388cf-a1f0-44cd-b839-b36c61613bd4,COAD,tcga-aa-a00r,64,0,NA,30,colon,female,2008,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,30.31.0
+TCGA-AA-A00U-01A-41-A20O-27,d8fe8d90-59e3-4e2a-b62c-f0af1d883adc,COAD,tcga-aa-a00u,50,0,NA,517,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n1,r0,0,t3,stage iiib,30.31.0
+TCGA-AA-A010-01A-31-A20O-27,6ba954d2-5c68-4c8f-b4a6-114b368cc6fb,COAD,tcga-aa-a010,46,0,NA,638,colon,female,2008,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t4,stage iib,33.31.0
+TCGA-AA-A017-01A-22-A20O-27,30f72ad0-33fe-4bb9-9fa2-85765b106a42,COAD,tcga-aa-a017,57,0,NA,457,colon,female,2009,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,33.31.0
+TCGA-AA-A01C-01A-22-A20O-27,1d9e9a4a-1ccc-4be8-a0f8-0d904536b3f8,COAD,tcga-aa-a01c,75,0,NA,457,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n1,r0,3,t2,stage iiia,33.31.0
+TCGA-AA-A01D-01A-23-A20O-27,0b0d9767-bfbf-4504-9751-b6224befc442,COAD,tcga-aa-a01d,47,0,NA,30,colon,female,2009,NA,colon mucinous adenocarcinoma,yes,m0,n2,r0,12,t3,stage iiic,33.31.0
+TCGA-AA-A01F-01A-23-A20O-27,136e76e5-227f-4f9c-ae9c-fa8f70e36c39,COAD,tcga-aa-a01f,72,0,NA,396,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n1,r0,2,t3,stage iiib,30.31.0
+TCGA-AA-A01I-01A-12-A20O-27,12b85bd7-29c5-4284-9e82-5691ba247288,COAD,tcga-aa-a01i,76,0,NA,365,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,33.31.0
+TCGA-AA-A01K-01A-31-A20O-27,1b152db2-5ef9-4407-bb0f-01e181d6d0c9,COAD,tcga-aa-a01k,74,0,NA,396,colon,female,2009,NA,colon adenocarcinoma,yes,m0,n2,r0,4,t3,stage iiic,33.31.0
+TCGA-AA-A01P-01A-23-A20O-27,a2008f6a-3a04-41cf-bfe2-1afc36853ae8,COAD,tcga-aa-a01p,80,1,1158,NA,colon,female,2003,NA,colon adenocarcinoma,yes,m0,n1,r0,1,t3,stage iii,66.31.0
+TCGA-AA-A01R-01A-23-A20O-27,838d4bd3-2b75-4e42-b37e-d6c521aef14b,COAD,tcga-aa-a01r,47,0,NA,1065,colon,male,2004,NA,colon mucinous adenocarcinoma,yes,m0,n2,r0,9,t3,stage iii,66.31.0
+TCGA-AA-A01S-01A-23-A20O-27,84657d5d-0615-42b2-8328-c8e35a7fb607,COAD,tcga-aa-a01s,47,0,NA,31,colon,female,2004,NA,colon adenocarcinoma,yes,m0,n1,r0,1,t3,stage iii,66.31.0
+TCGA-AA-A01T-01A-23-A20O-27,e5a9dc81-318e-4e39-9b70-cfcc3fe5b52c,COAD,tcga-aa-a01t,63,0,NA,1005,colon,female,2004,NA,colon adenocarcinoma,yes,m0,n1,r0,1,t3,stage iii,66.31.0
+TCGA-AA-A01V-01A-24-A20O-27,9b0cea76-e199-4bd6-9e0c-e305427c4da3,COAD,tcga-aa-a01v,59,0,NA,1065,colon,male,2004,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,66.31.0
+TCGA-AA-A01X-01A-23-A20O-27,03a9b37a-8ea6-4486-9bda-922c1932236c,COAD,tcga-aa-a01x,80,0,NA,791,colon,female,2004,NA,colon adenocarcinoma,yes,m0,n1,rx,2,t2,stage iii,66.31.0
+TCGA-AA-A01Z-01A-13-A20O-27,f066d4bb-759e-41b8-bb1b-5b57b7495738,COAD,tcga-aa-a01z,68,0,NA,638,colon,male,2004,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,66.31.0
+TCGA-AA-A022-01A-23-A20O-27,5c5204ff-41a2-4418-900d-ca086fd98083,COAD,tcga-aa-a022,88,0,NA,0,colon,female,2005,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t4,stage ii,66.31.0
+TCGA-AA-A024-01A-32-A20O-27,10852a83-3838-476e-b110-25c481a5061f,COAD,tcga-aa-a024,81,1,1188,NA,colon,male,2005,NA,colon mucinous adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,33.31.0
+TCGA-AA-A029-01A-41-A20O-27,de5d23a9-4110-4968-a65d-069429973808,COAD,tcga-aa-a029,67,0,NA,1580,colon,male,2006,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,33.31.0
+TCGA-AA-A02E-01A-23-A20O-27,30e15226-69d6-4e7a-be30-904d078a5404,COAD,tcga-aa-a02e,82,1,89,NA,colon,female,2007,NA,colon adenocarcinoma,yes,m1,n1,r2,4,t3,stage iv,33.31.0
+TCGA-AA-A02H-01A-32-A20O-27,95bfb988-e641-47cb-9a33-0e5ff9942111,COAD,tcga-aa-a02h,74,1,61,NA,colon,female,2007,NA,colon adenocarcinoma,yes,m1,n2,r2,6,t3,stage iv,33.31.0
+TCGA-AA-A02J-01A-23-A20O-27,b313cb14-fbe8-4985-85ed-c1badb821584,COAD,tcga-aa-a02j,70,1,153,NA,colon,female,2008,NA,colon adenocarcinoma,yes,m1,n0,r2,0,t3,stage iv,33.31.0
+TCGA-AA-A02O-01A-23-A20O-27,3a4a206d-28ed-4a63-86a4-b11594042d87,COAD,tcga-aa-a02o,82,0,NA,28,colon,male,2005,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,66.31.0
+TCGA-AA-A02R-01A-23-A20O-27,a4216196-348c-4409-98bd-7d591dca6fda,COAD,tcga-aa-a02r,84,1,670,NA,colon,female,2006,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,33.31.0
+TCGA-AA-A02Y-01A-31-A20O-27,578610fd-fe5c-43b1-82c5-d8f661e08715,COAD,tcga-aa-a02y,73,0,NA,1215,colon,male,2007,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,66.31.0
+TCGA-AA-A03F-01A-41-A20O-27,a257b31c-92aa-41f8-bfc9-82aae395d927,COAD,tcga-aa-a03f,90,1,548,NA,colon,female,2004,NA,colon mucinous adenocarcinoma,yes,m0,n2,r0,4,t3,stage iii,66.31.0
+TCGA-AA-A03J-01A-23-A20O-27,a9929e16-d4da-45ec-bcb4-2c7ac39f0119,COAD,tcga-aa-a03j,65,0,NA,1245,colon,female,2004,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,66.31.0
+TCGA-AF-2691-01A-41-2150-27,8875d1a6-8801-4b0a-a9ba-02e1e782476e,READ,tcga-af-2691,48,0,NA,323,rectum,female,2009,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t1,stage i,42.35.0
+TCGA-AF-2692-01A-41-2150-27,f6033497-995e-4069-85fc-1bbbf0c7dc8b,READ,tcga-af-2692,54,0,NA,412,NA,female,2009,412,NA,yes,m0,n0,r0,0,t3,stage iia,42.37.0
+TCGA-AF-3400-01A-41-2150-27,b8366970-8000-4360-9577-8211692c7262,READ,tcga-af-3400,54,0,NA,387,rectum,male,2009,387,rectal mucinous adenocarcinoma,no,m0,n0,r0,0,t3,stage iia,42.37.0
+TCGA-AF-3913-01A-12-2150-27,c732728b-fd9c-4eab-8743-e8d4ad313135,READ,tcga-af-3913,60,1,316,NA,rectum,male,2009,316,rectal adenocarcinoma,yes,m1,n1a,r0,1,t3,NA,46.34.0
+TCGA-AG-3574-01A-22-2150-27,50ceec0a-07ba-4d4a-9003-dacc2ecfc06a,READ,tcga-ag-3574,89,0,NA,0,rectum,female,2005,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,42.37.0
+TCGA-AG-3580-01A-22-2150-27,af8b8483-3cda-451d-aeb1-13454a874d0f,READ,tcga-ag-3580,67,0,NA,0,rectum,male,2007,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t1,stage i,42.37.0
+TCGA-AG-3584-01A-22-2150-27,4091ef2d-f308-4a00-9626-cd192cfb2561,READ,tcga-ag-3584,60,0,NA,0,rectum,male,2008,NA,rectal adenocarcinoma,yes,m1,n2,r2,20,t3,stage iv,42.37.0
+TCGA-AG-3593-01A-22-2150-27,ac42ae28-836a-4852-911b-98eed1329686,READ,tcga-ag-3593,72,0,NA,0,rectum,female,2007,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,42.37.0
+TCGA-AG-3594-01A-12-2150-27,dd09bfe9-8eb8-448b-b379-6f6c4d7b8d60,READ,tcga-ag-3594,77,0,NA,0,rectum,male,2007,NA,rectal mucinous adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,42.37.0
+TCGA-AG-4007-01A-22-2150-27,ce391c4b-a368-438f-8135-23b94464f8ac,READ,tcga-ag-4007,86,0,NA,31,rectum,male,2007,NA,rectal adenocarcinoma,yes,m1,n2,r2,5,t4,stage iv,46.34.0
+TCGA-AG-A002-01A-23-A20O-27,a300347d-8245-4bb5-827e-f596eb84a0c3,READ,tcga-ag-a002,35,0,NA,637,rectum,male,2009,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,43.29.0
+TCGA-AG-A008-01A-23-A20O-27,75db2e89-0fdd-4761-ab5a-50654a6f356c,READ,tcga-ag-a008,50,0,NA,423,rectum,female,2009,NA,rectal mucinous adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,43.29.0
+TCGA-AG-A00C-01A-23-A20O-27,e692d3c0-9b10-4532-9dae-3e119e83531b,READ,tcga-ag-a00c,49,0,NA,183,rectum,female,2007,NA,rectal adenocarcinoma,yes,m0,n1,r0,1,t3,stage iiib,43.29.0
+TCGA-AG-A00H-01A-22-A20O-27,c3466276-f4f7-4d78-ae87-d47fc8bf344b,READ,tcga-ag-a00h,75,0,NA,789,rectum,male,2008,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,43.29.0
+TCGA-AG-A00Y-01A-12-A20O-27,d12958dd-5d50-4c16-9e3d-d329eec7ebe2,READ,tcga-ag-a00y,68,0,NA,700,rectum,male,2008,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,43.29.0
+TCGA-AG-A011-01A-32-A20O-27,fe2bb757-f136-4f87-88e0-eb5c8eee70f4,READ,tcga-ag-a011,80,0,NA,518,rectum,male,2009,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,43.29.0
+TCGA-AG-A014-01A-12-A20O-27,d91b66be-43cd-4839-80bd-13f56a3ef8f5,READ,tcga-ag-a014,86,0,NA,484,rectum,male,2009,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,43.29.0
+TCGA-AG-A015-01A-51-A20O-27,2d1f3fa5-b5da-4c16-b12e-ee481fdf83a7,READ,tcga-ag-a015,64,0,NA,396,rectum,female,2009,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t1,stage i,43.29.0
+TCGA-AG-A016-01A-23-A20O-27,e957cf84-bf07-4e47-8861-23a1c68e01fe,READ,tcga-ag-a016,55,0,NA,31,rectum,male,2009,NA,rectal adenocarcinoma,yes,m1,n2,r2,4,t3,stage iv,43.29.0
+TCGA-AG-A01J-01A-22-A20O-27,0da3800e-ac79-43ac-b38f-f6061973a50e,READ,tcga-ag-a01j,59,0,NA,31,rectum,female,2009,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,43.29.0
+TCGA-AG-A01L-01A-22-A20O-27,70ad0c99-09b2-4d07-b06c-270a5641a19a,READ,tcga-ag-a01l,58,0,NA,365,rectum,male,2009,NA,rectal adenocarcinoma,yes,m0,n1,r0,2,t3,stage iiib,43.29.0
+TCGA-AG-A01N-01A-23-A20O-27,38587d98-0883-40d2-8851-94e90b7d6a95,READ,tcga-ag-a01n,68,0,NA,365,rectum,female,2009,NA,rectal adenocarcinoma,yes,m1,n0,r2,0,t2,stage iv,43.29.0
+TCGA-AG-A01W-01A-23-A20O-27,edac97b8-765d-412e-9824-782fc339f394,READ,tcga-ag-a01w,67,0,NA,2130,rectum,female,2004,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,67.32.0
+TCGA-AG-A01Y-01A-43-A20O-27,5759044b-0155-4f35-975a-8afb634a315b,READ,tcga-ag-a01y,49,0,NA,1946,rectum,female,2004,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,67.32.0
+TCGA-AG-A020-01A-23-A20O-27,04c4f91f-2314-4343-b1d1-5c2fd32ad21b,READ,tcga-ag-a020,57,0,NA,334,rectum,female,2005,NA,rectal mucinous adenocarcinoma,yes,m0,n1,r0,1,t3,stage iii,67.32.0
+TCGA-AG-A026-01A-71-A20O-27,4c62b91d-c7d4-4bb7-9137-1814dda1a797,READ,tcga-ag-a026,66,1,59,NA,rectum,male,2006,NA,rectal adenocarcinoma,yes,m0,n0,r1,0,t4,stage ii,67.32.0
+TCGA-AG-A02N-01A-31-A20O-27,d3853cf8-e600-4637-a627-c60694efb751,READ,tcga-ag-a02n,67,0,NA,1884,rectum,male,2005,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage ii,67.32.0
+TCGA-AG-A02X-01A-32-A20O-27,cc64252a-03aa-4ed1-9e18-1210be3d6277,READ,tcga-ag-a02x,77,0,NA,1246,rectum,male,2007,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,43.29.0
+TCGA-AG-A032-01A-31-A20O-27,fbedd94c-1978-41ec-b54f-93169adecf80,READ,tcga-ag-a032,68,0,NA,1156,rectum,male,2007,NA,rectal adenocarcinoma,yes,m0,n1,r0,2,t3,stage iiib,43.29.0
+TCGA-AG-A036-01A-22-A20O-27,e3a7efc0-688b-4ae9-9104-dec1be2fcf4b,READ,tcga-ag-a036,71,0,NA,2192,rectum,male,2002,NA,rectal adenocarcinoma,yes,m0,n2,r0,18,t3,stage iii,67.32.0
+TCGA-AA-A00A-01A-41-A20O-27,f821666b-504c-4946-b5fc-c5c9914b37bd,COAD,tcga-aa-a00a,80,0,NA,548,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,30.31.0
+TCGA-AA-A00K-01A-31-A20O-27,b6abe5cf-db70-41ff-a1e1-9b0663a1d9cd,COAD,tcga-aa-a00k,79,0,NA,548,colon,male,2009,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,30.31.0
+TCGA-AA-A00N-01A-41-A20O-27,e6208375-5da0-4a01-9886-837378cf267b,COAD,tcga-aa-a00n,75,1,122,NA,colon,male,2008,NA,colon mucinous adenocarcinoma,yes,m0,n0,r0,0,t4,stage iib,33.31.0
+TCGA-AA-A00R-01A-31-A20O-27,fd9fcdb4-e3bb-4f85-8ae2-aff9e77cbb68,COAD,tcga-aa-a00r,64,0,NA,30,colon,female,2008,NA,colon adenocarcinoma,yes,m0,n0,r0,0,t2,stage i,30.31.0
+TCGA-AG-A00H-01A-31-A20O-27,cc314f5c-54d1-4822-99f4-cf4970e83605,READ,tcga-ag-a00h,75,0,NA,789,rectum,male,2008,NA,rectal adenocarcinoma,yes,m0,n0,r0,0,t3,stage iia,43.29.0

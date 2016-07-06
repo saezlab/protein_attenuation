@@ -1,0 +1,106 @@
+TCGA barcode,UUID,Disease Code,Hybridization REF,yearstobirth,vitalstatus,daystodeath,daystolastfollowup,primarysiteofdesease,neoplasm.diseasestage,pathology.T.stage,pathology.N.stage,pathology.M.stage,gender,dateofinitialpathologicdiagnosis,daystolastknownalive,radiationtherapy,histologicaltype,radiations.radiation.regimenindication,number.of.lymph.nodes,gleason_score,psa_value,days_to_psa,batchnumber
+TCGA-A2-A0CM-01A-11-A21V-30,330f7598-824c-4cd6-9303-a27fe74a6695,BRCA,tcga-a2-a0cm,40,1,754,NA,breast,stage iia,t2,n0 (i-),m0,female,2003,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,56.54.0
+TCGA-A2-A0D0-01A-41-A21W-30,c10ae24d-e9e4-492c-8a79-c3d1f0854799,BRCA,tcga-a2-a0d0,60,0,NA,643,breast,stage iia,t2,n0 (i-),m0,female,2008,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,47.59.0
+TCGA-A2-A0D1-01A-22-A21W-30,4d66e411-f805-4de5-8d7d-b1b106931f27,BRCA,tcga-a2-a0d1,76,0,NA,1051,breast,stage iia,t2,n0 (i-),m0,female,2008,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,56.54.0
+TCGA-A2-A0D2-01A-12-A21W-30,308ccd79-c164-4397-92bc-a1cd243c8e7d,BRCA,tcga-a2-a0d2,45,0,NA,1027,breast,stage iia,t2,n0 (i+),m0,female,2008,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,56.54.0
+TCGA-A2-A0EQ-01A-41-A21W-30,04217f65-2907-478b-b0c5-eb65370198da,BRCA,tcga-a2-a0eq,64,0,NA,2426,breast,stage iia,t2,n0 (i-),m0,female,2004,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,56.54.0
+TCGA-A2-A0EV-01A-41-A21V-30,38f98e5f-7fa4-4c89-8d81-516cf865beeb,BRCA,tcga-a2-a0ev,80,0,NA,968,breast,stage ia,t1c,n0 (i-),m0,female,2008,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,56.54.0
+TCGA-A2-A0EX-01A-41-A21V-30,78271500-147b-40c5-b789-0cf0c7cdbce2,BRCA,tcga-a2-a0ex,46,0,NA,752,breast,stage iib,t3,n0 (i+),m0,female,2009,NA,NA,infiltrating lobular carcinoma,yes,0,NA,NA,NA,56.54.0
+TCGA-A2-A0EY-01A-41-A21V-30,87bbbd20-9816-4b22-917a-27ce73b1c0ca,BRCA,tcga-a2-a0ey,62,0,NA,735,breast,stage iib,t2,n1a,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,1,NA,NA,NA,56.54.0
+TCGA-A2-A0SW-01A-41-A21V-30,72ebf4a2-d75b-4344-b128-979dec315c24,BRCA,tcga-a2-a0sw,82,1,1364,NA,breast,stage iv,t2,n2,m1,female,2006,NA,NA,infiltrating ductal carcinoma,no,4,NA,NA,NA,72.53.0
+TCGA-A2-A0SX-01A-41-A21V-30,40585558-f251-4de4-86b1-380837e36f73,BRCA,tcga-a2-a0sx,48,0,NA,1534,breast,stage ia,t1c,n0 (i-),m0,female,2007,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,72.53.0
+TCGA-A2-A0T1-01A-12-A21V-30,d2ff8332-6964-4774-aef4-f18d12417fc2,BRCA,tcga-a2-a0t1,55,0,NA,520,breast,stage iiic,t3,n3,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,10,NA,NA,NA,72.53.0
+TCGA-A2-A0T2-01A-13-A21W-30,77e6014f-d836-444d-bbe5-4c8216a190af,BRCA,tcga-a2-a0t2,66,1,242,NA,breast,stage iv,t3,n3,m1,female,2009,NA,NA,infiltrating ductal carcinoma,no,10,NA,NA,NA,72.53.0
+TCGA-A2-A0T3-01A-22-A21V-30,6852c229-0cc2-45df-b0fe-9543c97363e3,BRCA,tcga-a2-a0t3,37,0,NA,569,breast,stage ib,t1c,n1mi,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,2,NA,NA,NA,85.47.0
+TCGA-A2-A0T6-01A-41-A21V-30,e850d3cb-c543-42c6-b66e-590d42068968,BRCA,tcga-a2-a0t6,50,0,NA,575,breast,stage iib,t3,n0 (i-),m0,female,2009,NA,NA,infiltrating lobular carcinoma,no,0,NA,NA,NA,72.53.0
+TCGA-A2-A0T7-01A-41-A21V-30,1f3bfa3a-d49e-42ad-a3d8-b6f0f1dfcdb2,BRCA,tcga-a2-a0t7,51,0,NA,631,breast,stage iia,t2,n0 (i+),m0,female,2009,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,72.53.0
+TCGA-A2-A0YC-01A-41-A21V-30,f8b8d938-d790-431b-a90e-e29bf4841e76,BRCA,tcga-a2-a0yc,59,0,NA,989,breast,stage iib,t2,n1mi,m0,female,2008,NA,NA,infiltrating ductal carcinoma,no,1,NA,NA,NA,74.51.0
+TCGA-A2-A0YD-01A-41-A21V-30,34f2f861-7879-47f7-899f-eabcdf52cf0a,BRCA,tcga-a2-a0yd,63,0,NA,769,breast,stage iib,t3,n0 (i+),m0,female,2009,NA,NA,infiltrating lobular carcinoma,yes,0,NA,NA,NA,74.51.0
+TCGA-A2-A0YF-01A-41-A21V-30,3997b4be-9660-4703-8bb0-64ed6947ce07,BRCA,tcga-a2-a0yf,67,0,NA,469,breast,stage ia,t1b,n0 (i+),m0,female,2009,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,74.51.0
+TCGA-A2-A0YG-01A-41-A21V-30,fd5b5379-e9d1-4b05-ae35-29bd73f0c37f,BRCA,tcga-a2-a0yg,63,0,NA,665,breast,stage iiic,t2,n3a,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,14,NA,NA,NA,74.51.0
+TCGA-A2-A0YI-01A-11-A21V-30,ae2a1e5b-8648-4718-82a2-4730a223ddf8,BRCA,tcga-a2-a0yi,62,0,NA,441,breast,stage ia,t1c,n0 (i+),m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,80.46.0
+TCGA-A2-A0YL-01A-41-A21V-30,98b333f7-f3f3-4a0c-8d5e-4eb9dbe261eb,BRCA,tcga-a2-a0yl,48,0,NA,445,breast,stage iiia,t3,n2a,m0,female,2010,NA,NA,infiltrating lobular carcinoma,no,4,NA,NA,NA,74.51.0
+TCGA-A2-A0YM-01A-22-A21W-30,68c8f498-7d3e-4647-8484-34bb53ee474b,BRCA,tcga-a2-a0ym,67,0,NA,964,breast,stage iia,t2,n0 (i-),m0,female,2008,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,74.51.0
+TCGA-A7-A0CD-01A-22-A21W-30,b801e0d2-f1f8-4a29-a4a9-a745a1262606,BRCA,tcga-a7-a0cd,66,0,NA,1165,breast,stage i,t1,n0,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,47.59.0
+TCGA-A7-A0CE-01A-41-A21V-30,ba492de0-e9c3-4e5f-a16a-1350cce28a01,BRCA,tcga-a7-a0ce,57,0,NA,1074,breast,stage iia,t2,n0 (i-),m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,47.59.0
+TCGA-A7-A0CJ-01A-32-A21V-30,60fb8576-f48d-468c-bfb2-10d85abe5ee5,BRCA,tcga-a7-a0cj,57,0,NA,930,breast,stage iia,t2,n0 (i-),m0,female,2010,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,47.59.0
+TCGA-A7-A13F-01A-51-A21V-30,4f3cc707-870e-473e-9f5d-9070e5aa498e,BRCA,tcga-a7-a13f,44,0,NA,387,breast,stage iiia,t3,n1a,m0,female,2010,NA,NA,infiltrating ductal carcinoma,no,3,NA,NA,NA,96.41.0
+TCGA-A8-A06N-01A-41-A21V-30,77457015-87c7-44c5-aab8-9bc12a378b4e,BRCA,tcga-a8-a06n,66,0,NA,0,breast,stage iiib,t4b,n0,m0,female,2009,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,47.59.0
+TCGA-A8-A06Z-01A-22-A21V-30,d0148f8e-928f-487f-bbfa-6b4c41504e94,BRCA,tcga-a8-a06z,84,0,NA,31,breast,stage iib,t3,n0,m0,female,2007,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,47.59.0
+TCGA-A8-A076-01A-23-A21V-30,10737b8a-31f2-47e4-acfa-1c54ef5918ca,BRCA,tcga-a8-a076,66,0,NA,1641,breast,stage iia,t2,n0,m0,female,2006,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,47.59.0
+TCGA-A8-A079-01A-12-A21V-30,78be574d-47b9-4aa1-a641-3c910d15e4e8,BRCA,tcga-a8-a079,69,0,NA,274,breast,stage iiib,t4b,n3,m0,female,2007,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,47.59.0
+TCGA-A8-A08G-01A-13-A21W-30,bd809835-7113-460b-ab90-7ee3a5e6b3da,BRCA,tcga-a8-a08g,41,0,NA,606,breast,stage iia,t2,n0,m0,female,2009,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,47.59.0
+TCGA-A8-A08Z-01A-12-A21V-30,cb9acd97-f942-4124-ab68-b00eb23ed15f,BRCA,tcga-a8-a08z,76,0,NA,1217,breast,stage iiib,t4b,n3a,m0,female,2004,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,47.59.0
+TCGA-A8-A09G-01A-41-A21W-30,c5876f52-95fe-4e30-9794-23a9e3626e32,BRCA,tcga-a8-a09g,79,0,NA,0,breast,stage iiic,t3,n3a,m0,female,2008,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,47.59.0
+TCGA-A8-A09I-01A-13-A21V-30,e510e0e2-cb89-46fc-a4a6-892a17647f49,BRCA,tcga-a8-a09i,84,0,NA,1006,breast,stage iia,t2,n0,m0,female,2008,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,56.54.0
+TCGA-AN-A04A-01A-31-A21W-30,8ed12a60-c75c-4805-813c-6510554bc9da,BRCA,tcga-an-a04a,36,0,NA,89,breast,stage iiia,t2,n2,m0,female,2008,NA,NA,infiltrating ductal carcinoma,yes,4,NA,NA,NA,56.54.0
+TCGA-AN-A0AJ-01A-22-A21W-30,c5a0bff7-0986-4899-9c76-136e6975b6c8,BRCA,tcga-an-a0aj,79,0,NA,243,breast,stage iib,t3,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,47.59.0
+TCGA-AN-A0AL-01A-22-A21W-30,41fd8a09-28e8-4354-a9c0-9d7f8e7f5e77,BRCA,tcga-an-a0al,41,0,NA,197,breast,stage iiib,t4,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,47.59.0
+TCGA-AN-A0AM-01A-22-A21W-30,21e7061f-3956-42e8-83d4-3405c8b872a8,BRCA,tcga-an-a0am,56,0,NA,5,breast,stage iia,t2,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,56.54.0
+TCGA-AN-A0AS-01A-22-A21W-30,fd3fcba8-e1f0-4da0-b8e9-c5b4184d2276,BRCA,tcga-an-a0as,70,0,NA,9,breast,stage iiia,t2,n2,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,4,NA,NA,NA,47.59.0
+TCGA-AN-A0FK-01A-22-A21W-30,a549e82c-436e-498c-8f7a-09f4d0987cf4,BRCA,tcga-an-a0fk,88,0,NA,212,breast,stage iiib,t4,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,56.54.0
+TCGA-AN-A0FL-01A-12-A21V-30,4278a6c5-46c0-4a56-9dc3-0be5a704592c,BRCA,tcga-an-a0fl,62,0,NA,230,breast,stage iia,t2,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,56.54.0
+TCGA-AO-A03O-01A-41-A21V-30,489780c2-836c-4cd9-b445-48cf1e4eeea4,BRCA,tcga-ao-a03o,69,1,2483,NA,breast,stage iia,t2,n0 (i-),m0,female,2002,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,47.59.0
+TCGA-AO-A0J6-01A-22-A21W-30,c24d8cdf-ef6f-427e-af01-3f77b8534f3b,BRCA,tcga-ao-a0j6,61,0,NA,1140,breast,stage iia,t2,n0 (i-),m0,female,2008,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,56.54.0
+TCGA-AO-A0J9-01A-41-A21V-30,41e10a2d-308e-4e4a-b942-db41175320b2,BRCA,tcga-ao-a0j9,61,0,NA,1612,breast,stage iiic,t2,n3,m0,female,2007,NA,NA,infiltrating lobular carcinoma,no,15,NA,NA,NA,56.54.0
+TCGA-AO-A0JC-01A-41-A21V-30,2181df52-4587-4243-9763-a530b2bd5331,BRCA,tcga-ao-a0jc,64,0,NA,1547,breast,stage iia,t2,n0 (i-),m0,female,2006,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,61.51.0
+TCGA-AO-A0JE-01A-41-A21V-30,338b6115-5b84-407a-b192-d159d0911ecb,BRCA,tcga-ao-a0je,53,0,NA,2334,breast,stage iiia,t2,n2a,m0,female,2005,NA,NA,infiltrating ductal carcinoma,no,8,NA,NA,NA,61.51.0
+TCGA-AO-A0JJ-01A-31-A21W-30,5d291c2e-c994-4eb9-a41f-a5b2aea5e2f3,BRCA,tcga-ao-a0jj,54,0,NA,1887,breast,stage iib,t2,n1a,m0,female,2006,NA,NA,infiltrating lobular carcinoma,no,2,NA,NA,NA,61.51.0
+TCGA-AO-A0JL-01A-41-A21W-30,5b9a3a9b-6b61-4f0a-a128-7d7f2128f281,BRCA,tcga-ao-a0jl,59,0,NA,1683,breast,stage iiia,t2,n2a,m0,female,2006,NA,NA,infiltrating ductal carcinoma,no,7,NA,NA,NA,61.51.0
+TCGA-AO-A0JM-01A-41-A21V-30,9b0c316a-bf62-48a2-8150-0d62cfbf64a2,BRCA,tcga-ao-a0jm,40,0,NA,2184,breast,stage iib,t2,n1,m0,female,2005,NA,NA,infiltrating ductal carcinoma,no,2,NA,NA,NA,61.51.0
+TCGA-AO-A126-01A-22-A21W-30,e91b5eb5-c01a-49db-9586-bb7dd70e6709,BRCA,tcga-ao-a126,39,0,NA,2850,breast,stage iia,t2,n0 (i-),m0,female,2002,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,80.46.0
+TCGA-AO-A12B-01A-41-A21V-30,93587313-7662-4387-b0fe-f2540e326f40,BRCA,tcga-ao-a12b,63,0,NA,2359,breast,stage iia,t2,n0 (i-),m0,female,2004,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,80.46.0
+TCGA-AO-A12D-01A-41-A21V-30,1dc52613-0c9c-4107-a800-6cf8a5dbc1d7,BRCA,tcga-ao-a12d,43,0,NA,1948,breast,stage iia,t1c,n1a,m0,female,2005,NA,NA,infiltrating ductal carcinoma,no,1,NA,NA,NA,85.47.0
+TCGA-AO-A12E-01A-41-A21V-30,5d139e82-d73d-4218-a0ec-fe0d524eb6cd,BRCA,tcga-ao-a12e,51,0,NA,1742,breast,stage iib,t3,n0 (i+),m0,female,2005,NA,NA,infiltrating lobular carcinoma,no,0,NA,NA,NA,80.46.0
+TCGA-AO-A12F-01A-41-A21V-30,c83266b5-4646-4276-ae08-8377dd167c10,BRCA,tcga-ao-a12f,36,0,NA,1471,breast,stage iia,t2,n0 (i-),m0,female,2006,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,85.47.0
+TCGA-AR-A0TR-01A-41-A21V-30,8983ee38-2f15-4a7d-a223-0f406154d971,BRCA,tcga-ar-a0tr,68,1,160,NA,breast,stage iib,t2,n1,m0,female,2006,NA,NA,infiltrating ductal carcinoma,yes,1,NA,NA,NA,72.53.0
+TCGA-AR-A0TT-01A-22-A21V-30,fe8ca21c-42b7-42e5-94d7-ad39e084a6f5,BRCA,tcga-ar-a0tt,53,0,NA,1679,breast,stage iiia,t2,n2,m0,female,2006,1730,NA,infiltrating ductal carcinoma,no,5,NA,NA,NA,72.53.0
+TCGA-AR-A0TV-01A-41-A21V-30,4e42e4aa-1d19-41b6-95f1-afab054484f4,BRCA,tcga-ar-a0tv,66,0,NA,904,breast,stage iia,t2,n0,m0,female,2005,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,72.53.0
+TCGA-AR-A0TX-01A-41-A21V-30,333cf9a4-c98d-4615-be6b-bface9870ce2,BRCA,tcga-ar-a0tx,64,0,NA,1972,breast,stage iia,t1,n1,m0,female,2005,NA,NA,infiltrating ductal carcinoma,yes,3,NA,NA,NA,72.53.0
+TCGA-AR-A0TY-01A-22-A21W-30,2c608e65-005c-4d0f-821b-0ea655ccadf9,BRCA,tcga-ar-a0ty,54,1,1699,NA,breast,stage iia,t2,n0,m0,female,2004,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,85.47.0
+TCGA-AR-A0U4-01A-22-A21V-30,d2056664-a1cf-4687-b849-b79e62cc5a1d,BRCA,tcga-ar-a0u4,54,0,NA,1684,breast,stage iia,t2,n0,m0,female,2006,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,74.51.0
+TCGA-AR-A1AP-01A-22-A21W-30,db0a65f7-6823-48ee-b93f-8bf0e5b51d20,BRCA,tcga-ar-a1ap,80,0,NA,1215,breast,stage i,t1,n0,m0,female,2007,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,96.41.0
+TCGA-AR-A1AQ-01A-12-A21W-30,69e5b689-1230-4493-a735-affbaeb25a68,BRCA,tcga-ar-a1aq,49,0,NA,1309,breast,stage iia,t2,n0,m0,female,2007,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,96.41.0
+TCGA-AR-A1AS-01A-41-A21W-30,f81fe10a-9216-407e-8f89-353ebed0ae0e,BRCA,tcga-ar-a1as,54,0,NA,1242,breast,stage iib,t2,n1,m0,female,2007,NA,NA,infiltrating ductal carcinoma,no,1,NA,NA,NA,96.41.0
+TCGA-AR-A1AV-01A-41-A21V-30,dfad944c-f5c0-4abb-bfeb-42fb15387105,BRCA,tcga-ar-a1av,68,0,NA,1295,breast,stage iib,t2,n1,m0,male,2007,NA,NA,infiltrating ductal carcinoma,no,1,NA,NA,NA,96.41.0
+TCGA-AR-A1AW-01A-41-A21V-30,0f604d99-83b7-49ce-af7a-686ae84884b0,BRCA,tcga-ar-a1aw,65,0,NA,1072,breast,stage iia,t2,n0,m0,female,2007,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,96.41.0
+TCGA-BH-A0AV-01A-32-A21V-30,15f6637a-b3fd-4827-9d26-c50b7b4dde21,BRCA,tcga-bh-a0av,52,0,NA,1180,breast,stage i,t1c,n0,m0,female,2008,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,85.47.0
+TCGA-BH-A0BV-01A-41-A21V-30,dc28b832-ffda-445d-b37c-4139e91e7b6d,BRCA,tcga-bh-a0bv,78,0,NA,1519,breast,stage iib,t2,n1a,m0,female,2006,NA,NA,infiltrating ductal carcinoma,yes,2,NA,NA,NA,47.59.0
+TCGA-BH-A0BZ-01A-41-A21V-30,f1769c73-24cd-441f-b783-4c2c391d67d5,BRCA,tcga-bh-a0bz,59,0,NA,1492,breast,stage iiia,t3,n1a,m0,female,2007,NA,NA,infiltrating ductal carcinoma,yes,1,NA,NA,NA,96.41.0
+TCGA-BH-A0C0-01A-23-A21V-30,d3273609-a250-4365-a36f-178e45b35a32,BRCA,tcga-bh-a0c0,62,0,NA,1270,breast,stage iia,t1c,n1a,m0,female,2007,NA,NA,infiltrating ductal carcinoma,no,1,NA,NA,NA,61.51.0
+TCGA-BH-A0C1-01A-41-A21W-30,192b3b04-b471-4093-90ba-53eb2d050654,BRCA,tcga-bh-a0c1,61,0,NA,1338,breast,stage iiia,t3,n2a,m0,female,2007,NA,NA,infiltrating lobular carcinoma,yes,8,NA,NA,NA,93.48.0
+TCGA-BH-A0C7-01A-31-A21V-30,6f4e2ba5-55ff-4d87-aacf-4a0080fcc24e,BRCA,tcga-bh-a0c7,48,0,NA,1305,breast,stage iib,t2,n1mi,m0,female,2006,NA,NA,infiltrating ductal carcinoma,yes,1,NA,NA,NA,85.47.0
+TCGA-BH-A0DD-01A-41-A21V-30,72fa5d39-4619-4c9d-8e36-8289ffee342a,BRCA,tcga-bh-a0dd,58,0,NA,1393,breast,stage iib,t2,n1a,m0,male,2006,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,96.41.0
+TCGA-BH-A0DG-01A-41-A21V-30,493b2e40-0c24-4a66-8e96-afc083f9d36c,BRCA,tcga-bh-a0dg,30,0,NA,713,breast,stage iia,t2,n0,m0,female,2007,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,96.41.0
+TCGA-BH-A0E0-01A-41-A21V-30,e30132f8-2c1b-48ec-8b36-823adb677f09,BRCA,tcga-bh-a0e0,38,0,NA,133,breast,stage iiic,t3,n3a,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,10,NA,NA,NA,61.51.0
+TCGA-BH-A0E1-01A-41-A21V-30,248d3774-ea4c-49e1-ba9e-fd010dc60978,BRCA,tcga-bh-a0e1,52,0,NA,477,breast,stage iib,t2,n1,m0,female,2009,NA,NA,infiltrating ductal carcinoma,yes,2,NA,NA,NA,61.51.0
+TCGA-BH-A0E9-01B-22-A21V-30,94ea3682-28b6-429a-82d9-e6a8ff8a916d,BRCA,tcga-bh-a0e9,53,0,NA,1405,breast,stage iib,t2,n1a,m0,female,2006,NA,NA,infiltrating lobular carcinoma,yes,3,NA,NA,NA,85.47.0
+TCGA-BH-A0EE-01A-41-A21V-30,7453d513-5147-42d5-87eb-e03d59df7473,BRCA,tcga-bh-a0ee,68,0,NA,943,breast,stage iib,t3,n0 (i-),m0,female,2007,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,56.54.0
+TCGA-BH-A0HK-01A-41-A21V-30,70caf3d1-5b33-4cd1-98b8-84f5b13a5660,BRCA,tcga-bh-a0hk,81,0,NA,178,breast,stage iib,t2,n1,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,2,NA,NA,NA,61.51.0
+TCGA-BH-A0HP-01A-41-A21V-30,bbe74060-4b95-41e9-940e-0162cc77b4c7,BRCA,tcga-bh-a0hp,65,0,NA,414,breast,stage iiia,t3,n2a,m0,female,2009,NA,NA,infiltrating lobular carcinoma,no,8,NA,NA,NA,72.53.0
+TCGA-BH-A18N-01A-41-A21V-30,07a4c1ab-e54d-46df-9c58-22c32c721331,BRCA,tcga-bh-a18n,88,1,1148,NA,breast,stage iia,t2,n1b,m0,female,2001,NA,NA,infiltrating ductal carcinoma,yes,2,NA,NA,NA,93.48.0
+TCGA-BH-A18Q-01A-41-A21W-30,5188e257-2542-42de-ab8f-d1011aa35509,BRCA,tcga-bh-a18q,56,1,1692,NA,breast,stage iib,t2,n1b,m0,female,2001,NA,NA,infiltrating ductal carcinoma,yes,2,NA,NA,NA,93.48.0
+TCGA-BH-A18R-01A-22-A21W-30,1f488298-c8f4-47c2-aa01-77f373f19e93,BRCA,tcga-bh-a18r,50,1,1141,NA,breast,stage iia,t2b,n1,m0,female,2001,NA,NA,infiltrating ductal carcinoma,yes,10,NA,NA,NA,93.48.0
+TCGA-BH-A18U-01A-61-A21W-30,cfc472b6-06f4-43f5-ac30-794cfd4c6400,BRCA,tcga-bh-a18u,72,1,1563,NA,breast,stage iiia,t2,n2a,m0,female,2003,NA,NA,infiltrating ductal carcinoma,yes,9,NA,NA,NA,93.48.0
+TCGA-BH-A18V-01A-31-A21W-30,dcccd933-c9a8-4584-bb63-6779020f1b09,BRCA,tcga-bh-a18v,48,1,1555,NA,breast,stage iib,t2,n1b,m0,female,2001,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,93.48.0
+TCGA-C8-A12L-01A-41-A21V-30,44daa2b1-5b90-4430-8466-648ebbaab29f,BRCA,tcga-c8-a12l,67,0,NA,0,breast,stage iia,t2,n0 (i-),m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.47.0
+TCGA-C8-A12P-01A-22-A21W-30,b800d5b1-4e19-4ea2-bd4f-6a1536f0f4d2,BRCA,tcga-c8-a12p,55,0,NA,0,breast,stage iib,t2,n1,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.47.0
+TCGA-C8-A12Q-01A-51-A21V-30,115d61f2-ce48-4beb-9aa3-611a24a65676,BRCA,tcga-c8-a12q,78,1,395,0,breast,stage iiia,t1,n2,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.47.0
+TCGA-C8-A12T-01A-41-A21V-30,e8b7ec10-4f67-41f5-a418-0ef440c0a626,BRCA,tcga-c8-a12t,43,0,NA,0,breast,stage iia,t2,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,85.47.0
+TCGA-C8-A12U-01A-41-A21V-30,01f3c352-47f7-410e-9cf4-887a03dafaba,BRCA,tcga-c8-a12u,46,0,NA,0,breast,stage iib,t2,n1,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.47.0
+TCGA-C8-A12V-01A-41-A21V-30,f408e844-2235-4b1c-af4b-455f1d6dcdd3,BRCA,tcga-c8-a12v,55,0,NA,0,breast,stage iia,t2,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.47.0
+TCGA-C8-A12W-01A-41-A21V-30,c0319217-7bb8-467c-9764-29c657ec5f10,BRCA,tcga-c8-a12w,49,0,NA,0,breast,stage iiib,t4,n1,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.47.0
+TCGA-C8-A12Z-01A-41-A21V-30,26c6d77f-b2d2-4b3d-b3de-e4ba833043fc,BRCA,tcga-c8-a12z,45,0,NA,0,breast,stage iib,t2,n1,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.47.0
+TCGA-C8-A130-01A-41-A21V-30,28e062f4-e9e6-468b-bf72-ba973b111ccb,BRCA,tcga-c8-a130,52,0,NA,0,breast,stage iiia,t3,n2,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.47.0
+TCGA-C8-A131-01A-41-A21V-30,b913c159-cdee-4e24-83b9-6684ac99dc92,BRCA,tcga-c8-a131,82,0,NA,0,breast,stage iiia,t2,n2,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,4,NA,NA,NA,85.47.0
+TCGA-C8-A134-01A-41-A21V-30,84ee7a53-edcf-4a56-af7f-a31aaff61489,BRCA,tcga-c8-a134,52,0,NA,0,breast,stage iia,t2,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.37.0
+TCGA-C8-A135-01A-41-A21V-30,415018e1-e65e-4c55-be91-1b52165535fa,BRCA,tcga-c8-a135,64,0,NA,0,breast,stage iib,t2,n1,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,1,NA,NA,NA,85.47.0
+TCGA-C8-A138-01A-14-A21W-30,035adbba-464a-4569-9e07-8b6a6bd12407,BRCA,tcga-c8-a138,54,0,NA,7,breast,stage iiia,t2,n2,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,NA,NA,NA,NA,85.47.0
+TCGA-D8-A13Y-01A-22-A21W-30,f5fe61a7-da12-4f88-937a-19b3225913c2,BRCA,tcga-d8-a13y,52,0,NA,362,breast,stage ia,t1c,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,85.47.0
+TCGA-D8-A142-01A-41-A21V-30,38e95741-c1b6-4596-9a4a-e84fcbddaef5,BRCA,tcga-d8-a142,74,0,NA,425,breast,stage iib,t3,n0,m0,female,2010,NA,NA,infiltrating ductal carcinoma,yes,0,NA,NA,NA,85.47.0
+TCGA-E2-A10A-01A-12-A21V-30,24849b11-846f-4474-bec8-bec940952402,BRCA,tcga-e2-a10a,41,0,NA,1229,breast,stage iib,t3,n0 (i-),m0,female,2007,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,85.47.0
+TCGA-E2-A150-01A-12-A21W-30,76c97e4b-b204-40b5-ad8c-a846024237fa,BRCA,tcga-e2-a150,48,0,NA,773,breast,stage iia,t2,n0,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,93.48.0
+TCGA-E2-A154-01A-41-A21V-30,7dc5dc2f-ee63-4a02-bf6d-950b8a913082,BRCA,tcga-e2-a154,68,0,NA,591,breast,stage i,t1c,n0,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,85.47.0
+TCGA-E2-A158-01A-31-A21W-30,b1864b5a-73a3-42f7-b079-30fd70ec3136,BRCA,tcga-e2-a158,43,0,NA,450,breast,stage iia,t1c,n1mi,m0,female,2009,NA,NA,infiltrating ductal carcinoma,yes,1,NA,NA,NA,93.48.0
+TCGA-E2-A159-01A-12-A21W-30,76178852-85bc-41af-ab3e-859c0d20ba78,BRCA,tcga-e2-a159,50,0,NA,762,breast,stage iia,t2,n0,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,0,NA,NA,NA,85.47.0
+TCGA-E2-A15A-01A-41-A21W-30,afcabd97-235b-4430-908a-761f5debe160,BRCA,tcga-e2-a15a,45,0,NA,710,breast,stage iiic,t2,n3a,m0,female,2009,NA,NA,infiltrating ductal carcinoma,no,13,NA,NA,NA,93.48.0

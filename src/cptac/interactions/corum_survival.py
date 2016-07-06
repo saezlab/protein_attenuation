@@ -22,11 +22,11 @@ uniprot = read_uniprot_genename()
 corum = get_complexes_dict()
 corum = {k: {uniprot[i][0] for i in v if i in uniprot} for k, v in corum.items()}
 
-# protein complexes scores
-p_activity = read_csv('%s/tables/protein_activity.csv' % wd, index_col=0)
-p_activity = p_activity[p_activity.count(1) > (p_activity.shape[1] * .25)]
-samples = {'-'.join(i.split('-')[:4])[:-1].upper() for i in p_activity}
-print p_activity
+# normalised pancan proteomics
+pancan = read_csv('%s/tables/pancan_normalised.csv' % wd, index_col=0)
+pancan = pancan[pancan.count(1) > (pancan.shape[1] * .25)]
+samples = {'-'.join(i.split('-')[:4])[:-1].upper() for i in pancan}
+print pancan
 
 # Clinical data
 clinical = read_csv('%s/data/clinical_data.tsv' % wd, sep='\t', index_col=0).ix[samples, ['DAYS_TO_LAST_FOLLOWUP', 'VITAL_STATUS']]
@@ -43,14 +43,15 @@ def gmm_survival(c):
 
     # -- Residuals
     # Get protein measurements
-    scores = DataFrame(p_activity.ix[c].dropna().abs())
+    scores = DataFrame(pancan.ix[c].dropna())
 
     # -- GMM
-    gmm = GMM(n_components=2).fit(scores)
+    gmm = GMM(n_components=3).fit(scores)
 
     groups = {
         'low': gmm.means_.argmin(),
         'high': gmm.means_.argmax()
+
     }
 
     groups = {g: set(scores[gmm.predict(scores) == groups[g]].index) for g in groups}
@@ -112,7 +113,7 @@ def gmm_survival(c):
 
     return {'pval': np.nan}
 
-p_survival = DataFrame({c: gmm_survival(c) for c in p_activity.index}).T.dropna()
+p_survival = DataFrame({c: gmm_survival(c) for c in pancan.index}).T.dropna()
 p_survival['fdr'] = multipletests(p_survival['pval'], method='fdr_bh')[1]
 print p_survival.sort('fdr')
 
