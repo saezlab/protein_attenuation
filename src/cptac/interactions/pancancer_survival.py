@@ -4,57 +4,52 @@ import seaborn as sns
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from sklearn.mixture.gmm import GMM
-from cptac import wd
+from cptac import wd, palette_survival
 from lifelines import KaplanMeierFitter
 from matplotlib.gridspec import GridSpec
 from lifelines.statistics import logrank_test
 from pandas import DataFrame, Series, read_csv
 from pymist.utils.corumdb import get_complexes_dict
 from statsmodels.stats.multitest import multipletests
+from sklearn.covariance.outlier_detection import EllipticEnvelope
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
 
 # -- Imports
-# Uniprot
-uniprot = read_uniprot_genename()
+# clinical data
+clinical = read_csv('%s/data/clinical_data.tsv' % wd, sep='\t', index_col=0)
+clinical['VITAL_STATUS'] = [0 if i == 'Alive' else 1 for i in clinical['VITAL_STATUS']]
+clinical = clinical[clinical['DAYS_TO_LAST_FOLLOWUP'] > 1]
+print clinical
 
-# CORUM
-corum = get_complexes_dict()
-corum = {k: {uniprot[i][0] for i in v if i in uniprot} for k, v in corum.items()}
-
-# normalised pancan proteomics
-pancan = read_csv('%s/tables/pancan_normalised.csv' % wd, index_col=0)
-pancan = pancan[pancan.count(1) > (pancan.shape[1] * .25)]
-samples = {'-'.join(i.split('-')[:4])[:-1].upper() for i in pancan}
+# pancancer proteomics
+pancan = read_csv('%s/tables/pancan_preprocessed_normalised.csv' % wd, index_col=0)
+pancan = pancan[pancan.count(1) > (pancan.shape[1] * .5)]
+pancan = pancan.loc[:, ['-'.join(i.split('-')[:4])[:-1].upper() in clinical.index for i in pancan]]
 print pancan
 
-# Clinical data
-clinical = read_csv('%s/data/clinical_data.tsv' % wd, sep='\t', index_col=0).ix[samples, ['DAYS_TO_LAST_FOLLOWUP', 'VITAL_STATUS']]
-clinical['VITAL_STATUS'] = [0 if i == 'Alive' else 1 for i in clinical['VITAL_STATUS']]
-print clinical
+# Top correlated proteins
+pps = read_csv('%s/tables/top_correlated_protein_pairs.csv' % wd)
+print pps
 
 
 # --
-# p1, p2 = 'ACOT2', 'ACOT1'
+# p1, p2 = 'ACTR3', 'ACTR2'
 # c = 'SNARE complex (VAMP2, SNAP25, STX1a, STX3, CPLX1, CPLX3, CPLX4)'
 # c = 'ABCB8'
-def gmm_survival(c):
-    print c
+def gmm_survival(p1, p2):
+    name = '%s-%s' % (p1, p2)
+    print name
 
     # -- Residuals
     # Get protein measurements
-    scores = DataFrame(pancan.ix[c].dropna())
+    x = pancan.ix[[p1, p2]].T.dropna()[p1]
+    y = pancan.ix[[p1, p2]].T.dropna()[p2]
 
-    # -- GMM
-    gmm = GMM(n_components=3).fit(scores)
+    lm = sm.OLS(y, sm.add_constant(x)).fit()
 
-    groups = {
-        'low': gmm.means_.argmin(),
-        'high': gmm.means_.argmax()
-
-    }
-
-    groups = {g: set(scores[gmm.predict(scores) == groups[g]].index) for g in groups}
+    # -- Outliers
+    groups = {'low': set(lm.resid.ix[lm.resid.abs() <= 1].index), 'high': set(lm.resid.ix[lm.resid.abs() > 1.].index)}
     groups_ = {g: {'-'.join(i.split('-')[:4])[:-1].upper() for i in groups[g]} for g in groups}
 
     if len(groups['low']) > 1 and len(groups['high']) > 1:
@@ -65,10 +60,9 @@ def gmm_survival(c):
         )
 
         # -- Plot
-        if logrank.p_value < .001:
+        if logrank.p_value < .001 and len(groups['low']) > 5 and len(groups['high']) > 5:
             sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-            fig, gs = plt.figure(figsize=(7, 3)), GridSpec(1, 2, hspace=.3)
-            palette = {'high': '#2ecc71', 'neutral': '#808080', 'low': '#e74c3c'}
+            fig, gs = plt.figure(figsize=(10, 3)), GridSpec(1, 3, hspace=.3)
 
             # Survival curves
             ax = plt.subplot(gs[0])
@@ -76,7 +70,7 @@ def gmm_survival(c):
             kmf = KaplanMeierFitter()
             for g in groups:
                 kmf.fit(clinical.ix[groups_[g], 'DAYS_TO_LAST_FOLLOWUP'], event_observed=clinical.ix[groups_[g], 'VITAL_STATUS'], label=g)
-                kmf.plot(ax=ax, ci_force_lines=False, color=palette[g])
+                kmf.plot(ax=ax, ci_force_lines=False, color=palette_survival[g])
 
             ax.set_xlabel('Timeline (days)')
             ax.set_ylabel('Survival probability')
@@ -86,34 +80,33 @@ def gmm_survival(c):
             ax = plt.subplot(gs[1])
 
             for g in groups:
-                sns.distplot(scores.ix[groups[g]], color=palette[g], kde=False, ax=ax)
+                sns.distplot(lm.resid.ix[groups[g]], color=palette_survival[g], kde=False, ax=ax)
 
             sns.despine(ax=ax)
             ax.set_xlabel('Protein-pair residuals')
             ax.set_ylabel('Counts')
 
-            # # Scatter
-            # ax = plt.subplot(gs[2])
-            #
-            # for g in groups:
-            #     sns.regplot(x.ix[groups[g]], y.ix[groups[g]], ax=ax, label=g, color=palette[g], fit_reg=False)
-            #
-            # ax.axhline(0, ls='--', lw=0.1, c='black', alpha=.3)
-            # ax.axvline(0, ls='--', lw=0.1, c='black', alpha=.3)
-            # sns.despine(ax=ax)
+            # Scatter
+            ax = plt.subplot(gs[2])
+
+            for g in groups:
+                sns.regplot(x.ix[groups[g]], y.ix[groups[g]], ax=ax, label=g, color=palette_survival[g], fit_reg=False)
+
+            ax.axhline(0, ls='--', lw=0.1, c='black', alpha=.3)
+            ax.axvline(0, ls='--', lw=0.1, c='black', alpha=.3)
+            sns.despine(ax=ax)
 
             # Export
             # fig.suptitle('%s; p-value: %.2e' % (name, logrank.p_value))
-            plt.savefig('%s/reports/survival_complex_%s.pdf' % (wd, c.replace('/', '_')), bbox_inches='tight')
+            plt.savefig('%s/reports/survival_complex_%s.pdf' % (wd, name), bbox_inches='tight')
             plt.close('all')
+            print 'interaction: %s; p-value: %.2e, samples: %d' % (name, logrank.p_value, len(lm.resid))
 
-            print 'interaction: %s; p-value: %.2e, samples: %d' % (c, logrank.p_value, len(c))
-
-        return {'pval': logrank.p_value}
+        return {'pval': logrank.p_value, 'low': len(groups['low']), 'high': len(groups['high'])}
 
     return {'pval': np.nan}
 
-p_survival = DataFrame({c: gmm_survival(c) for c in pancan.index}).T.dropna()
+p_survival = DataFrame({'%s - %s' % (p1, p2): gmm_survival(p1, p2) for p1, p2 in pps[['p1', 'p2']].values}).T.dropna()
 p_survival['fdr'] = multipletests(p_survival['pval'], method='fdr_bh')[1]
 print p_survival.sort('fdr')
 
