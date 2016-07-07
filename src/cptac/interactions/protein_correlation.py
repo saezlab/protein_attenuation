@@ -72,5 +72,5 @@ print '[INFO] Done'
 
 
 # -- Export top correlated protein pairs
-df[df['score'] > .5].to_csv('%s/tables/top_correlated_protein_pairs.csv' % wd, index=False)
+df[df['score'] > .4].to_csv('%s/tables/top_correlated_protein_pairs.csv' % wd, index=False)
 print '[INFO] Exported'

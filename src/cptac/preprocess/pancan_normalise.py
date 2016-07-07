@@ -29,7 +29,7 @@ samplesheet = concat([
     DataFrame(zip(*(list(coread), np.repeat('COREAD', len(list(coread))))), columns=['code', 'type']),
     DataFrame(zip(*(list(hgsc), np.repeat('HGSC', len(list(hgsc))))), columns=['code', 'type'])
 ]).set_index('code')
-samplesheet.to_csv('%s/tables/samplesheet.csv' % wd, index=False)
+samplesheet.to_csv('%s/tables/samplesheet.csv' % wd)
 
 # Concatenate all
 pancan = concat([brca, hgsc, coread], axis=1)
