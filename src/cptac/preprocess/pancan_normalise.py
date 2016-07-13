@@ -108,7 +108,7 @@ def rm_batch(x, y, covariates=['brca', 'coread', 'hgsc', 'female', 'male', 'age'
     return ys - xs.dot(lm.coef_) - lm.intercept_
 
 pancan = DataFrame({p: rm_batch(design, pancan.ix[p, design.index]) for p in pancan.index}).T
-print pancan
+print '[INFO] Covariates regressed-out'
 
 
 # -- PCA

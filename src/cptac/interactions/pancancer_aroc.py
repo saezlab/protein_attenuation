@@ -33,6 +33,12 @@ biogrid = get_biogriddb()
 biogrid = {(s, t) for p1, p2 in biogrid for s, t in [(p1, p2), (p2, p1)]}
 print len(biogrid)
 
+# Omnipath
+omnipath = read_csv('%s/files/omnipathdb.txt' % wd, sep='\t')
+omnipath = {(uniprot[s][0], uniprot[t][0]) for s, t in omnipath[['source', 'target']].values if s in uniprot and t in uniprot}
+print len(omnipath)
+
+
 # Proteomics
 brca = read_csv('%s/tables/brca_proteomics_processed.csv' % wd, index_col=0)
 brca = brca[brca.count(1) > (brca.shape[1] * .5)]
@@ -61,12 +67,13 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Pancanc
     df['CORUM'] = [1 if ((p1, p2) in corum) else 0 for p1, p2 in df[['p1', 'p2']].values]
     df['STRING'] = [1 if ((p1, p2) in string) else 0 for p1, p2 in df[['p1', 'p2']].values]
     df['BioGRID'] = [1 if ((p1, p2) in biogrid) else 0 for p1, p2 in df[['p1', 'p2']].values]
+    df['OmniPath'] = [1 if ((p1, p2) in omnipath) else 0 for p1, p2 in df[['p1', 'p2']].values]
 
     df['score'] = df['cor'].abs()
     print df
 
     cor_res[name] = {}
-    for db in ['CORUM', 'STRING', 'BioGRID']:
+    for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
         curve_fpr, curve_tpr, _ = roc_curve(df[db], df['score'])
         cor_res[name][db] = (curve_fpr, curve_tpr)
 
@@ -75,9 +82,9 @@ print '[INFO] Done'
 
 # -- Plot
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-fig, gs, pos = plt.figure(figsize=(7, 3)), GridSpec(1, 3, hspace=.3, wspace=.3), 0
+fig, gs, pos = plt.figure(figsize=(12, 3)), GridSpec(1, 4, hspace=.3, wspace=.3), 0
 
-for db in ['CORUM', 'STRING', 'BioGRID']:
+for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
     ax = plt.subplot(gs[pos])
 
     for name in ['BRCA', 'COREAD', 'HGSC', 'Pancancer']:
@@ -93,7 +100,6 @@ for db in ['CORUM', 'STRING', 'BioGRID']:
 
     pos += 1
 
-plt.gcf().set_size_inches(9, 3)
 plt.savefig('%s/reports/pancan_aroc.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'

@@ -5,8 +5,8 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from sklearn.mixture.gmm import GMM
 from cptac import wd, palette_survival
-from lifelines import KaplanMeierFitter
 from matplotlib.gridspec import GridSpec
+from lifelines import KaplanMeierFitter
 from lifelines.statistics import logrank_test
 from pandas import DataFrame, Series, read_csv
 from pymist.utils.corumdb import get_complexes_dict
