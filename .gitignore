@@ -65,4 +65,7 @@ target/
 .DS_Store
 tables/tcga_genomics.csv
 .idea
+<<<<<<< HEAD
 data/tcga_rnaseq.tsv
+=======
+>>>>>>> 10cc787277907998e441687d3fb1d02d4335f2e4

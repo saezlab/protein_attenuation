@@ -2,90 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b4999b72-a3b7-439a-b83d-768b712d0e1d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_CLIC2-BIN2.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_COL1A2-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_COL1A2-CILP.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_COL3A1-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_COL5A2-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_CP-COL6A1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_CTHRC1-ANG.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_DPT-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_DPYSL3-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_F2-CNRIP1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_FABP4-ADH1B.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_FCGR2A-C1QA.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_FCGR3A-C1QA.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_FILIP1L-CTSK.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_FKBP7-FBLN1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_FLNC-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_GPD1-ADH1B.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_GPX3-FMOD.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_HLA-DRA-HLA-DMA.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_HSPA12B-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_HSPG2-CNRIP1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_IDO1-GBP4.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_ISLR-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_ISLR-FN1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_ITIH2-C8A.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_ITIH3-F9.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_KANK2-HSPA12B.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_KNG1-ENG.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_LAMC2-LAMA3.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_LRP1-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_LUM-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_MFAP2-FBLN2.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_MRC2-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_NID2-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_NT5E-MXRA5.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_OGN-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PALLD-COL11A1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PALM2-AKAP2-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PDLIM7-MMP2.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PHLDB1-HSPA12B.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PLEK-COTL1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PODN-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PODN-CILP.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PPP1R12B-OLFML1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PRELP-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PTPN6-ELMO1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_PWP2-HEATR1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_RAI14-EFEMP2.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_RSU1-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SEPT11-HSPA12B.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SEPT11-MYLK.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SERPINB9-ELMO1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SERPING1-COL6A2.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SF3A3-HEATR1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SGCD-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SGCD-MFAP4.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SH3D19-NT5E.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SMOC2-ASPN.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SNRNP70-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SOD3-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_SOD3-HSPA12B.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TAGLN-FAP.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TGFB1I1-COMP.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TGFB1I1-FBLN1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TGFB1I1-LEPREL2.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_THBS2-MMP11.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_THBS2-TGFB1I1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TIMP2-PLAU.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TIMP3-FBLN1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TIMP3-FN1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TLN2-CXCL12.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TNC-PLAU.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TPM1-FBLN1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_TPM1-TIMP3.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_VCAN-CNRIP1.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_VTN-FGG.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_complex_WAS-C1QA.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/interactions/pair_residuals.py" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/pancan_aroc.pdf" afterPath="$PROJECT_DIR$/reports/pancan_aroc.pdf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/__init__.py" afterPath="$PROJECT_DIR$/src/cptac/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/pancancer_aroc.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/pancancer_aroc.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/tcga_cnv.tsv" afterPath="$PROJECT_DIR$/data/tcga_cnv.tsv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
     </list>
     <ignored path="cptac.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -109,8 +26,8 @@
       <file leaf-file-name="protein_residuals.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/cptac/interactions/protein_residuals.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.25482625">
-              <caret line="22" column="7" selection-start-line="22" selection-start-column="7" selection-end-line="22" selection-end-column="7" />
+            <state vertical-scroll-proportion="0.93050194">
+              <caret line="192" column="0" selection-start-line="192" selection-start-column="0" selection-end-line="192" selection-end-column="0" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -900,8 +817,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cptac/interactions/protein_residuals.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.25482625">
-          <caret line="22" column="7" selection-start-line="22" selection-start-column="7" selection-end-line="22" selection-end-column="7" />
+        <state vertical-scroll-proportion="0.93050194">
+          <caret line="192" column="0" selection-start-line="192" selection-start-column="0" selection-end-line="192" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
