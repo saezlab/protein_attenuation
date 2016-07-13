@@ -63,3 +63,6 @@ target/
 
 # Custom
 .DS_Store
+tables/tcga_genomics.csv
+.idea
+data/tcga_rnaseq.tsv

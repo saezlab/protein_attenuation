@@ -5,8 +5,8 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from sklearn.mixture.gmm import GMM
 from cptac import wd, palette_survival
-from lifelines import KaplanMeierFitter
 from matplotlib.gridspec import GridSpec
+from lifelines import KaplanMeierFitter
 from lifelines.statistics import logrank_test
 from pandas import DataFrame, Series, read_csv
 from pymist.utils.corumdb import get_complexes_dict
@@ -60,7 +60,7 @@ def gmm_survival(p1, p2):
         )
 
         # -- Plot
-        if logrank.p_value < .001 and len(groups['low']) > 5 and len(groups['high']) > 5:
+        if logrank.p_value < .001 and len(groups['low']) >= 5 and len(groups['high']) >= 5:
             sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
             fig, gs = plt.figure(figsize=(10, 3)), GridSpec(1, 3, hspace=.3)
 

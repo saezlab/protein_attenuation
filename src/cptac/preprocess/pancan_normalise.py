@@ -29,7 +29,7 @@ samplesheet = concat([
     DataFrame(zip(*(list(coread), np.repeat('COREAD', len(list(coread))))), columns=['code', 'type']),
     DataFrame(zip(*(list(hgsc), np.repeat('HGSC', len(list(hgsc))))), columns=['code', 'type'])
 ]).set_index('code')
-samplesheet.to_csv('%s/tables/samplesheet.csv' % wd, index=False)
+samplesheet.to_csv('%s/tables/samplesheet.csv' % wd)
 
 # Concatenate all
 pancan = concat([brca, hgsc, coread], axis=1)
@@ -108,7 +108,7 @@ def rm_batch(x, y, covariates=['brca', 'coread', 'hgsc', 'female', 'male', 'age'
     return ys - xs.dot(lm.coef_) - lm.intercept_
 
 pancan = DataFrame({p: rm_batch(design, pancan.ix[p, design.index]) for p in pancan.index}).T
-print pancan
+print '[INFO] Covariates regressed-out'
 
 
 # -- PCA
