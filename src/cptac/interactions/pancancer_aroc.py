@@ -81,7 +81,7 @@ print '[INFO] Done'
 
 # -- Plot
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-fig, gs, pos = plt.figure(figsize=(12, 3)), GridSpec(1, 4, hspace=.3, wspace=.3), 0
+fig, gs, pos = plt.figure(figsize=(13, 3)), GridSpec(1, 4, hspace=.3, wspace=.3), 0
 
 for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
     ax = plt.subplot(gs[pos])

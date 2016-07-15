@@ -36,7 +36,7 @@ string = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in string for s, t in [(p1, 
 print len(string)
 
 # Intersection
-p_pairs = corum.union(string)
+p_pairs = corum.intersection(string)
 print len(p_pairs)
 
 # -- CNV
@@ -48,10 +48,15 @@ cnv_dict = cnv.to_dict()
 print cnv
 
 # -- Proteomics
-proteomics = read_csv('%s/data/pancan_preprocessed_normalised.csv' % wd, index_col=0)
-proteomics = proteomics[proteomics.count(1) > (proteomics.shape[1] * .5)]
+proteomics = read_csv('%s/data/pancan_preprocessed_normalised_imputed.csv' % wd, index_col=0).dropna()
+# proteomics = proteomics[proteomics.count(1) > (proteomics.shape[1] * .5)]
 annot = read_csv('%s/data/samplesheet.csv' % wd, index_col=0)
 print proteomics
+
+#
+proteomics_n = read_csv('%s/data/pancan_preprocessed_normalised.csv' % wd, index_col=0).dropna()
+proteomics_n = proteomics_n[proteomics_n.count(1) > (proteomics_n.shape[1] * .5)]
+print proteomics_n
 
 # -- Gexp
 transcriptomics = read_csv('%s/data/tcga_rnaseq.tsv' % wd, sep='\t', index_col=0)
@@ -109,16 +114,16 @@ print list(design)
 # p = 'LAMB1'
 p_residuals, p_predicted, p_lm = {}, {}, {}
 for p in network_i.vs['name']:
-    if p in pancan.index:
-    # if p in proteomics.index:
+    # if p in pancan.index:
+    if p in proteomics.index:
         c_proteins = set(network_i.vs[network_i.neighborhood(p)]['name']).difference({p}).intersection(pancan.index)
 
         if len(c_proteins) > 0:
-            y = pancan.ix[p].dropna()
-            # y = proteomics.ix[p].dropna()
+            # y = pancan.ix[p].dropna()
+            y = proteomics.ix[p].dropna()
 
-            x = concat([pancan.ix[c_proteins].T, design], axis=1).ix[y.index].dropna()
-            # x = sm.add_constant(proteomics.ix[c_proteins, y.index].T).dropna()
+            # x = concat([pancan.ix[c_proteins].T, design], axis=1).ix[y.index].dropna()
+            x = sm.add_constant(proteomics.ix[c_proteins, y.index].T).dropna()
 
             if len(x) > 0:
                 y = y.ix[x.index]
@@ -200,12 +205,13 @@ print p_residuals
 plot_df = DataFrame([])
 for n, df in [
     ('residuals', p_residuals),
-    ('predicted', p_predicted),
+    # ('predicted', p_predicted),
+    ('proteomics_n', proteomics_n),
     ('proteomics', proteomics.ix[p_residuals.index]),
     ('transcriptomics', transcriptomics.ix[p_residuals.index].dropna())
 ]:
-    df_ = DataFrame({i: gkn(df.ix[i].dropna()).to_dict() for i in df.index}).T
-    # df_ = zscore(df.T).T
+    # df_ = DataFrame({i: gkn(df.ix[i].dropna()).to_dict() for i in df.index}).T
+    df_ = zscore(df.T).T
     df_ = df_.unstack().reset_index().dropna()
     df_.columns = ['barcode', 'protein', 'value']
     df_['type'] = n
