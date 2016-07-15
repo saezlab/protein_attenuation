@@ -26,7 +26,7 @@ genomics = genomics[[i in genomic_mod for i in genomics['type']]]
 print genomics
 
 # Overlap with proteomics samples
-samples = {i[:15] for i in set(read_csv('%s/tables/pancan_preprocessed_normalised.csv' % wd, index_col=0))}
+samples = {i[:15] for i in set(read_csv('%s/data/pancan_preprocessed_normalised.csv' % wd, index_col=0))}
 
 print len(set(genomics['Tumor_Sample_Barcode']).intersection(samples))
 

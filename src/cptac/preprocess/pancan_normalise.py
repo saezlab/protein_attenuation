@@ -19,9 +19,9 @@ clinical_gender = clinical.groupby('SAMPLE_brcID')['GENDER'].first().to_dict()
 clinical_age = clinical.groupby('SAMPLE_brcID')['AGE'].first().to_dict()
 
 # Proteomics
-brca = read_csv('%s/tables/brca_proteomics_processed.csv' % wd, index_col=0)
-coread = read_csv('%s/tables/coread_proteomics_processed.csv' % wd, index_col=0)
-hgsc = read_csv('%s/tables/hgsc_proteomics_processed.csv' % wd, index_col=0)
+brca = read_csv('%s/data/brca_proteomics_processed.csv' % wd, index_col=0)
+coread = read_csv('%s/data/coread_proteomics_processed.csv' % wd, index_col=0)
+hgsc = read_csv('%s/data/hgsc_proteomics_processed.csv' % wd, index_col=0)
 
 # Samplesheet
 samplesheet = concat([
@@ -29,11 +29,11 @@ samplesheet = concat([
     DataFrame(zip(*(list(coread), np.repeat('COREAD', len(list(coread))))), columns=['code', 'type']),
     DataFrame(zip(*(list(hgsc), np.repeat('HGSC', len(list(hgsc))))), columns=['code', 'type'])
 ]).set_index('code')
-samplesheet.to_csv('%s/tables/samplesheet.csv' % wd)
+samplesheet.to_csv('%s/data/samplesheet.csv' % wd)
 
 # Concatenate all
 pancan = concat([brca, hgsc, coread], axis=1)
-pancan.to_csv('%s/tables/pancan_preprocessed.csv' % wd)
+pancan.to_csv('%s/data/pancan_preprocessed.csv' % wd)
 print '[INFO] Exported'
 
 
@@ -158,5 +158,5 @@ print '[INFO] PCA after normalisation'
 
 
 # -- Export
-pancan.to_csv('%s/tables/pancan_preprocessed_normalised.csv' % wd)
+pancan.to_csv('%s/data/pancan_preprocessed_normalised.csv' % wd)
 print '[INFO] Exported'

@@ -50,5 +50,5 @@ for s_dir in ss.index:
     print s_dir
 
 psms = concat(psms, axis=1)
-psms.to_csv('%s/tables/pancan_proteomics_preprocessed_intensities.csv' % wd)
+psms.to_csv('%s/data/pancan_proteomics_preprocessed_intensities.csv' % wd)
 print psms

@@ -1,16 +1,13 @@
 import igraph
-import itertools as it
 import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as plt
+import itertools as it
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
 from mtkirc.utils import gkn
 from pandas.stats.misc import zscore
 from cptac.utils import get_cancer_genes
-from matplotlib.gridspec import GridSpec
-from sklearn.metrics.ranking import roc_curve, auc
 from pymist.utils.stringdb import get_stringdb
-from pymist.utils.biogriddb import get_biogriddb
 from pymist.utils.corumdb import get_complexes_pairs
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 from pandas import read_csv, DataFrame, concat, Series, pivot_table
@@ -39,10 +36,8 @@ string = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in string for s, t in [(p1, 
 print len(string)
 
 # Intersection
-# p_pairs = corum.intersection(string)
-p_pairs = string
+p_pairs = corum.union(string)
 print len(p_pairs)
-
 
 # -- CNV
 cnv = read_csv('%s/data/tcga_cnv.tsv' % wd, sep='\t', index_col=0)
@@ -52,16 +47,18 @@ cnv_df = cnv.unstack().reset_index()
 cnv_dict = cnv.to_dict()
 print cnv
 
-# -- Gexp
-transcriptomics = read_csv('%s/data/tcga_rnaseq.tsv' % wd, sep='\t', index_col=0)
-print transcriptomics
-
 # -- Proteomics
-proteomics = read_csv('%s/tables/pancan_preprocessed_normalised.csv' % wd, index_col=0)
+proteomics = read_csv('%s/data/pancan_preprocessed_normalised.csv' % wd, index_col=0)
 proteomics = proteomics[proteomics.count(1) > (proteomics.shape[1] * .5)]
-annot = read_csv('%s/tables/samplesheet.csv' % wd, index_col=0)
+annot = read_csv('%s/data/samplesheet.csv' % wd, index_col=0)
 print proteomics
 
+# -- Gexp
+transcriptomics = read_csv('%s/data/tcga_rnaseq.tsv' % wd, sep='\t', index_col=0)
+transcriptomics_annot = Series({i: c for c in transcriptomics for i in annot.index if c[:16] == i[:16]})
+transcriptomics = transcriptomics[transcriptomics_annot.values]
+transcriptomics.columns = transcriptomics_annot.index
+print transcriptomics
 
 # -- Create network
 network_i = igraph.Graph(directed=False)
@@ -79,23 +76,14 @@ print network_i.summary()
 
 
 # -- Import proteomics
-brca = read_csv('%s/tables/brca_proteomics_processed.csv' % wd, index_col=0)
-coread = read_csv('%s/tables/coread_proteomics_processed.csv' % wd, index_col=0)
-hgsc = read_csv('%s/tables/hgsc_proteomics_processed.csv' % wd, index_col=0)
-
-# Samplesheet
-samplesheet = concat([
-    DataFrame(zip(*(list(brca), np.repeat('BRCA', len(list(brca))))), columns=['code', 'type']),
-    DataFrame(zip(*(list(coread), np.repeat('COREAD', len(list(coread))))), columns=['code', 'type']),
-    DataFrame(zip(*(list(hgsc), np.repeat('HGSC', len(list(hgsc))))), columns=['code', 'type'])
-]).set_index('code')
-samplesheet.to_csv('%s/tables/samplesheet.csv' % wd)
+brca = read_csv('%s/data/brca_proteomics_processed.csv' % wd, index_col=0)
+coread = read_csv('%s/data/coread_proteomics_processed.csv' % wd, index_col=0)
+hgsc = read_csv('%s/data/hgsc_proteomics_processed.csv' % wd, index_col=0)
 
 # Concatenate all
 pancan = concat([brca, hgsc, coread], axis=1)
 pancan = pancan[pancan.count(1) > (pancan.shape[1] * .5)]
 print pancan
-
 
 # -- Covariates
 # Clinical data
@@ -121,16 +109,16 @@ print list(design)
 # p = 'LAMB1'
 p_residuals, p_predicted, p_lm = {}, {}, {}
 for p in network_i.vs['name']:
-    # if p in pancan.index:
-    if p in proteomics.index:
+    if p in pancan.index:
+    # if p in proteomics.index:
         c_proteins = set(network_i.vs[network_i.neighborhood(p)]['name']).difference({p}).intersection(pancan.index)
 
         if len(c_proteins) > 0:
-            # y = pancan.ix[p].dropna()
-            y = proteomics.ix[p].dropna()
+            y = pancan.ix[p].dropna()
+            # y = proteomics.ix[p].dropna()
 
-            # x = concat([pancan.ix[c_proteins].T, design], axis=1).ix[y.index].dropna()
-            x = sm.add_constant(proteomics.ix[c_proteins, y.index].T).dropna()
+            x = concat([pancan.ix[c_proteins].T, design], axis=1).ix[y.index].dropna()
+            # x = sm.add_constant(proteomics.ix[c_proteins, y.index].T).dropna()
 
             if len(x) > 0:
                 y = y.ix[x.index]
@@ -144,6 +132,7 @@ for p in network_i.vs['name']:
 
 p_residuals = DataFrame(p_residuals).T
 p_predicted = DataFrame(p_predicted).T
+p_residuals.to_csv('%s/tables/protein_residuals.csv' % wd)
 print p_residuals
 
 # # --
@@ -209,7 +198,12 @@ print p_residuals
 
 # --
 plot_df = DataFrame([])
-for n, df in [('residuals', p_residuals), ('predicted', p_predicted), ('proteomics', proteomics.ix[p_residuals.index]), ('transcriptomics', transcriptomics.ix[p_residuals.index].dropna())]:
+for n, df in [
+    ('residuals', p_residuals),
+    ('predicted', p_predicted),
+    ('proteomics', proteomics.ix[p_residuals.index]),
+    ('transcriptomics', transcriptomics.ix[p_residuals.index].dropna())
+]:
     df_ = DataFrame({i: gkn(df.ix[i].dropna()).to_dict() for i in df.index}).T
     # df_ = zscore(df.T).T
     df_ = df_.unstack().reset_index().dropna()

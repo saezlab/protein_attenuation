@@ -40,20 +40,19 @@ print len(omnipath)
 
 
 # Proteomics
-brca = read_csv('%s/tables/brca_proteomics_processed.csv' % wd, index_col=0)
+brca = read_csv('%s/data/brca_proteomics_processed.csv' % wd, index_col=0)
 brca = brca[brca.count(1) > (brca.shape[1] * .5)]
 
-hgsc = read_csv('%s/tables/hgsc_proteomics_processed.csv' % wd, index_col=0)
+hgsc = read_csv('%s/data/hgsc_proteomics_processed.csv' % wd, index_col=0)
 hgsc = hgsc[hgsc.count(1) > (hgsc.shape[1] * .5)]
 
-coread = read_csv('%s/tables/coread_proteomics_processed.csv' % wd, index_col=0)
+coread = read_csv('%s/data/coread_proteomics_processed.csv' % wd, index_col=0)
 coread = coread[coread.count(1) > (coread.shape[1] * .5)]
 
 ov_prot = set(brca.index).intersection(hgsc.index).intersection(coread.index)
 brca, hgsc, coread = brca.ix[ov_prot], hgsc.ix[ov_prot], coread.ix[ov_prot]
 
-pancan = read_csv('%s/tables/pancan_preprocessed_normalised.csv' % wd, index_col=0).ix[ov_prot]
-
+pancan = read_csv('%s/data/pancan_preprocessed_normalised.csv' % wd, index_col=0).ix[ov_prot]
 
 # -- Protein-protein correlation
 cor_res = {}

@@ -31,7 +31,7 @@ coread_samplesheet = coread_samplesheet.set_index('id')
 coread.columns = [coread_samplesheet.ix[i, 'TCGA barcode'] for i in coread]
 
 # Export
-coread.to_csv('%s/tables/coread_proteomics_processed.csv' % wd)
+coread.to_csv('%s/data/coread_proteomics_processed.csv' % wd)
 print '[INFO] COREAD proteomics preprocessed exported'
 
 
@@ -59,7 +59,7 @@ samples_qc = samples_qc[samples_qc['QC Status'] == 'pass']
 brca = brca.loc[:, [i in samples_qc.index for i in brca]]
 
 # Export
-brca.to_csv('%s/tables/brca_proteomics_processed.csv' % wd)
+brca.to_csv('%s/data/brca_proteomics_processed.csv' % wd)
 print '[INFO] BRCA proteomics preprocessed exported'
 
 
@@ -94,5 +94,5 @@ hgsc = hgsc.loc[:, [i in hgsc_samplesheet.index for i in hgsc]]
 hgsc.columns = [hgsc_samplesheet.ix[i] for i in hgsc]
 
 # Export
-hgsc.to_csv('%s/tables/hgsc_proteomics_processed.csv' % wd)
+hgsc.to_csv('%s/data/hgsc_proteomics_processed.csv' % wd)
 print '[INFO] HGSC proteomics preprocessed exported'
