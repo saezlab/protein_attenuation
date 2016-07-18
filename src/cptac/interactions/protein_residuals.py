@@ -14,12 +14,6 @@ from pandas import read_csv, DataFrame, concat, Series, pivot_table
 from cptac import wd, palette, palette_cnv, palette_cnv_number, default_color
 
 
-def randomise_matrix(matrix):
-    random_df = matrix.copy()
-    movers = ~np.isnan(random_df.values)
-    random_df.values[movers] = np.random.permutation(random_df.values[movers])
-    return random_df
-
 # -- Uniprot
 uniprot = read_uniprot_genename()
 cancer_genes = get_cancer_genes()

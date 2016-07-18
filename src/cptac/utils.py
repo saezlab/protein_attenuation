@@ -18,3 +18,10 @@ def get_cancer_genes():
 def gkn(values):
     kernel = stats.gaussian_kde(values)
     return Series({k: np.log(kernel.integrate_box_1d(-1e4, v) / kernel.integrate_box_1d(v, 1e4)) for k, v in values.to_dict().items()})
+
+
+def randomise_matrix(matrix):
+    random_df = matrix.copy()
+    movers = ~np.isnan(random_df.values)
+    random_df.values[movers] = np.random.permutation(random_df.values[movers])
+    return random_df
