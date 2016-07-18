@@ -6,7 +6,7 @@ data = '/Volumes/EBI BACKUP/CPTAC'
 default_color = '#808080'
 
 palette = {'BRCA': '#f39c12', 'COREAD': '#bdc3c7', 'HGSC': '#f198a4', 'Pancancer': '#34495e'}
-palette_dbs = {'All': '#d8d8d8', 'CORUM': '#e39e54', 'STRING': '#d64d4d', 'BioGRID': '#4d7358'}
+palette_dbs = {'All': '#d8d8d8', 'CORUM': '#e39e54', 'STRING': '#d64d4d', 'BioGRID': '#4d7358', 'OmniPath': '#81A949'}
 palette_survival = {'high': '#d62d20', 'low': '#d8d8d8'}
 palette_binary = {0: '#767676', 1: '#e74c3c'}
 palette_cnv = {'neutral': '#767676', 'depletion': '#e74c3c', 'amplification': '#2ecc71'}
