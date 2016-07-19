@@ -2,44 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b4999b72-a3b7-439a-b83d-768b712d0e1d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pancan_proteomics_preprocessed.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pancan_proteomics_preprocessed_normalised.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pancan_proteomics_preprocessed_normalised_imputed.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_clustermap_after_normalisation.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_clustermap_before_normalisation.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_cnv_boxplot_residuals.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_correlation_histogram.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_pca_after_normalisation.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_pca_before_normalisation.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_proteomics_cnv_aroc.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_proteomics_ppi_aroc.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_proteomics_ppi_aroc_imputed.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_residuals_cnv_aroc.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_tf_activities_cnv_aroc.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_transcriptomics_cnv_aroc.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_proteomics.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_residuals.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_tf_activities.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_transcriptomics.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/preprocess/preprocess_itraq.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/imputation/__init__.py" afterPath="$PROJECT_DIR$/src/cptac/classifications/__init__.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/imputation/proteomics_imputation.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/impute_proteomics.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/preprocess_proteomics.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/preprocess/proteomics.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/assemble_proteomics.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/tcga_rnaseq.tsv" afterPath="$PROJECT_DIR$/data/tcga_rnaseq.tsv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/__init__.py" afterPath="$PROJECT_DIR$/src/cptac/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/preprocess/assemble_gexp.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/assemble_gexp.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/activity/estimate_tf_activities.py" afterPath="$PROJECT_DIR$/src/cptac/activity/estimate_tf_activities.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/protein_correlation.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/protein_correlation.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tables/protein_residuals.csv" afterPath="$PROJECT_DIR$/tables/protein_residuals.csv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/activity/protein_residuals.py" afterPath="$PROJECT_DIR$/src/cptac/activity/protein_residuals.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/proteomics_imputed_aroc.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/proteomics_imputed_aroc.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/tcga_cnv.tsv" afterPath="$PROJECT_DIR$/data/tcga_cnv.tsv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tables/tf_activities.csv" afterPath="$PROJECT_DIR$/tables/tf_activities.csv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/classification_aroc_cnv.pdf" afterPath="$PROJECT_DIR$/reports/classification_aroc_cnv.pdf" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/classification_features_cnv.pdf" afterPath="$PROJECT_DIR$/reports/classification_features_cnv.pdf" />
     </list>
     <ignored path="cptac.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -524,7 +488,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="2560" height="1413" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -532,7 +496,7 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.13661636" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.38602066" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.38602066" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329296" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
