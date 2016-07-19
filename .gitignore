@@ -64,4 +64,4 @@ target/
 # Custom
 .DS_Store
 tables/tcga_genomics.csv
-.idea
+.idea/
