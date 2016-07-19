@@ -2,36 +2,43 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b4999b72-a3b7-439a-b83d-768b712d0e1d" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pancan_preprocessed.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pancan_preprocessed_normalised.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pancan_preprocessed_normalised_imputed.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_aroc.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_aroc_imputed.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_clustermap.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_clustermap_complexes.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_clustermap_residuals.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_cnv_boxplot.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_cnv_boxplot_median.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_residual_plot.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_residuals_theshold_cnv_scatter.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_tf_activities_cnv_boxplots.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/survival_clustering_complexes.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/interactions/complexex_scores.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/interactions/protein_residuals.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/interactions/imputation.py" afterPath="$PROJECT_DIR$/src/cptac/imputation/proteomics_imputation.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/interactions/pancancer_aroc.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/preprocess/protein_heatmaps.py" afterPath="$PROJECT_DIR$/src/cptac/heatmaps/protein_heatmaps.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/pancan_clustermap_after_normalisation.pdf" afterPath="$PROJECT_DIR$/reports/pancan_clustermap_after_normalisation.pdf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/pancan_clustermap_before_normalisation.pdf" afterPath="$PROJECT_DIR$/reports/pancan_clustermap_before_normalisation.pdf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/pancan_correlation_histogram.pdf" afterPath="$PROJECT_DIR$/reports/pancan_correlation_histogram.pdf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/pancan_pca_after_normalisation.pdf" afterPath="$PROJECT_DIR$/reports/pancan_pca_after_normalisation.pdf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/pancan_pca_before_normalisation.pdf" afterPath="$PROJECT_DIR$/reports/pancan_pca_before_normalisation.pdf" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reports/survival_clustering.pdf" afterPath="$PROJECT_DIR$/reports/survival_clustering.pdf" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pancan_proteomics_preprocessed.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pancan_proteomics_preprocessed_normalised.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pancan_proteomics_preprocessed_normalised_imputed.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_clustermap_after_normalisation.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_clustermap_before_normalisation.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_cnv_boxplot_residuals.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_correlation_histogram.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_pca_after_normalisation.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_pca_before_normalisation.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_proteomics_cnv_aroc.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_proteomics_ppi_aroc.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_proteomics_ppi_aroc_imputed.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_residuals_cnv_aroc.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_tf_activities_cnv_aroc.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/reports/pancan_transcriptomics_cnv_aroc.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/__init__.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_proteomics.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_residuals.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_tf_activities.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_transcriptomics.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/cptac/preprocess/preprocess_itraq.py" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/imputation/__init__.py" afterPath="$PROJECT_DIR$/src/cptac/classifications/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/imputation/proteomics_imputation.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/impute_proteomics.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/preprocess_proteomics.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/src/cptac/preprocess/proteomics.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/assemble_proteomics.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/tcga_rnaseq.tsv" afterPath="$PROJECT_DIR$/data/tcga_rnaseq.tsv" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/__init__.py" afterPath="$PROJECT_DIR$/src/cptac/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/preprocess/assemble_gexp.py" afterPath="$PROJECT_DIR$/src/cptac/preprocess/assemble_gexp.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/activity/estimate_tf_activities.py" afterPath="$PROJECT_DIR$/src/cptac/activity/estimate_tf_activities.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/protein_correlation.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/protein_correlation.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/samplesheet.csv" afterPath="$PROJECT_DIR$/data/samplesheet.csv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tables/top_correlated_protein_pairs.csv" afterPath="$PROJECT_DIR$/tables/top_correlated_protein_pairs.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tables/protein_residuals.csv" afterPath="$PROJECT_DIR$/tables/protein_residuals.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/activity/protein_residuals.py" afterPath="$PROJECT_DIR$/src/cptac/activity/protein_residuals.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/cptac/interactions/proteomics_imputed_aroc.py" afterPath="$PROJECT_DIR$/src/cptac/interactions/proteomics_imputed_aroc.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data/tcga_cnv.tsv" afterPath="$PROJECT_DIR$/data/tcga_cnv.tsv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tables/tf_activities.csv" afterPath="$PROJECT_DIR$/tables/tf_activities.csv" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="cptac.iws" />
@@ -52,7 +59,32 @@
     <favorites_list name="cptac" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="samplesheet_histogram.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/samplesheet_histogram.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="23" column="72" selection-start-line="23" selection-start-column="35" selection-end-line="23" selection-end-column="72" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="classify_cnv.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/cptac/classifications/classify_cnv.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.14285715">
+              <caret line="69" column="33" selection-start-line="69" selection-start-column="33" selection-end-line="69" selection-end-column="33" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -67,34 +99,14 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/cptac/interactions.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/pip_aroc.py" />
-        <option value="$PROJECT_DIR$/src/cptac/preprocess/corum_complexes.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/corum_scores.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/corum_correlation.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/protein_scores.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/corum_survival.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/corum.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/roc_corum.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/protein_protein_roc.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/pancan_aroc.py" />
-        <option value="$PROJECT_DIR$/../pymist/src/pymist/utils/biogriddb.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/residuals.py" />
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_8" />
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_9" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/protein_correlation_variable.py" />
-        <option value="$PROJECT_DIR$/src/cptac/preprocess/__init__.py" />
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_10" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/pair_residuals.py" />
         <option value="$PROJECT_DIR$/../pymist/src/pymist/utils/corumdb.py" />
         <option value="$PROJECT_DIR$/src/cptac/proteome.py" />
         <option value="$PROJECT_DIR$/src/cptac/proteome/pca_survival.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/pancancer_survival.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/protein_modules.py" />
-        <option value="$PROJECT_DIR$/src/cptac/preprocess/assemble_gexp.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/complexex_scores.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_11" />
-        <option value="$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_12" />
         <option value="$PROJECT_DIR$/src/cptac/preprocess/preprocess_itraq.py" />
         <option value="$PROJECT_DIR$/src/cptac/preprocess/assemble_genomics.py" />
@@ -107,17 +119,37 @@
         <option value="$PROJECT_DIR$/src/cptac/activity/tfs_activity.py" />
         <option value="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_complexes.py" />
         <option value="$PROJECT_DIR$/src/cptac/activity/estimate_complexes_activities.py" />
-        <option value="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_proteomics.py" />
-        <option value="$PROJECT_DIR$/src/cptac/activity/protein_residuals.py" />
-        <option value="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_residuals.py" />
         <option value="$PROJECT_DIR$/src/cptac/preprocess/proteomics.py" />
         <option value="$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py" />
         <option value="$PROJECT_DIR$/src/cptac/preprocess/protein_heatmaps.py" />
         <option value="$PROJECT_DIR$/src/cptac/interactions/pancancer_aroc.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/proteomics_imputed_aroc.py" />
-        <option value="$PROJECT_DIR$/src/cptac/__init__.py" />
-        <option value="$PROJECT_DIR$/src/cptac/interactions/protein_correlation.py" />
         <option value="$PROJECT_DIR$/src/cptac/imputation/proteomics_imputation.py" />
+        <option value="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_transcriptomics.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/assemble_gexp.py" />
+        <option value="$PROJECT_DIR$/src/cptac/regressions/reg_proteomics.py" />
+        <option value="$PROJECT_DIR$/src/cptac/regressions/reg_transcriptomics_cnv.py" />
+        <option value="$PROJECT_DIR$/src/cptac/regressions/reg_residuals.py" />
+        <option value="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_residuals.py" />
+        <option value="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_covariates.py" />
+        <option value="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_tf_activities.py" />
+        <option value="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_proteomics.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py" />
+        <option value="$PROJECT_DIR$/src/cptac/associations/assoc_cnv_all.py" />
+        <option value="$PROJECT_DIR$/src/cptac/classifications/assoc_cnv_all.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/normalise_proteomics.py" />
+        <option value="$PROJECT_DIR$/src/cptac/activity/protein_residuals.py" />
+        <option value="$PROJECT_DIR$/src/cptac/activity/estimate_tf_activities.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/preprocess_proteomics.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/normalise_transcriptomics.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/preprocess_transcriptomics.py" />
+        <option value="$PROJECT_DIR$/src/cptac/regressions/regressions_venn.py" />
+        <option value="$PROJECT_DIR$/src/cptac/__init__.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/samplesheet_histogram.py" />
+        <option value="$PROJECT_DIR$/src/cptac/preprocess/impute_proteomics.py" />
+        <option value="$PROJECT_DIR$/src/cptac/interactions/protein_correlation.py" />
+        <option value="$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py" />
+        <option value="$PROJECT_DIR$/src/cptac/interactions/proteomics_imputed_aroc.py" />
+        <option value="$PROJECT_DIR$/src/cptac/classifications/classify_cnv.py" />
       </list>
     </option>
   </component>
@@ -272,28 +304,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="imputation" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cptac" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cptac" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cptac" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
               <option name="myItemId" value="heatmaps" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -316,7 +326,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="associations" />
+              <option name="myItemId" value="classifications" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -370,6 +380,7 @@
       <recent name="$PROJECT_DIR$/src/cptac/interactions" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/cptac/preprocess" />
       <recent name="$PROJECT_DIR$/src/cptac/imputation" />
       <recent name="$PROJECT_DIR$/src/cptac/heatmaps" />
     </key>
@@ -513,27 +524,27 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="2560" height="1413" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.13860206" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.13661636" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.42732328" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.38602066" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.329296" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32955405" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -554,45 +565,19 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/normalise_proteomics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="2" column="93" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="93" />
+          <caret line="6" column="57" selection-start-line="6" selection-start-column="31" selection-end-line="6" selection-end-column="57" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/normalise_transcriptomics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="2" column="93" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="93" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="6" column="47" selection-start-line="6" selection-start-column="26" selection-end-line="6" selection-end-column="47" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -610,7 +595,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/preprocess_proteomics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="109" column="12" selection-start-line="109" selection-start-column="12" selection-end-line="109" selection-end-column="12" />
@@ -631,7 +616,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/preprocess_proteomics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -645,7 +630,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/proteomics.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/assemble_proteomics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="58" column="52" selection-start-line="58" selection-start-column="25" selection-end-line="58" selection-end-column="52" />
@@ -659,7 +644,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/preprocess_proteomics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="60" column="12" selection-start-line="60" selection-start-column="12" selection-end-line="60" selection-end-column="12" />
@@ -757,80 +742,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.25482625">
-          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/assemble_gexp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.115830116">
-          <caret line="14" column="0" selection-start-line="14" selection-start-column="0" selection-end-line="14" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/pancancer_survival.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.65328187">
-          <caret line="88" column="21" selection-start-line="88" selection-start-column="21" selection-end-line="88" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.27799228">
-          <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/associations/assoc_cnv_transcriptomics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="99" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="99" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/activity/estimate_tf_activities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="74" column="37" selection-start-line="0" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/preprocess_itraq.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.34749034">
-          <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/associations/assoc_cnv_tf_activities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.1969112">
-          <caret line="17" column="9" selection-start-line="0" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/cptac/activity/estimate_complexes_activities.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="22" column="49" selection-start-line="22" selection-start-column="49" selection-end-line="22" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/activity/protein_residuals.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="82" column="47" selection-start-line="82" selection-start-column="30" selection-end-line="82" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/associations/assoc_cnv_residuals.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.16602316">
-          <caret line="37" column="0" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -841,28 +756,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/associations/assoc_cnv_proteomics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.23166023">
-          <caret line="28" column="16" selection-start-line="22" selection-start-column="0" selection-end-line="28" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/proteomics.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/assemble_proteomics.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.22007722">
           <caret line="24" column="0" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/pancan_normalise.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.37451738">
-          <caret line="109" column="68" selection-start-line="109" selection-start-column="27" selection-end-line="109" selection-end-column="68" />
-          <folding>
-            <element signature="e#0#18#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -870,50 +767,175 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.08108108">
           <caret line="16" column="40" selection-start-line="16" selection-start-column="40" selection-end-line="16" selection-end-column="40" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Python/2.7/site-packages/statsmodels/base/model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5769528">
+          <caret line="1391" column="46" selection-start-line="1391" selection-start-column="46" selection-end-line="1391" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/assemble_cnv.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.1276102">
+          <caret line="15" column="54" selection-start-line="15" selection-start-column="54" selection-end-line="15" selection-end-column="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/pancancer_survival.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.40835267">
+          <caret line="67" column="35" selection-start-line="67" selection-start-column="35" selection-end-line="67" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/assemble_gexp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.23201856">
+          <caret line="21" column="10" selection-start-line="21" selection-start-column="10" selection-end-line="21" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/activity/protein_residuals.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.30162412">
+          <caret line="32" column="57" selection-start-line="32" selection-start-column="57" selection-end-line="32" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/regressions/regressions_proteomics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.42923433">
+          <caret line="63" column="0" selection-start-line="63" selection-start-column="0" selection-end-line="64" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/regressions/regressions_residuals.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2575406">
+          <caret line="42" column="16" selection-start-line="42" selection-start-column="16" selection-end-line="42" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/activity/estimate_tf_activities.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.34802786">
+          <caret line="36" column="18" selection-start-line="26" selection-start-column="0" selection-end-line="36" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/regressions/regressions_transcriptomics_cnv.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.17633411">
+          <caret line="34" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.27842227">
+          <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/preprocess_proteomics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8723898">
+          <caret line="106" column="53" selection-start-line="106" selection-start-column="27" selection-end-line="106" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/preprocess_transcriptomics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.09280743">
+          <caret line="17" column="17" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/regressions/regressions_venn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.06949807">
+          <caret line="6" column="46" selection-start-line="6" selection-start-column="46" selection-end-line="6" selection-end-column="46" />
+          <folding>
+            <element signature="e#0#18#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cptac/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.1042471">
-          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.09266409">
+          <caret line="8" column="118" selection-start-line="8" selection-start-column="118" selection-end-line="8" selection-end-column="118" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/normalise_proteomics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.046332046">
+          <caret line="6" column="57" selection-start-line="6" selection-start-column="31" selection-end-line="6" selection-end-column="57" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/normalise_transcriptomics.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.046332046">
+          <caret line="6" column="47" selection-start-line="6" selection-start-column="26" selection-end-line="6" selection-end-column="47" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cptac/interactions/protein_correlation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.08494209">
-          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/imputation/proteomics_imputation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.057915058">
-          <caret line="17" column="40" selection-start-line="17" selection-start-column="40" selection-end-line="17" selection-end-column="40" />
+        <state vertical-scroll-proportion="0.25482625">
+          <caret line="30" column="74" selection-start-line="30" selection-start-column="74" selection-end-line="30" selection-end-column="74" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py">
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/impute_proteomics.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.21235521">
-          <caret line="41" column="49" selection-start-line="41" selection-start-column="49" selection-end-line="41" selection-end-column="49" />
+        <state vertical-scroll-proportion="0.26640928">
+          <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/cptac/interactions/proteomics_imputed_aroc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.096525095">
-          <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.17374517">
+          <caret line="27" column="29" selection-start-line="27" selection-start-column="29" selection-end-line="27" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/interactions/proteomics_aroc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.68725866">
+          <caret line="87" column="0" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="65" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/preprocess/samplesheet_histogram.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="72" selection-start-line="23" selection-start-column="35" selection-end-line="23" selection-end-column="72" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/cptac/classifications/classify_cnv.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.14285715">
+          <caret line="69" column="33" selection-start-line="69" selection-start-column="33" selection-end-line="69" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>

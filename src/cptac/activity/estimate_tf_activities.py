@@ -15,22 +15,18 @@ regulons = DataFrame(regulons).replace(np.nan, 0).astype(np.int)
 print regulons
 
 
-# -- Gexp
-transcriptomics = read_csv('%s/data/tcga_rnaseq.tsv' % wd, sep='\t', index_col=0).ix[regulons.index].dropna()
-transcriptomics.columns = [i[:15] for i in transcriptomics]
-transcriptomics = DataFrame({i: transcriptomics.loc[:, [i]].mean(1) for i in set(transcriptomics)})
+# -- Transcriptomics
+transcriptomics = read_csv('%s/data/tcga_rnaseq_normalised.csv' % wd, index_col=0).ix[regulons.index].dropna()
 print transcriptomics
-
 
 # -- Clinical data
 clinical = read_csv('%s/data/clinical_data.tsv' % wd, sep='\t')
 clinical_gender = clinical.groupby('SAMPLE_brcID')['GENDER'].first().to_dict()
 clinical_age = clinical.groupby('SAMPLE_brcID')['AGE'].first().to_dict()
 
-
 # -- Covariates
-samplesheet = read_csv('%s/data/samplesheet.csv' % wd, index_col=0)
-samplesheet = {k[:15]: v for k, v in samplesheet['type'].to_dict().items()}
+samplesheet = Series.from_csv('%s/data/samplesheet.csv' % wd)
+samplesheet = {k[:15]: v for k, v in samplesheet.to_dict().items()}
 
 design = Series([samplesheet[i[:15]] for i in transcriptomics], index=transcriptomics.columns)
 design = design.str.get_dummies()

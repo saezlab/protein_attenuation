@@ -4,13 +4,15 @@ import matplotlib.pyplot as plt
 from cptac import wd
 from pandas import DataFrame, Series, read_csv, pivot_table
 
+# Overlapping samples with the proteome
+samples = set(Series.from_csv('%s/data/samplesheet.csv' % wd).index)
+print len(samples)
+
 # Import whole CNV data-set
 cnv = read_csv('/Users/emanuel/Projects/data/cptac/cna_thresholded.tsv', sep='\t')
 print cnv
 
 # Sub-set by proteomics samples
-samples = {i[:15] for i in set(read_csv('%s/tables/pancan_preprocessed_normalised.csv' % wd, index_col=0))}
-
 cnv = cnv[[i[:15] in samples for i in cnv['barcode']]]
 print len({i[:15] for i in cnv['barcode']})
 
@@ -20,6 +22,9 @@ cnv = cnv.reset_index()
 cnv = cnv.dropna()
 cnv = pivot_table(cnv, index='hgnc', columns='barcode', values='gistic', fill_value=0)
 print cnv
+
+# Parse sample ID
+cnv.columns = [i[:15] for i in cnv]
 
 # Export cnv
 cnv.to_csv('%s/data/tcga_cnv.tsv' % wd, sep='\t')

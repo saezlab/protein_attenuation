@@ -8,12 +8,9 @@ from pymist.utils.corumdb import get_complexes_pairs
 from pandas import DataFrame, Series, read_csv, pivot_table
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
-
-# -- Uniprot
+# -- Import p-p interactions
 uniprot = read_uniprot_genename()
 
-
-# -- Import p-p interactions
 # CORUM
 corum = get_complexes_pairs()
 corum = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in corum for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot}
@@ -36,8 +33,7 @@ print len(omnipath)
 
 
 # -- Import normalised pancan proteomics
-pancan = read_csv('%s/data/pancan_proteomics_preprocessed_normalised.csv' % wd, index_col=0)
-pancan = pancan[pancan.count(1) > (pancan.shape[1] * .50)]
+pancan = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
 print pancan
 
 
@@ -59,6 +55,7 @@ print df
 
 # -- Histograms
 sns.set(style='ticks', context='paper', rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3}, font_scale=.75)
+sns.set_style({'xtick.direction': 'in', 'ytick.direction': 'in'})
 
 g = sns.distplot(df['cor'], color=palette_dbs['All'], hist=False, kde_kws={'shade': True}, label='All')
 sns.distplot(df.ix[df['corum'] == 1, 'cor'], color=palette_dbs['CORUM'], hist=False, kde_kws={'shade': True}, label='CORUM')
@@ -67,17 +64,17 @@ sns.distplot(df.ix[df['biogrid'] == 1, 'cor'], color=palette_dbs['BioGRID'], his
 sns.distplot(df.ix[df['omnipath'] == 1, 'cor'], color=palette_dbs['OmniPath'], hist=False, kde_kws={'shade': True}, label='OmniPath')
 
 plt.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
-plt.title('Proteomics pancancer correlation histograms')
+plt.title('Proteomics protein-pair correlation histograms')
 plt.xlabel('Pearson\'s r')
 plt.ylabel('Density')
 g.set_xlim(-1, 1)
 sns.despine(trim=True)
 plt.gcf().set_size_inches(4, 2)
-plt.savefig('%s/reports/pancan_correlation_histogram.pdf' % wd, bbox_inches='tight')
+plt.savefig('%s/reports/proteomics_correlation_histogram.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
 
 
 # -- Export top correlated protein pairs
-df[df['score'] > .4].to_csv('%s/tables/top_correlated_protein_pairs.csv' % wd, index=False)
+df[df['score'] > .4].to_csv('%s/tables/proteomics_top_correlated_protein_pairs.csv' % wd, index=False)
 print '[INFO] Exported'

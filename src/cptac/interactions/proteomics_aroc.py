@@ -50,12 +50,17 @@ coread = coread[coread.count(1) > (coread.shape[1] * .5)]
 ov_prot = set(brca.index).intersection(hgsc.index).intersection(coread.index)
 brca, hgsc, coread = brca.ix[ov_prot], hgsc.ix[ov_prot], coread.ix[ov_prot]
 
-pancan = read_csv('%s/data/pancan_proteomics_preprocessed_normalised.csv' % wd, index_col=0).ix[ov_prot]
+proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0).ix[ov_prot]
+proteomics = proteomics[proteomics.count(1) > (proteomics.shape[1] * .5)]
+print proteomics.shape
+
+transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0).ix[ov_prot].dropna()
+print transcriptomics.shape
 
 
 # -- Protein-protein correlation
 cor_res = {}
-for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Pancancer', pancan)]:
+for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteomics', proteomics), ('Transcriptomics', transcriptomics)]:
     df = d_df.T.corr(method='pearson')
     df.values[np.tril_indices(df.shape[0], 0)] = np.nan
     df.index.name = None
@@ -80,12 +85,14 @@ print '[INFO] Done'
 
 # -- Plot
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
+sns.set_style({'xtick.direction': 'in', 'ytick.direction': 'in'})
+
 fig, gs, pos = plt.figure(figsize=(13, 3)), GridSpec(1, 4, hspace=.3, wspace=.3), 0
 
 for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
     ax = plt.subplot(gs[pos])
 
-    for name in ['BRCA', 'COREAD', 'HGSC', 'Pancancer']:
+    for name in ['BRCA', 'COREAD', 'HGSC', 'Proteomics', 'Transcriptomics']:
         curve_fpr, curve_tpr = cor_res[name][db]
         plt.plot(curve_fpr, curve_tpr, label='%s (AUC %0.2f)' % (name, auc(curve_fpr, curve_tpr)), c=palette[name])
 
@@ -98,6 +105,6 @@ for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
 
     pos += 1
 
-plt.savefig('%s/reports/pancan_proteomics_ppi_aroc.pdf' % wd, bbox_inches='tight')
+plt.savefig('%s/reports/proteomics_ppi_aroc.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'

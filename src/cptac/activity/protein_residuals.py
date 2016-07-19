@@ -1,46 +1,17 @@
 import igraph
 import numpy as np
 import seaborn as sns
-import itertools as it
-import statsmodels.api as sm
 import matplotlib.pyplot as plt
-from mtkirc.utils import gkn
-from pandas.stats.misc import zscore
-from cptac.utils import get_cancer_genes
-from pymist.utils.stringdb import get_stringdb
-from pymist.utils.corumdb import get_complexes_pairs
-from pymist.utils.map_peptide_sequence import read_uniprot_genename
+import statsmodels.api as sm
 from pandas import read_csv, DataFrame, concat, Series, pivot_table
-from cptac import wd, palette, palette_cnv, palette_cnv_number, default_color
+from cptac import wd
 
 
-# -- Protein interactions
-uniprot = read_uniprot_genename()
-
-# CORUM
-corum = get_complexes_pairs()
-corum = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in corum for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot}
-print len(corum)
-
-# String
-string = get_stringdb(900)
-string = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in string for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot}
-print len(string)
-
-# Intersection
-p_pairs = corum.intersection(string)
+# -- Correlated protein pairs
+p_pairs = read_csv('%s/tables/top_correlated_protein_pairs.csv' % wd)
+p_pairs = p_pairs[p_pairs['score'] > .5]
+p_pairs = {(p1, p2) for p1, p2 in p_pairs[['p1', 'p2']].values}
 print len(p_pairs)
-
-
-# -- Proteomics
-proteomics = read_csv('%s/data/pancan_preprocessed.csv' % wd, index_col=0)
-proteomics.columns = [i[:15] for i in proteomics]
-
-remove_samples = {i for i in set(proteomics) if proteomics.loc[:, [i]].shape[1] == 2 and proteomics.loc[:, [i]].corr().ix[0, 1] < .4}
-proteomics = proteomics.drop(remove_samples, axis=1)
-
-proteomics = DataFrame({i: proteomics.loc[:, [i]].mean(1) for i in set(proteomics)})
-print proteomics
 
 
 # -- Create network
@@ -58,6 +29,18 @@ network_i = network_i.simplify(True, True, 'first')
 print network_i.summary()
 
 
+# -- Proteomics
+proteomics = read_csv('%s/data/cptac_proteomics_corrected.csv' % wd, index_col=0)
+proteomics.columns = [i[:15] for i in proteomics]
+
+remove_samples = {i for i in set(proteomics) if proteomics.loc[:, [i]].shape[1] == 2 and proteomics.loc[:, [i]].corr().ix[0, 1] < .4}
+proteomics = proteomics.drop(remove_samples, axis=1)
+
+proteomics = DataFrame({i: proteomics.loc[:, [i]].mean(1) for i in set(proteomics)})
+proteomics = proteomics[proteomics.count(1) > (proteomics.shape[1] * .5)]
+print proteomics
+
+
 # -- Estimate residuals
 # p = 'LAMB1'
 p_residuals, p_predicted, p_lm = {}, {}, {}
@@ -70,7 +53,7 @@ for p in network_i.vs['name']:
 
             x = sm.add_constant(proteomics.ix[c_proteins, y.index].T).dropna()
 
-            if len(x) > 0:
+            if len(x) > 1:
                 y = y.ix[x.index]
 
                 lm = sm.OLS(y, x).fit()
