@@ -1,10 +1,7 @@
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 from cptac import wd
-from cptac.utils import gkn
-from sklearn.linear_model import Ridge, LinearRegression
-from pandas import DataFrame, Series, read_csv, concat
+from sklearn.linear_model import Ridge
+from pandas import DataFrame, read_csv
 
 
 # -- TFs regulons
@@ -16,42 +13,8 @@ print regulons
 
 
 # -- Transcriptomics
-transcriptomics = read_csv('%s/data/tcga_rnaseq_normalised.csv' % wd, index_col=0).ix[regulons.index].dropna()
+transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0).ix[regulons.index].dropna()
 print transcriptomics
-
-# -- Clinical data
-clinical = read_csv('%s/data/clinical_data.tsv' % wd, sep='\t')
-clinical_gender = clinical.groupby('SAMPLE_brcID')['GENDER'].first().to_dict()
-clinical_age = clinical.groupby('SAMPLE_brcID')['AGE'].first().to_dict()
-
-# -- Covariates
-samplesheet = Series.from_csv('%s/data/samplesheet.csv' % wd)
-samplesheet = {k[:15]: v for k, v in samplesheet.to_dict().items()}
-
-design = Series([samplesheet[i[:15]] for i in transcriptomics], index=transcriptomics.columns)
-design = design.str.get_dummies()
-
-design = concat([design, Series({i: clinical_gender[i] for i in design.index}).str.get_dummies()], axis=1)
-design['age'] = [clinical_age[i] for i in design.index]
-design_dict = design.T.to_dict()
-print list(design)
-
-
-# -- Normalise pancan data-set
-def rm_batch(x, y, covariates=['BRCA', 'COREAD', 'HGSC', 'FEMALE', 'MALE', 'age']):
-    ys = y.dropna()
-    xs = x.ix[ys.index, covariates]
-
-    lm = LinearRegression().fit(xs, ys)
-
-    return ys - xs.dot(lm.coef_) - lm.intercept_
-
-transcriptomics = DataFrame({p: rm_batch(design, transcriptomics.ix[p, design.index]) for p in transcriptomics.index}).T
-print '[INFO] Covariates regressed-out'
-
-
-# -- Centre gene
-transcriptomics = DataFrame({i: gkn(transcriptomics.ix[i].dropna()).to_dict() for i in transcriptomics.index}).T
 
 
 # -- Estimate activity: linear regression

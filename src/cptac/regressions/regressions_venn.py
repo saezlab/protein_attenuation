@@ -22,9 +22,9 @@ for c in [-2, 2]:
 
     associations = {
         n: {p for p, t, f in df[['protein', 'type', 'fdr']].values if c == t and f < .05}
-        for n, df in [('transcriptomics', transcriptomics), ('proteomics', proteomics), ('residuals', residuals)]}
+        for n, df in [('Transcriptomics', transcriptomics), ('Proteomics', proteomics), ('Residuals', residuals)]}
 
-    venn3(associations.values(), set_labels=associations.keys(), set_colors=[palette_datasets[k] for k in associations])
+    venn3(associations.values(), set_labels=associations.keys(), set_colors=[palette[k] for k in associations])
     venn3_circles(associations.values(), linestyle='solid', color='white')
 
     ax.set_title('Depletion' if c == -2 else 'Amplification')

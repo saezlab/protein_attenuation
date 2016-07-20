@@ -30,14 +30,7 @@ print network_i.summary()
 
 
 # -- Proteomics
-proteomics = read_csv('%s/data/cptac_proteomics_corrected.csv' % wd, index_col=0)
-proteomics.columns = [i[:15] for i in proteomics]
-
-remove_samples = {i for i in set(proteomics) if proteomics.loc[:, [i]].shape[1] == 2 and proteomics.loc[:, [i]].corr().ix[0, 1] < .4}
-proteomics = proteomics.drop(remove_samples, axis=1)
-
-proteomics = DataFrame({i: proteomics.loc[:, [i]].mean(1) for i in set(proteomics)})
-proteomics = proteomics[proteomics.count(1) > (proteomics.shape[1] * .5)]
+proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
 print proteomics
 
 

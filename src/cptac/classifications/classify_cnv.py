@@ -7,7 +7,7 @@ from sklearn.metrics import roc_curve, auc
 from cptac.utils import randomise_matrix, gkn
 from pandas import DataFrame, Series, read_csv, concat, merge
 from sklearn.cross_validation import StratifiedShuffleSplit
-from sklearn.linear_model import SGDClassifier, PassiveAggressiveClassifier
+from sklearn.linear_model import SGDClassifier
 
 
 # -- Import data-sets
@@ -92,8 +92,7 @@ print '[INFO] Done'
 
 
 # -- ROC curves
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-sns.set_style({'xtick.direction': 'in', 'ytick.direction': 'in'})
+sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
 
 # Plot all roc curves
 for c in l_models:
