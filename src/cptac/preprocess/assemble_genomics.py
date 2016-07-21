@@ -9,6 +9,10 @@ from pymist.utils.corumdb import get_complexes_pairs
 from pandas import DataFrame, Series, read_csv, pivot_table, concat
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
+# Overlapping samples with the proteome
+samples = set(Series.from_csv('%s/data/samplesheet.csv' % wd).index)
+print len(samples)
+
 
 # Source data folder
 dwd = '/Users/emanuel/Projects/data/cptac/tcga_mutations_firehose_06_06_2016_maf_files/'
@@ -21,13 +25,10 @@ print len(mafs)
 genomics = concat([read_csv('%s/%s' % (dwd, f), sep='\t') for f in mafs]).reset_index()
 print len(set(genomics['Tumor_Sample_Barcode']))
 
-# Filter mutation type
-genomics = genomics[[i in genomic_mod for i in genomics['type']]]
-print genomics
+# Sub-set by proteomics samples
+genomics = genomics[[i[:15] in samples for i in genomics['Tumor_Sample_Barcode']]]
+print len({i[:15] for i in genomics['Tumor_Sample_Barcode']})
 
-# Overlap with proteomics samples
-samples = {i[:15] for i in set(read_csv('%s/data/pancan_preprocessed_normalised.csv' % wd, index_col=0))}
-
-print len(set(genomics['Tumor_Sample_Barcode']).intersection(samples))
-
-# genomics = genomics[[i in samples for i in genomics['Tumor_Sample_Barcode']]]
+# Export cnv
+genomics.to_csv('%s/data/tcga_genomics.tsv' % wd, sep='\t')
+print '[INFO] Exported'

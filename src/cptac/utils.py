@@ -25,3 +25,34 @@ def randomise_matrix(matrix):
     movers = ~np.isnan(random_df.values)
     random_df.values[movers] = np.random.permutation(random_df.values[movers])
     return random_df
+
+
+def log_likelihood(y_true, y_pred):
+    n = len(y_true)
+    ssr = np.power(y_true - y_pred, 2).sum()
+    var = ssr / n
+
+    l = (1 / (np.sqrt(2 * np.pi * var))) ** n * np.exp(-(np.power(y_true - y_pred, 2) / (2 * var)).sum())
+    ln_l = np.log(l)
+
+    return ln_l
+
+
+def f_statistic(y_true, y_pred, n, p):
+    msm = np.power(y_pred - y_true.mean(), 2).sum() / p
+    mse = np.power(y_true - y_pred, 2).sum() / (n - p - 1)
+
+    f = msm / mse
+
+    f_pval = stats.f.sf(f, p, n - p - 1)
+
+    return f, f_pval
+
+
+def r_squared(y_true, y_pred):
+    sse = np.power(y_true - y_pred, 2).sum()
+    sst = np.power(y_true - y_true.mean(), 2).sum()
+
+    r = 1 - sse / sst
+
+    return r

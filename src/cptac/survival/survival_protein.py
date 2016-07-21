@@ -38,7 +38,7 @@ print clinical
 
 
 # -- Overlap
-genes = set(cnv.index).intersection(proteomics.index).intersection(transcriptomics.index).intersection(residuals.index)
+genes = set(cnv.index).intersection(proteomics.index).intersection(transcriptomics.index)
 samples = set(cnv).intersection(proteomics).intersection(transcriptomics).intersection(residuals).intersection(clinical.index)
 print len(genes), len(samples)
 
@@ -61,6 +61,7 @@ def survival(p, c, thres=5):
 
 res = DataFrame([survival(p, c) for p in genes for c in [-2, 2]], columns=['protein', 'type', 'pval']).dropna()
 res['fdr'] = multipletests(res['pval'], method='fdr_bh')[1]
+res.sort('fdr').to_csv('%s/tables/survival_overlap_cnv.csv' % wd, index=False)
 print res.sort('fdr')
 
 # c = 2

@@ -3,11 +3,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from scipy import stats
-from cptac import wd, palette
 from matplotlib.gridspec import GridSpec
+from cptac import wd, palette, default_color
+from cptac.utils import log_likelihood, f_statistic, r_squared
+from sklearn.linear_model import LinearRegression
 from matplotlib_venn import venn3, venn3_circles
 from statsmodels.stats.multitest import multipletests
-from pandas import DataFrame, Series, read_csv, concat, merge
+from pandas import DataFrame, Series, read_csv, concat
 
 
 # -- Imports
@@ -19,11 +21,11 @@ cnv = cnv.loc[:, (cnv != 0).sum() != 0]
 print cnv
 
 # Transcriptomics
-transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0)
+transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected.csv' % wd, index_col=0)
 print transcriptomics
 
 # Proteomics
-proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
+proteomics = read_csv('%s/data/cptac_proteomics_corrected.csv' % wd, index_col=0)
 print proteomics
 
 # Residuals
@@ -61,7 +63,7 @@ print list(design)
 def regressions(p, c, df, thres=5):
     # Protein measurements
     y = df.ix[p, samples].dropna()
-    x = sm.add_constant(concat([cnv.ix[p], design], axis=True).ix[y.index].dropna(), has_constant='add')
+    x = concat([cnv.ix[p]], axis=True).ix[y.index].dropna()
 
     y = y.ix[x.index]
 
@@ -70,34 +72,60 @@ def regressions(p, c, df, thres=5):
     x.ix[x[p] == c, p] = 1
 
     if x[p].sum() >= thres:
-        # Linear regression
-        lm = sm.OLS(y, x).fit()
-        print lm.summary()
+        # Fit models
+        lm1 = LinearRegression().fit(x, y)
+        lm2 = LinearRegression().fit(np.zeros((len(x), 1)), y)
 
-        # Wald test
-        wald = lm.wald_test(p, use_f=False)
+        # Predict
+        y_true_lm1, y_pred_lm1 = y.copy(), Series(dict(zip(*(x.index, lm1.predict(x)))))
+        y_true_lm2, y_pred_lm2 = y.copy(), Series(dict(zip(*(x.index, lm2.predict(np.zeros((len(x), 1)))))))
+
+        # np.zeros((len(x), 1))
+        # x.drop(p, axis=1)
+
+        # Log likelihood
+        l_lm1 = log_likelihood(y_true_lm1, y_pred_lm1)
+        l_lm2 = log_likelihood(y_true_lm1, y_pred_lm2)
+
+        # Log likelihood ratio
+        lr = 2 * (l_lm1 - l_lm2)
+        lr_pval = stats.chi2.sf(lr, 1)
 
         # Effect size
         effect = y[x[p] == 1].mean() - y[x[p] != 1].mean()
 
-        return p, c, x[p].sum(), lm.params[p], effect, wald.pvalue
+        # F-statistic
+        f, f_pval = f_statistic(y_true_lm1, y_pred_lm1, len(y), x.shape[1])
 
-    else:
-        return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+        # R-squared
+        r = r_squared(y_true_lm1, y_pred_lm1)
+
+        res = {
+            'protein': p, 'cnv': c, 'rsquared': r, 'effect_size': effect, 'f': f, 'f_pval': f_pval, 'll': l_lm1, 'll_small': l_lm2, 'll_ratio': lr, 'lr_pval': lr_pval
+        }
+
+        print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e, ll: %.2f, lr pval: %.2e' % (res['protein'], res['rsquared'], res['f'], res['f_pval'], res['ll'], res['lr_pval'])
+        # print sm.OLS(y, sm.add_constant(x, has_constant='add')).fit().summary()
+
+        return res
 
 
 def regressions_dataset(df, adj_pval='bonferroni'):
-    res = DataFrame([regressions(p, c, df) for p in genes for c in [-2, 2]], columns=['protein', 'type', 'meas', 'coef', 'effectsize', 'wald']).dropna()
-    res['fdr'] = multipletests(res['wald'], method=adj_pval)[1]
+    res = [regressions(p, c, df) for p in genes for c in [-2, 2]]
+    res = DataFrame([i for i in res if i])
+
+    res['f_adjpval'] = multipletests(res['f_pval'], method=adj_pval)[1]
+    res['lr_adjpval'] = multipletests(res['lr_pval'], method=adj_pval)[1]
+
     return res
 
-res = {n: regressions_dataset(df, 'fdr_bh') for n, df in [('Transcriptomics', transcriptomics), ('Proteomics', proteomics), ('Residuals', residuals)]}
+res = {n: regressions_dataset(df, 'bonferroni') for n, df in [('Transcriptomics', transcriptomics), ('Proteomics', proteomics), ('Residuals', residuals)]}
 print res
 
 
 # -- Export
 for d in res:
-    res[d].sort('fdr').to_csv('%s/tables/regressions_overlap_%s_cnv.csv' % (wd, d.lower()), index=False)
+    res[d].sort('f_adjpval').to_csv('%s/tables/regressions_overlap_%s_cnv.csv' % (wd, d.lower()), index=False)
 print '[INFO] Tables exported'
 
 
@@ -110,7 +138,7 @@ for c in [-2, 2]:
     ax = plt.subplot(gs[pos])
 
     associations = {
-        d: {p for p, t, f in res[d][['protein', 'type', 'fdr']].values if c == t and f < .05}
+        d: {p for p, t, f in res[d][['protein', 'cnv', 'f_adjpval']].values if c == t and f < .05}
         for d in res}
 
     venn3(associations.values(), set_labels=associations.keys(), set_colors=[palette[k] for k in associations])
@@ -124,22 +152,24 @@ plt.savefig('%s/reports/regressions_overlap_venn.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
 
+
 # -- QQ-plot
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
 
 fig, gs, pos = plt.figure(figsize=(3 * len(res), 3)), GridSpec(1, len(res), hspace=.3), 0
 for d in res:
     plot_df = DataFrame({
-        'x': sorted(-np.log10(stats.uniform.rvs(size=len(res[d])))),
-        'y': sorted(-np.log10(res[d]['wald'].astype(np.float)))
+        'x': sorted([-np.log10(np.float(i) / len(res[d])) for i in np.arange(1, len(res[d]) + 1)]),
+        'y': sorted(-np.log10(res[d]['f_pval']))
     })
 
     ax = plt.subplot(gs[pos])
-    g = sns.regplot('x', 'y', plot_df, fit_reg=True, ci=False, color='#34495e', line_kws={'lw': .3}, ax=ax)
+    g = sns.regplot('x', 'y', plot_df, fit_reg=False, ci=False, color=default_color, line_kws={'lw': .3}, ax=ax)
     g.set_xlim(0)
     g.set_ylim(0)
-    plt.xlabel('Theoretical p-value (-log10)')
-    plt.ylabel('Observed p-value (-log10)')
+    plt.plot(plt.xlim(), plt.xlim(), 'k--', lw=.3)
+    plt.xlabel('Theoretical -log(P)')
+    plt.ylabel('Observed -log(P)')
     plt.title('%s ~ Copy Number' % d)
     sns.despine(trim=True)
 
