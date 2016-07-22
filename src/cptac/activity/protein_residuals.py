@@ -3,8 +3,9 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
-from pandas import read_csv, DataFrame, concat, Series, pivot_table
 from cptac import wd
+from sklearn.linear_model import LinearRegression
+from pandas import read_csv, DataFrame, concat, Series, pivot_table
 
 
 # -- Correlated protein pairs
@@ -35,8 +36,8 @@ print proteomics
 
 
 # -- Estimate residuals
-# p = 'LAMB1'
-p_residuals, p_predicted, p_lm = {}, {}, {}
+# p = 'PDHA1'
+p_residuals = {}
 for p in network_i.vs['name']:
     if p in proteomics.index:
         c_proteins = set(network_i.vs[network_i.neighborhood(p)]['name']).difference({p}).intersection(proteomics.index)
@@ -44,16 +45,18 @@ for p in network_i.vs['name']:
         if len(c_proteins) > 0:
             y = proteomics.ix[p].dropna()
 
-            x = sm.add_constant(proteomics.ix[c_proteins, y.index].T).dropna()
+            x = proteomics.ix[c_proteins, y.index].T.dropna()
 
             if len(x) > 1:
                 y = y.ix[x.index]
 
-                lm = sm.OLS(y, x).fit()
-                print lm.summary()
+                lm = LinearRegression().fit(x, y)
 
-                p_residuals[p] = lm.resid
-                p_lm[p] = lm
+                pred = Series(dict(zip(*(x.index, lm.predict(x)))))
+
+                res = y - pred
+
+                p_residuals[p] = res
 
 p_residuals = DataFrame(p_residuals).T
 p_residuals.to_csv('%s/tables/protein_residuals.csv' % wd)

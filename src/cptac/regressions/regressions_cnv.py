@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from scipy import stats
 from matplotlib.gridspec import GridSpec
-from cptac import wd, palette, default_color
+from cptac import wd, palette, default_color, palette_cnv_number
 from cptac.utils import log_likelihood, f_statistic, r_squared
 from sklearn.linear_model import LinearRegression
 from matplotlib_venn import venn3, venn3_circles
@@ -15,17 +15,16 @@ from pandas import DataFrame, Series, read_csv, concat
 # -- Imports
 # CNV
 cnv = read_csv('%s/data/tcga_cnv.tsv' % wd, sep='\t', index_col=0)
-cnv.columns = [i[:15] for i in cnv]
-cnv = cnv.applymap(lambda x: 0 if -1 <= x <= 1 else x)
-cnv = cnv.loc[:, (cnv != 0).sum() != 0]
+# cnv = cnv.applymap(lambda x: 0 if -1 <= x <= 1 else x)
+# cnv = cnv.loc[:, (cnv != 0).sum() != 0]
 print cnv
 
 # Transcriptomics
-transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected.csv' % wd, index_col=0)
+transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0)
 print transcriptomics
 
 # Proteomics
-proteomics = read_csv('%s/data/cptac_proteomics_corrected.csv' % wd, index_col=0)
+proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
 print proteomics
 
 # Residuals
@@ -73,38 +72,32 @@ def regressions(p, c, df, thres=5):
 
     if x[p].sum() >= thres:
         # Fit models
-        lm1 = LinearRegression().fit(x, y)
-        lm2 = LinearRegression().fit(np.zeros((len(x), 1)), y)
+        lm = LinearRegression().fit(x, y)
 
         # Predict
-        y_true_lm1, y_pred_lm1 = y.copy(), Series(dict(zip(*(x.index, lm1.predict(x)))))
-        y_true_lm2, y_pred_lm2 = y.copy(), Series(dict(zip(*(x.index, lm2.predict(np.zeros((len(x), 1)))))))
-
-        # np.zeros((len(x), 1))
-        # x.drop(p, axis=1)
+        y_true, y_pred = y.copy(), Series(dict(zip(*(x.index, lm.predict(x)))))
 
         # Log likelihood
-        l_lm1 = log_likelihood(y_true_lm1, y_pred_lm1)
-        l_lm2 = log_likelihood(y_true_lm1, y_pred_lm2)
+        l_lm = log_likelihood(y_true, y_pred)
 
-        # Log likelihood ratio
-        lr = 2 * (l_lm1 - l_lm2)
-        lr_pval = stats.chi2.sf(lr, 1)
+        # # Log likelihood ratio
+        # lr = 2 * (l_lm1 - l_lm2)
+        # lr_pval = stats.chi2.sf(lr, 1)
 
         # Effect size
         effect = y[x[p] == 1].mean() - y[x[p] != 1].mean()
 
         # F-statistic
-        f, f_pval = f_statistic(y_true_lm1, y_pred_lm1, len(y), x.shape[1])
+        f, f_pval = f_statistic(y_true, y_pred, len(y), x.shape[1])
 
         # R-squared
-        r = r_squared(y_true_lm1, y_pred_lm1)
+        r = r_squared(y_true, y_pred)
 
         res = {
-            'protein': p, 'cnv': c, 'rsquared': r, 'effect_size': effect, 'f': f, 'f_pval': f_pval, 'll': l_lm1, 'll_small': l_lm2, 'll_ratio': lr, 'lr_pval': lr_pval
+            'protein': p, 'cnv': c, 'rsquared': r, 'effect_size': effect, 'f': f, 'f_pval': f_pval, 'll': l_lm
         }
 
-        print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e, ll: %.2f, lr pval: %.2e' % (res['protein'], res['rsquared'], res['f'], res['f_pval'], res['ll'], res['lr_pval'])
+        print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e' % (res['protein'], res['rsquared'], res['f'], res['f_pval'])
         # print sm.OLS(y, sm.add_constant(x, has_constant='add')).fit().summary()
 
         return res
@@ -115,11 +108,10 @@ def regressions_dataset(df, adj_pval='bonferroni'):
     res = DataFrame([i for i in res if i])
 
     res['f_adjpval'] = multipletests(res['f_pval'], method=adj_pval)[1]
-    res['lr_adjpval'] = multipletests(res['lr_pval'], method=adj_pval)[1]
 
     return res
 
-res = {n: regressions_dataset(df, 'bonferroni') for n, df in [('Transcriptomics', transcriptomics), ('Proteomics', proteomics), ('Residuals', residuals)]}
+res = {n: regressions_dataset(df, 'fdr_bh') for n, df in [('Transcriptomics', transcriptomics), ('Proteomics', proteomics), ('Residuals', residuals)]}
 print res
 
 
@@ -176,5 +168,28 @@ for d in res:
     pos += 1
 
 plt.savefig('%s/reports/regressions_overlap_cnv_qqplot.pdf' % wd, bbox_inches='tight')
+plt.close('all')
+print '[INFO] Plot done'
+
+
+# --
+trans_p = set(res['Transcriptomics'][res['Transcriptomics']['f_adjpval'] < .05]['protein'])
+prot_p = set(res['Proteomics'][res['Proteomics']['f_adjpval'] < .05]['protein'])
+resid_p = set(res['Residuals'][res['Residuals']['f_adjpval'] < .05]['protein'])
+
+proteins = set(resid_p).intersection(trans_p).intersection(prot_p)
+
+p = 'AKT1'
+
+plot_df = DataFrame({'transcriptomics': transcriptomics.ix[p, samples], 'proteomics': proteomics.ix[p, samples], 'residuals': residuals.ix[p, samples], 'cnv': cnv.ix[p, samples]}).dropna()
+
+sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+
+g = sns.PairGrid(plot_df)
+g.map_upper(sns.regplot, fit_reg=False)
+g.map_diag(sns.distplot, kde=False)
+g.map_lower(sns.regplot)
+
+plt.savefig('%s/reports/regressions_overlap_pairplot.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'

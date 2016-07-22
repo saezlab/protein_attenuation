@@ -85,10 +85,11 @@ a_proteomics = read_csv('%s/tables/regressions_overlap_proteomics_cnv.csv' % wd)
 a_residuals = read_csv('%s/tables/regressions_overlap_residuals_cnv.csv' % wd)
 
 associations = {
-    n: {(p, t) for p, t, e, f in df[['protein', 'type', 'effectsize', 'fdr']].values if f < 1e-2 and abs(e) > 1.}
+    n: {(p, t) for p, t, f, r in df[['protein', 'cnv', 'f_adjpval', 'rsquared']].values if f < .05 and r > .0}
     for n, df in [('Transcriptomics', a_transcriptomics), ('Proteomics', a_proteomics), ('Residuals', a_residuals)]
 }
-associations['Overlap'] = associations['Transcriptomics'].intersection(associations['Proteomics']).difference(associations['Residuals'])
+# associations['Overlap'] = set(associations['Residuals']).difference(associations['Transcriptomics'].intersection(associations['Proteomics']))
+associations['Overlap'] = set(associations['Residuals']).intersection(associations['Transcriptomics']).intersection(associations['Proteomics'])
 
 for a in associations:
     res[a] = [int((p, t) in associations[a]) for p, t in res[['protein', 'type']].values]
