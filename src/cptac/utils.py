@@ -56,3 +56,9 @@ def r_squared(y_true, y_pred):
     r = 1 - sse / sst
 
     return r
+
+
+def ztest(targets, mu, var):
+    z = (np.mean(targets) - mu) / (np.sqrt(var / len(targets)))
+    p = 2 * stats.norm.sf(abs(z))
+    return z, p, np.mean(targets), len(targets)

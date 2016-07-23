@@ -2,8 +2,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from cptac import wd, default_color, palette_cnv_number
-from scipy import stats
-from sklearn.linear_model import Ridge
+from cptac.utils import ztest
 from pandas import DataFrame, read_csv
 from statsmodels.stats.multitest import multipletests
 
@@ -20,15 +19,10 @@ trans = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=
 print trans
 
 
-# -- Estimate activity: linear regression
+# -- Estimate TF activity
 # s, t = 'TCGA-E2-A15A-01', 'ZEB1'
 # targets, mu, var = trans.ix[regulons[t], s].dropna(), trans[s].mean(), trans[s].var()
-def zscore(targets, mu, var):
-    z = (np.mean(targets) - mu) / (np.sqrt(var / len(targets)))
-    p = 2 * stats.norm.sf(abs(z))
-    return z, p, np.mean(targets), len(targets)
-
-tf_activity = [[s, t] + list(zscore(trans.ix[regulons[t], s].dropna(), trans[s].mean(), trans[s].var())) for s in trans for t in regulons if len(trans.ix[regulons[t], s].dropna()) > 0]
+tf_activity = [[s, t] + list(ztest(trans.ix[regulons[t], s].dropna(), trans[s].mean(), trans[s].var())) for s in trans for t in regulons if len(trans.ix[regulons[t], s].dropna()) > 0]
 tf_activity = DataFrame(tf_activity, columns=['sample', 'tf', 'z', 'pval', 'mean', 'targets'])
 tf_activity['FDR'] = multipletests(tf_activity['pval'],  method='fdr_bh')[1]
 tf_activity.to_csv('%s/tables/tf_activities.csv' % wd)
