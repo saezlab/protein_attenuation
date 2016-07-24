@@ -15,6 +15,7 @@ print prot
 # -- Complexes proteins
 uniprot = read_uniprot_genename()
 corum = {k: {uniprot[p][0] for p in v if p in uniprot} for k, v in get_complexes_dict().items()}
+corum_n = get_complexes_name()
 print len(corum)
 
 
@@ -25,13 +26,13 @@ def ztest_complex(s, c):
 
     if len(x1) > 1:
         z, pvalue = ztest(x1, x2)
-        return s, c, z, pvalue, x1.mean(), len(x1)
+        return s, c, corum_n[c], z, pvalue, x1.mean(), len(x1)
 
 c_activity = [ztest_complex(s, c) for s in prot for c in corum]
-c_activity = DataFrame([i for i in c_activity if i], columns=['sample', 'complex', 'z', 'pval', 'mean', 'targets'])
+c_activity = DataFrame([i for i in c_activity if i], columns=['sample', 'complex', 'name', 'z', 'pval', 'mean', 'targets'])
 c_activity['FDR'] = multipletests(c_activity['pval'],  method='fdr_bh')[1]
-c_activity.to_csv('%s/tables/protein_complexes_activities.csv' % wd)
-print c_activity.sort('FDR')
+c_activity.to_csv('%s/tables/protein_complexes_activities.tsv' % wd, sep='\t')
+print c_activity.sort('mean')
 
 # -- CNV validation
 # CNV
