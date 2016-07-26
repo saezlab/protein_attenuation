@@ -65,3 +65,4 @@ target/
 .DS_Store
 tables/tcga_genomics.csv
 .idea/
+protein_pairs_residuals.csv

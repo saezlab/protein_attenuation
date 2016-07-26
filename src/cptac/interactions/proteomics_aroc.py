@@ -2,7 +2,7 @@ import itertools as it
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from cptac import wd, palette
+from cptac import wd, palette, palette_dbs
 from gdsc import wd as gdsc_wd
 from matplotlib.gridspec import GridSpec
 from pandas import read_csv, DataFrame, concat, Series
@@ -72,14 +72,14 @@ cor_res = {}
 for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteomics', proteomics), ('Transcriptomics', transcriptomics)]:
     print name
 
-    # Generate p-p correlations
+    # -- Generate p-p correlations
     df = d_df.T.corr(method='pearson')
     df.values[np.tril_indices(df.shape[0], 0)] = np.nan
     df.index.name = None
     df = df.unstack().reset_index().dropna()
     df.columns = ['p1', 'p2', 'cor']
 
-    # Annotate p-p interactions
+    # -- Annotate p-p interactions
     df['CORUM'] = [1 if ((p1, p2) in corum) else 0 for p1, p2 in df[['p1', 'p2']].values]
     df['STRING'] = [1 if ((p1, p2) in string['highest']) else 0 for p1, p2 in df[['p1', 'p2']].values]
     df['BioGRID'] = [1 if ((p1, p2) in biogrid) else 0 for p1, p2 in df[['p1', 'p2']].values]
@@ -98,10 +98,10 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
         df['BioGRID_%s' % action] = [1 if ((p1, p2) in biogrid_action[action]) else 0 for p1, p2 in df[['p1', 'p2']].values]
         print 'BioGRID_%s' % action
 
-    # Calculate score
+    # -- Calculate score
     df['score'] = df['cor'].abs()
 
-    # Estimate ROC curves
+    # -- Estimate ROC curves
     cor_res[name] = {}
     for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
         curve_fpr, curve_tpr, _ = roc_curve(df[db], df['score'])
@@ -119,6 +119,72 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
     for action in biogrid_action:
         curve_fpr, curve_tpr, _ = roc_curve(df['BioGRID_%s' % action], df['score'])
         cor_res[name]['BioGRID_%s' % action] = (curve_fpr, curve_tpr)
+
+    # -- Histograms
+    sns.set(style='ticks', context='paper', rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'}, font_scale=.75)
+    fig, gs = plt.figure(figsize=(16, 3)), GridSpec(1, 4, hspace=.3, wspace=.3)
+
+    # All data-bases
+    ax = plt.subplot(gs[0])
+    g = sns.distplot(df['cor'], color=palette_dbs['All'], hist=False, kde_kws={'shade': True}, label='All', ax=ax)
+    for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
+        sns.distplot(df.ix[df[db] == 1, 'cor'], color=palette_dbs[db], hist=False, kde_kws={'shade': True}, label=db, ax=ax)
+
+    ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    ax.set_title('%s\ndata-bases' % name)
+    ax.set_xlabel('Pearson\'s r')
+    ax.set_ylabel('Density')
+    g.set_xlim(-1, 1)
+    sns.despine(trim=True, ax=ax)
+
+    # STRING thresholds
+    ax = plt.subplot(gs[1])
+    pal = dict(zip(*(['low', 'medium', 'high', 'highest'], sns.light_palette(palette_dbs['STRING'], n_colors=5).as_hex()[1:])))
+    for thres in ['low', 'medium', 'high', 'highest']:
+        g = sns.distplot(df.ix[df['STRING_%s' % thres] == 1, 'cor'], color=pal[thres], hist=False, kde_kws={'shade': True}, label='%s (> %d)' % (thres, string_thres[thres]), ax=ax)
+        g.set_xlim(-1, 1)
+
+    ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    ax.set_title('%s\nSTRING confidence thresholds' % name)
+    ax.set_xlabel('Pearson\'s r')
+    ax.set_ylabel('Density')
+    sns.despine(trim=True, ax=ax)
+
+    # STRING type
+    ax = plt.subplot(gs[2])
+    thres = 'highest'
+    pal = dict(zip(*(['reaction', 'binding', 'catalysis', 'activation'], sns.light_palette(palette_dbs['STRING'], n_colors=5).as_hex()[1:])))
+    for action in ['reaction', 'binding', 'catalysis', 'activation']:
+        if len(df.ix[df['STRING_%s_%s' % (thres, action)] == 1, 'cor']) > 0:
+            g = sns.distplot(df.ix[df['STRING_%s_%s' % (thres, action)] == 1, 'cor'], color=pal[action], hist=False, kde_kws={'shade': True}, label=action, ax=ax)
+            g.set_xlim(-1, 1)
+
+    ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    ax.set_title('%s\nSTRING interaction type (threshold: %s)' % (name, thres))
+    ax.set_xlabel('Pearson\'s r')
+    ax.set_ylabel('Density')
+    sns.despine(trim=True, ax=ax)
+
+    # BioGRID
+    ax = plt.subplot(gs[3])
+    pal = dict(zip(*(['Co-purification', 'Co-crystal Structure', 'Far Western', 'FRET'], sns.light_palette(palette_dbs['BioGRID'], n_colors=5).as_hex()[1:])))
+    for action in ['Co-purification', 'Co-crystal Structure', 'Far Western', 'FRET']:
+        if len(df.ix[df['BioGRID_%s' % action] == 1, 'cor']) > 0:
+            g = sns.distplot(df.ix[df['BioGRID_%s' % action] == 1, 'cor'], color=pal[action], hist=False, kde_kws={'shade': True}, label=action, ax=ax)
+            g.set_xlim(-1, 1)
+
+    ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    ax.set_title('%s\nBioGRID interaction type' % name)
+    ax.set_xlabel('Pearson\'s r')
+    ax.set_ylabel('Density')
+    sns.despine(trim=True, ax=ax)
+
+    # Export
+    plt.savefig('%s/reports/correlation_histogram_%s.pdf' % (wd, name), bbox_inches='tight')
+    plt.close('all')
+
+    # -- Export top correlated proteins list
+    df[df['score'] > .4].to_csv('%s/tables/top_correlated_protein_pairs_%s.csv' % (wd, name.lower()), index=False)
 
     print 'ROC done'
 
@@ -157,7 +223,7 @@ fig, gs, pos = plt.figure(figsize=(13, 3)), GridSpec(1, 4, hspace=.3, wspace=.3)
 for thres in ['highest', 'high', 'medium', 'low']:
     ax = plt.subplot(gs[pos])
 
-    for name in ['BRCA']:
+    for name in ['BRCA', 'COREAD', 'HGSC', 'Proteomics', 'Transcriptomics']:
         curve_fpr, curve_tpr = cor_res[name]['STRING_%s' % thres]
         plt.plot(curve_fpr, curve_tpr, label='%s (AUC %0.2f)' % (name, auc(curve_fpr, curve_tpr)), c=palette[name])
 
@@ -183,7 +249,7 @@ for action in ['activation', 'inhibition', 'binding', 'catalysis', 'expression',
     for thres in ['highest', 'high', 'medium', 'low']:
         ax = plt.subplot(gs[pos])
 
-        for name in ['BRCA']:
+        for name in ['BRCA', 'COREAD', 'HGSC', 'Proteomics', 'Transcriptomics']:
             if 'STRING_%s_%s' % (thres, action) in cor_res[name]:
                 curve_fpr, curve_tpr = cor_res[name]['STRING_%s_%s' % (thres, action)]
                 plt.plot(curve_fpr, curve_tpr, label='%s (AUC %0.2f)' % (name, auc(curve_fpr, curve_tpr)), c=palette[name])
@@ -210,7 +276,7 @@ gs, pos = GridSpec(5, 5, hspace=.45, wspace=.45), 0
 for action in biogrid_action:
     ax = plt.subplot(gs[pos])
 
-    for name in ['BRCA']:
+    for name in ['BRCA', 'COREAD', 'HGSC', 'Proteomics', 'Transcriptomics']:
         curve_fpr, curve_tpr = cor_res[name]['BioGRID_%s' % action]
         plt.plot(curve_fpr, curve_tpr, label='%s (AUC %0.2f)' % (name, auc(curve_fpr, curve_tpr)), c=palette[name])
 
