@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans, AgglomerativeClustering, AffinityPropagation
 from lifelines import KaplanMeierFitter
 from lifelines.statistics import logrank_test
-from pandas import DataFrame, Series, read_csv
+from pandas import DataFrame, Series, read_csv, pivot_table
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from cptac import wd, palette, palette_survival, palette_binary
@@ -12,7 +12,7 @@ from cptac import wd, palette, palette_survival, palette_binary
 
 # -- Import
 # proteomics
-proteomics = read_csv('%s/data/pancan_proteomics_preprocessed_normalised.csv' % wd, index_col=0)
+proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
 proteomics = proteomics[proteomics.count(1) > (proteomics.shape[1] * .5)]
 annot = Series.from_csv('%s/data/samplesheet.csv' % wd)
 print proteomics
@@ -23,21 +23,15 @@ clinical['VITAL_STATUS'] = [0 if i == 'Alive' else 1 for i in clinical['VITAL_ST
 clinical = clinical[clinical['DAYS_TO_LAST_FOLLOWUP'] > 1]
 print clinical
 
+# Protein complexes
+c_activity = read_csv('%s/tables/protein_complexes_activities.tsv' % wd, sep='\t', index_col=0)
+c_activity = pivot_table(c_activity, index='complex', columns='sample', values='z')
+
 
 # -- Heatmap
-plot_df = proteomics.dropna().corr(method='pearson')
-
-kmn = AgglomerativeClustering(n_clusters=2, linkage='complete', affinity='correlation').fit(plot_df)
-annot_kmn = {k: palette_binary[v] for k, v in dict(zip(*(plot_df.index, kmn.labels_))).items()}
-
-cmap = sns.diverging_palette(220, 10, n=9, as_cmap=True)
+cmap = sns.diverging_palette(220, 20, n=7, as_cmap=True)
 sns.set(style='white', context='paper', rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3}, font_scale=0.75)
-g = sns.clustermap(
-    plot_df, metric='correlation', col_colors=[palette[annot.ix[i]] for i in plot_df],
-    row_colors=[annot_kmn[i] for i in plot_df.index], cmap=cmap, figsize=(5, 5),
-    xticklabels=False, yticklabels=False
-)
-plt.suptitle('Pancancer proteomics clustermap')
+sns.clustermap(c_activity.corr(), metric='correlation', cmap=cmap, figsize=(5, 5), xticklabels=False, yticklabels=False)
 plt.savefig('%s/reports/pancan_proteomics_clustermap.png' % wd, bbox_inches='tight', dpi=300)
 plt.close('all')
 print '[INFO] Plot done'

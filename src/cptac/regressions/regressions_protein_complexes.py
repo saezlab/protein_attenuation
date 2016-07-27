@@ -21,59 +21,39 @@ print cnv
 
 # Protein complexes activities
 c_activity = read_csv('%s/tables/protein_complexes_activities.tsv' % wd, sep='\t', index_col=0)
-c_activity = pivot_table(c_activity, index='complex', columns='sample', values='mean')
+c_activity = pivot_table(c_activity, index='complex', columns='sample', values='z')
 
 uniprot = read_uniprot_genename()
 complex_name = get_complexes_name()
 complex_proteins = {k: {uniprot[p][0] for p in v if p in uniprot}.intersection(cnv.index) for k, v in get_complexes_dict().items()}
 print c_activity
 
-# Clinical data
-clinical = read_csv('%s/data/clinical_data.tsv' % wd, sep='\t').dropna(subset=['VITAL_STATUS', 'DAYS_TO_LAST_FOLLOWUP'])
-clinical['VITAL_STATUS'] = [0 if i == 'Alive' else 1 for i in clinical['VITAL_STATUS']]
-clinical = clinical[clinical['DAYS_TO_LAST_FOLLOWUP'] > 1]
-clinical_gender = clinical.groupby('SAMPLE_brcID')['GENDER'].first().to_dict()
-clinical_age = clinical.groupby('SAMPLE_brcID')['AGE'].first().to_dict()
+# Proteomics
+samplesheet = Series.from_csv('%s/data/samplesheet.csv' % wd)
+proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
+print proteomics
 
 
 # -- Overlap
 genes = set(cnv.index)
 complexes = set(c_activity.index)
-samples = set(cnv).intersection(c_activity).intersection(clinical['SAMPLE_brcID'])
+samples = set(cnv).intersection(c_activity)
 print len(genes), len(samples)
 
 
-# -- Covariates
-samplesheet = Series.from_csv('%s/data/samplesheet.csv' % wd)
-samplesheet = {k: v for k, v in samplesheet.to_dict().items()}
-
-design = Series([samplesheet[i] for i in samples], index=samples)
-design = design.str.get_dummies()
-
-design = concat([design, Series({i: clinical_gender[i] for i in design.index}).str.get_dummies()], axis=1)
-design['AGE'] = [clinical_age[i] for i in design.index]
-print list(design)
-
-
 # -- Regressions
-# protein, p_complex, c, df, thres = 'ERBB2', 100, 2, c_activity, 5
-def regressions(protein, p_complex, c, df, thres=5):
+# protein, p_complex, df = 'SMAD2', 3038, c_activity
+def regressions(protein, p_complex, df):
     # Protein measurements
     y = df.ix[p_complex, samples].dropna()
-    x = concat([cnv.ix[protein]], axis=True).ix[y.index].dropna()
+    x = cnv.ix[[protein], y.index].T.dropna()
 
-    y = y.ix[x.index]
-
-    # Discretise
-    x.ix[x[protein] != c, protein] = 0
-    x.ix[x[protein] == c, protein] = 1
-
-    if x[protein].sum() >= thres:
+    if len(set(x[protein])) > 0:
         # Fit models
         lm = LinearRegression().fit(x, y)
 
         # Predict
-        y_true, y_pred = y.copy(), Series(dict(zip(*(x.index, lm.predict(x)))))
+        y_pred = Series(dict(zip(*(x.index, lm.predict(x)))))
 
         # # Log likelihood
         # l_lm = log_likelihood(y_true, y_pred)
@@ -86,13 +66,13 @@ def regressions(protein, p_complex, c, df, thres=5):
         effect = y[x[protein] == 1].mean() - y[x[protein] != 1].mean()
 
         # F-statistic
-        f, f_pval = f_statistic(y_true, y_pred, len(y), x.shape[1])
+        f, f_pval = f_statistic(y, y_pred, len(y), x.shape[1])
 
         # R-squared
-        r = r_squared(y_true, y_pred)
+        r = r_squared(y, y_pred)
 
         res = {
-            'protein': protein, 'complex': p_complex, 'cnv': c, 'rsquared': r, 'effect_size': effect, 'f': f, 'f_pval': f_pval
+            'protein': protein, 'complex': p_complex, 'rsquared': r, 'effect_size': effect, 'f': f, 'f_pval': f_pval
         }
 
         print '%s, %s: Rsquared: %.2f, F: %.2f, F pval: %.2e' % (res['protein'], complex_name[p_complex], res['rsquared'], res['f'], res['f_pval'])
@@ -100,32 +80,52 @@ def regressions(protein, p_complex, c, df, thres=5):
 
         return res
 
-res = [regressions(protein, p_complex, c, c_activity) for p_complex in complexes for protein in complex_proteins[p_complex] for c in [-2, 2]]
+res = [regressions(protein, p_complex, c_activity) for p_complex in complexes for protein in complex_proteins[p_complex]]
 res = DataFrame([i for i in res if i])
 res['f_adjpval'] = multipletests(res['f_pval'], method='fdr_bh')[1]
-print res.sort('f_adjpval')
+res['n_proteins'] = [len(complex_proteins[i].intersection(proteomics.index)) for i in res['complex']]
+print res.sort('f_adjpval').head(40)
 
 
-# -- QQ-plot
-sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+# --
+p_complex, protein = 2217, 'MRE11A'
 
-plot_df = DataFrame({
-    'x': sorted([-np.log10(np.float(i) / len(res)) for i in np.arange(1, len(res) + 1)]),
-    'y': sorted(-np.log10(res['f_pval']))
-})
+plot_df = DataFrame({'complex': c_activity.ix[p_complex], 'cnv': cnv.ix[protein], 'type': samplesheet})
+plot_df = concat([plot_df, proteomics.ix[complex_proteins[p_complex]].dropna(how='all').T], axis=1).dropna()
 
-g = sns.regplot('x', 'y', plot_df, fit_reg=False, ci=False, color=default_color, line_kws={'lw': .3})
-g.set_xlim(0)
-g.set_ylim(0)
-plt.plot(plt.xlim(), plt.xlim(), 'k--', lw=.3)
-plt.xlabel('Theoretical -log(P)')
-plt.ylabel('Observed -log(P)')
-plt.title('Protein Complex ~ Copy Number')
-sns.despine(trim=True)
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+gs = GridSpec(1, 3, hspace=.3)
 
-plt.gcf().set_size_inches(5, 5)
-plt.savefig('%s/reports/regressions_overlap_protein_complexes_qqplot.pdf' % wd, bbox_inches='tight')
+# Scatter
+ax = plt.subplot(gs[0])
+plot_df_ = plot_df.drop(['cnv', 'complex', 'type'], axis=1).unstack().reset_index()
+plot_df_.columns = ['protein', 'sample', 'proteomics']
+plot_df_['type'] = [samplesheet.ix[i] for i in plot_df_['sample']]
+g = sns.stripplot('sample', 'proteomics', hue='type', data=plot_df_, order=list(plot_df.sort('complex').index), ax=ax, palette=palette, size=3, jitter=True, edgecolor='white', linewidth=.3)
+ax.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
+sns.despine(trim=True, bottom=True)
+ax.set_xticklabels([])
+plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off')
+ax.legend(loc=2)
+ax.set_ylabel('Protein abundance')
+ax.set_xlabel('Samples (ordered by z-test)')
+
+# Boxplot
+ax = plt.subplot(gs[1])
+sns.boxplot(plot_df['cnv'], plot_df['complex'], palette=palette_cnv_number, ax=ax, linewidth=.3, sym='')
+sns.stripplot(plot_df['cnv'], plot_df['complex'], palette=palette_cnv_number, ax=ax, linewidth=.3, size=5, jitter=True, edgecolor='white')
+ax.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
+sns.despine(ax=ax, trim=True)
+ax.set_xlabel('%s - Copy number variation' % protein)
+ax.set_ylabel('Protein complex (z-test)')
+
+# Heatmap
+ax = plt.subplot(gs[2])
+pal = sns.diverging_palette(220, 20, n=7, as_cmap=True)
+sns.heatmap(plot_df.drop(['cnv', 'complex', 'type'], axis=1).corr(), ax=ax, cmap=pal, center=0, annot=True, fmt='.2f')
+
+plt.suptitle(complex_name[p_complex])
+plt.gcf().set_size_inches(12, 4)
+plt.savefig('%s/reports/regressions_complex_cnv.pdf' % wd, bbox_inches='tight')
 plt.close('all')
-print '[INFO] Plot done'
-
-
+print '[INFO] Done'

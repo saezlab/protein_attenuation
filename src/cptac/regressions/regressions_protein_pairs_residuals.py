@@ -99,7 +99,7 @@ print res.sort('f_adjpval')
 
 
 # --
-p_pair, protein = 'IARS_LARS', 'LARS'
+p_pair, protein = 'PSME2_PSME1', 'PSME2'
 p1, p2 = p_pair.split('_')
 
 plot_df = DataFrame({p1: proteomics.ix[p1], p2: proteomics.ix[p2], 'cnv': cnv.ix[protein], 'res': residuals.ix[p_pair]}).dropna()

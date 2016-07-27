@@ -10,25 +10,15 @@ from statsmodels.stats.multitest import multipletests
 from lifelines import KaplanMeierFitter
 from sklearn.metrics.ranking import roc_curve, auc
 from lifelines.statistics import logrank_test
-from pandas import DataFrame, Series, read_csv, concat, merge
+from pandas import DataFrame, Series, read_csv, concat, merge, pivot_table
 
 
 # -- Imports
-# CNV
-cnv = read_csv('%s/data/tcga_cnv.tsv' % wd, sep='\t', index_col=0)
-print cnv
-
-# Transcriptomics
-transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0)
-print transcriptomics
-
-# Proteomics
-proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
-print proteomics
-
-# Residuals
-residuals = read_csv('%s/tables/protein_residuals.csv' % wd, index_col=0)
-print residuals
+# Protein complexes activities
+# df = read_csv('%s/tables/protein_complexes_activities.tsv' % wd, sep='\t', index_col=0)
+# df = pivot_table(df, index='complex', columns='sample', values='z')
+df = read_csv('%s/tables/tf_activities.csv' % wd, index_col=0)
+df = pivot_table(df, index='tf', columns='sample', values='z')
 
 # Clinical data
 clinical = read_csv('%s/data/clinical_data.tsv' % wd, sep='\t', index_col=0).dropna(subset=['VITAL_STATUS', 'DAYS_TO_LAST_FOLLOWUP'])
@@ -38,76 +28,51 @@ print clinical
 
 
 # -- Overlap
-genes = set(cnv.index).intersection(proteomics.index).intersection(transcriptomics.index)
-samples = set(cnv).intersection(proteomics).intersection(transcriptomics).intersection(residuals).intersection(clinical.index)
-print len(genes), len(samples)
+samples = set(df).intersection(clinical.index)
+print len(samples)
 
 
 # -- Survival
-# c, p = 2, 'ERBB2'
-def survival(p, c, thres=5):
-    y = cnv.ix[p, samples].dropna()
+# p_complex = 100
+def survival(p_complex):
+    y = df.ix[p_complex, samples].dropna()
 
-    if len(y[y == c]) >= thres:
-        logrank = logrank_test(
-            clinical.ix[y[y == c].index, 'DAYS_TO_LAST_FOLLOWUP'], clinical.ix[y[y != c].index, 'DAYS_TO_LAST_FOLLOWUP'],
-            clinical.ix[y[y == c].index, 'VITAL_STATUS'], clinical.ix[y[y != c].index, 'VITAL_STATUS']
-        )
+    samples_up = set(y[y > np.percentile(y, 75)].index)
+    samples_down = set(y[y < np.percentile(y, 25)].index)
 
-        print p, c, logrank.p_value
+    logrank = logrank_test(
+        clinical.ix[samples_up, 'DAYS_TO_LAST_FOLLOWUP'], clinical.ix[samples_down, 'DAYS_TO_LAST_FOLLOWUP'],
+        clinical.ix[samples_up, 'VITAL_STATUS'], clinical.ix[samples_down, 'VITAL_STATUS']
+    )
 
-        return p, c, logrank.p_value
-    return np.nan, np.nan, np.nan
+    return {'var': p_complex, 't_test': logrank.test_statistic, 'logrank': logrank.p_value}
 
-res = DataFrame([survival(p, c) for p in genes for c in [-2, 2]], columns=['protein', 'type', 'pval']).dropna()
-res['fdr'] = multipletests(res['pval'], method='fdr_bh')[1]
-res.sort('fdr').to_csv('%s/tables/survival_overlap_cnv.csv' % wd, index=False)
-print res.sort('fdr')
-
-# c = 2
-# p = 'PCCB'
-# y = cnv.ix[p, samples].dropna()
-#
-# ax = plt.subplot(111)
-#
-# kmf = KaplanMeierFitter()
-#
-# kmf.fit(clinical.ix[y[y == c].index, 'DAYS_TO_LAST_FOLLOWUP'], event_observed=clinical.ix[y[y == c].index, 'VITAL_STATUS'], label='%.0f' % c)
-# kmf.plot(ax=ax, ci_force_lines=True)
-#
-# kmf.fit(clinical.ix[y[y != c].index, 'DAYS_TO_LAST_FOLLOWUP'], event_observed=clinical.ix[y[y != c].index, 'VITAL_STATUS'], label='%.0f' % .0)
-# kmf.plot(ax=ax, ci_force_lines=True)
+res = [survival(p_complex) for p_complex in df.index]
+res = DataFrame([i for i in res if i])
+res['fdr'] = multipletests(res['logrank'], method='fdr_bh')[1]
+print res.sort(['fdr', 'logrank'])
 
 
-# -- Significant associations
-a_transcriptomics = read_csv('%s/tables/regressions_overlap_transcriptomics_cnv.csv' % wd)
-a_proteomics = read_csv('%s/tables/regressions_overlap_proteomics_cnv.csv' % wd)
-a_residuals = read_csv('%s/tables/regressions_overlap_residuals_cnv.csv' % wd)
+# --
+y = df.ix[res.ix[res['logrank'].argmin(), 'var'], samples].dropna()
 
-associations = {
-    n: {(p, t) for p, t, f, r in df[['protein', 'cnv', 'f_adjpval', 'rsquared']].values if f < .05 and r > .0}
-    for n, df in [('Transcriptomics', a_transcriptomics), ('Proteomics', a_proteomics), ('Residuals', a_residuals)]
-}
-# associations['Overlap'] = set(associations['Residuals']).difference(associations['Transcriptomics'].intersection(associations['Proteomics']))
-associations['Overlap'] = set(associations['Residuals']).intersection(associations['Transcriptomics']).intersection(associations['Proteomics'])
+samples_up = set(y[y > np.percentile(y, 75)].index)
+samples_down = set(y[y < np.percentile(y, 25)].index)
 
-for a in associations:
-    res[a] = [int((p, t) in associations[a]) for p, t in res[['protein', 'type']].values]
-print res.sort('fdr')
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+ax = plt.subplot(111)
 
+kmf = KaplanMeierFitter()
 
-sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+kmf.fit(clinical.ix[samples_up, 'DAYS_TO_LAST_FOLLOWUP'], event_observed=clinical.ix[samples_up, 'VITAL_STATUS'], label='UP')
+kmf.plot(ax=ax, ci_force_lines=False)
 
-for a in associations:
-    curve_fpr, curve_tpr, _ = roc_curve(res[a], 1 - res['fdr'])
-    plt.plot(curve_fpr, curve_tpr, label='%s (AUC %0.2f)' % (a, auc(curve_fpr, curve_tpr)), c=palette[a])
+kmf.fit(clinical.ix[samples_down, 'DAYS_TO_LAST_FOLLOWUP'], event_observed=clinical.ix[samples_down, 'VITAL_STATUS'], label='DOWN')
+kmf.plot(ax=ax, ci_force_lines=False)
 
-plt.plot([0, 1], [0, 1], 'k--', lw=.3)
-sns.despine(trim=True)
-plt.legend(loc='lower right')
-plt.xlabel('False positive rate')
-plt.ylabel('True positive rate')
-plt.gcf().set_size_inches(3, 3)
-plt.savefig('%s/reports/survival_aroc.pdf' % wd, bbox_inches='tight')
+sns.despine()
+
+plt.gcf().set_size_inches(5, 3)
+plt.savefig('%s/reports/survival_complexes.pdf' % wd, bbox_inches='tight')
 plt.close('all')
-print '[INFO] Plot done'
+print '[INFO] Done'
