@@ -98,26 +98,23 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
         df['BioGRID_%s' % action] = [1 if ((p1, p2) in biogrid_action[action]) else 0 for p1, p2 in df[['p1', 'p2']].values]
         print 'BioGRID_%s' % action
 
-    # -- Calculate score
-    df['score'] = df['cor'].abs()
-
     # -- Estimate ROC curves
     cor_res[name] = {}
     for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
-        curve_fpr, curve_tpr, _ = roc_curve(df[db], df['score'])
+        curve_fpr, curve_tpr, _ = roc_curve(df[db], df['cor'])
         cor_res[name][db] = (curve_fpr, curve_tpr)
 
     for thres in string_thres:
-        curve_fpr, curve_tpr, _ = roc_curve(df['STRING_%s' % thres], df['score'])
+        curve_fpr, curve_tpr, _ = roc_curve(df['STRING_%s' % thres], df['cor'])
         cor_res[name]['STRING_%s' % thres] = (curve_fpr, curve_tpr)
 
     for thres in string_action:
         for action in string_action[thres]:
-            curve_fpr, curve_tpr, _ = roc_curve(df['STRING_%s_%s' % (thres, action)], df['score'])
+            curve_fpr, curve_tpr, _ = roc_curve(df['STRING_%s_%s' % (thres, action)], df['cor'])
             cor_res[name]['STRING_%s_%s' % (thres, action)] = (curve_fpr, curve_tpr)
 
     for action in biogrid_action:
-        curve_fpr, curve_tpr, _ = roc_curve(df['BioGRID_%s' % action], df['score'])
+        curve_fpr, curve_tpr, _ = roc_curve(df['BioGRID_%s' % action], df['cor'])
         cor_res[name]['BioGRID_%s' % action] = (curve_fpr, curve_tpr)
 
     # -- Histograms
@@ -184,7 +181,7 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
     plt.close('all')
 
     # -- Export top correlated proteins list
-    df[df['score'] > .4].to_csv('%s/tables/top_correlated_protein_pairs_%s.csv' % (wd, name.lower()), index=False)
+    df[df['cor'] > .4].to_csv('%s/tables/top_correlated_protein_pairs_%s.csv' % (wd, name.lower()), index=False)
 
     print 'ROC done'
 

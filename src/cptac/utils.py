@@ -2,6 +2,7 @@ import numpy as np
 from cptac import wd
 from scipy import stats
 from pandas import read_csv, Series
+from scipy.stats.distributions import hypergeom
 
 
 def get_cancer_genes():
@@ -62,3 +63,37 @@ def ztest(targets, mu, var):
     z = (np.mean(targets) - mu) / (np.sqrt(var / len(targets)))
     p = 2 * stats.norm.sf(abs(z))
     return z, p, np.mean(targets), len(targets)
+
+
+def read_gmt(file_path):
+    with open(file_path) as f:
+        signatures = {l.split('\t')[0]: set(l.strip().split('\t')[2:]) for l in f.readlines()}
+
+    return signatures
+
+
+def hypergeom_test(signature, background, sublist):
+    """
+    Performs hypergeometric test
+
+    Arguements:
+            signature: {string} - Signature IDs
+            background: {string} - Background IDs
+            sublist: {string} - Sub-set IDs
+
+    # hypergeom.sf(x, M, n, N, loc=0)
+    # M: total number of objects,
+    # n: total number of type I objects
+    # N: total number of type I objects drawn without replacement
+
+    """
+    pvalue = hypergeom.sf(
+        len(sublist.intersection(signature)),
+        len(background),
+        len(background.intersection(signature)),
+        len(sublist)
+    )
+
+    intersection = len(background.intersection(signature))
+
+    return pvalue, intersection
