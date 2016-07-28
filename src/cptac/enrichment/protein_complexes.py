@@ -1,4 +1,5 @@
 import os
+import pypath
 import numpy as np
 import seaborn as sns
 import itertools as it
@@ -12,7 +13,7 @@ from cptac import wd, default_color, palette_cnv_number
 from statsmodels.stats.multitest import multipletests
 from statsmodels.stats.weightstats import ztest
 from pymist.utils.stringdb import get_stringdb
-from pandas import DataFrame, Series, read_csv, concat
+from pandas import DataFrame, Series, read_csv, concat, pivot_table
 from pymist.utils.corumdb import get_complexes_pairs, get_complexes_dict, get_complexes_name
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
@@ -45,34 +46,34 @@ for p1, p2 in get_stringdb(string_thres['highest']):
 string = {(uniprot[p1][0], uniprot[p2][0]) for p1, p2 in string if p1 in uniprot and p2 in uniprot and uniprot[p1][0] != uniprot[p2][0]}
 
 string_proteins = {p for p1, p2 in string for p in [p1, p2]}
-print len(string)
+print 'string', len(string)
 
 
 # Transcriptomics
 transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0)
-print transcriptomics.shape
+print 'transcriptomics', transcriptomics.shape
 
 # Proteomics
 proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
-print proteomics.shape
+print 'proteomics', proteomics.shape
 
 # uniprot Protein lists
 ptms = {'_'.join(f[:-4].split('_')[1:]):
             {uniprot[i][0] for i in read_csv('%s/files/uniprot_ptms_proteins/%s' % (wd, f), sep='\t')['Entry'] if i in uniprot}
     for f in os.listdir('%s/files/uniprot_ptms_proteins/' % wd) if f.startswith('uniprot_')
 }
-print len(ptms)
+print 'ptms', len(ptms)
 
 # GO terms
 go_terms_bp = read_gmt('%s/files/c5.bp.v5.1.symbols.gmt' % wd)
 go_terms_cc = read_gmt('%s/files/c5.cc.v5.1.symbols.gmt' % wd)
 go_terms_mf = read_gmt('%s/files/c5.mf.v5.1.symbols.gmt' % wd)
-print len(go_terms_mf), len(go_terms_cc), len(go_terms_bp)
+print 'go_terms_mf', 'go_terms_cc', 'go_terms_bp', len(go_terms_mf), len(go_terms_cc), len(go_terms_bp)
 
 msigdb_cp = read_gmt('%s/files/c2.cp.v5.1.symbols.gmt' % wd)
 msigdb_kegg = read_gmt('%s/files/c2.cp.kegg.v5.1.symbols.gmt' % wd)
 msigdb_cgp = read_gmt('%s/files/c2.cgp.v5.1.symbols.gmt' % wd)
-print len(msigdb_cp), len(msigdb_kegg), len(msigdb_cgp)
+print 'msigdb_cp', 'msigdb_kegg', 'msigdb_cgp', len(msigdb_cp), len(msigdb_kegg), len(msigdb_cgp)
 
 
 # -- Overlap
@@ -116,6 +117,35 @@ plt.gcf().set_size_inches(6, 3)
 plt.savefig('%s/reports/corum_pairs_correlation_difference_histogram.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
+
+
+# --
+p_pairs_trans = cor_df[(cor_df['t_fdr'] < .05) & (cor_df['t_cor'] > 0) & (cor_df['p_fdr'] > .05)]
+p_pairs_prot = cor_df[(cor_df['p_fdr'] < .05) & (cor_df['p_cor'] > 0) & (cor_df['t_fdr'] > .05)]
+
+
+def enrichment_hypergeom(set_type, set_name, subset_type, pair_set, background, subset):
+    h_pval, h_len = hypergeom_test(pair_set, background, {p for i in subset.index for p in i.split('_')})
+    return {'type': set_type, 'set_name': set_name, 'subset_type': subset_type, 'pval': h_pval, 'len': h_len}
+
+hyper = DataFrame([enrichment_hypergeom(set_type, set_name, subset_type, pair_set, string_proteins, subset) for set_type, set_paths in [
+    ('mf', go_terms_mf), ('cc', go_terms_cc), ('bp', go_terms_bp),
+    ('ptms', ptms),
+    ('cp', msigdb_cp)
+    # ('kegg', msigdb_kegg)
+] for set_name, pair_set in set_paths.items() for subset_type, subset in [('transcriptomics', p_pairs_trans), ('proteomics', p_pairs_prot)]])
+# print go_term_enrch[go_term_enrch['len'] > 20].sort('aroc')
+hyper['fdr'] = multipletests(hyper['pval'], method='fdr_bh')[1]
+print hyper.sort('fdr')
+
+
+hyper_trans = hyper[(hyper['subset_type'] == 'transcriptomics') & (hyper['fdr'] < .05)]
+hyper_prot = hyper[(hyper['subset_type'] == 'proteomics') & (hyper['fdr'] < .05)]
+
+hyper_ov = set(hyper_trans['set_name']).intersection(hyper_prot['set_name'])
+
+print hyper_trans[[i not in hyper_ov for i in hyper_trans['set_name']]].sort('fdr')
+print hyper_prot[[i not in hyper_ov for i in hyper_prot['set_name']]].sort('fdr')
 
 
 # --
