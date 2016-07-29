@@ -1,5 +1,4 @@
 import os
-import pypath
 import numpy as np
 import seaborn as sns
 import itertools as it
@@ -18,29 +17,22 @@ from pymist.utils.corumdb import get_complexes_pairs, get_complexes_dict, get_co
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
 
-# -- Imports
+# -- Import protein-pairs
 uniprot = read_uniprot_genename()
 
-# # CORUM
-# corum = set()
-# for p1, p2 in get_complexes_pairs():
-#     if (p2, p1) not in corum:
-#         corum.add((p1, p2))
-# corum = {(uniprot[p1][0], uniprot[p2][0]) for p1, p2 in corum if p1 in uniprot and p2 in uniprot and uniprot[p1][0] != uniprot[p2][0]}
-#
-# corum_dict = get_complexes_dict()
-# corum_dict = {k: {uniprot[p][0] for p in corum_dict[k] if p in uniprot} for k in corum_dict}
-#
-# corum_name = get_complexes_name()
-#
-# corum_proteins = {p for p1, p2 in corum for p in [p1, p2]}
-# print len(corum)
+# CORUM
+corum = set()
+for p1, p2 in get_complexes_pairs():
+    if (p2, p1) not in corum:
+        corum.add((p1, p2))
+corum = {(uniprot[p1][0], uniprot[p2][0]) for p1, p2 in corum if p1 in uniprot and p2 in uniprot and uniprot[p1][0] != uniprot[p2][0]}
+
+corum_proteins = {p for p1, p2 in corum for p in [p1, p2]}
+print 'corum', len(corum)
 
 # String
-string_thres = {'low': 150, 'medium': 400, 'high': 700, 'highest': 900}
-
 string = set()
-for p1, p2 in get_stringdb(string_thres['highest']):
+for p1, p2 in get_stringdb(900):
     if (p2, p1) not in string:
         string.add((p1, p2))
 string = {(uniprot[p1][0], uniprot[p2][0]) for p1, p2 in string if p1 in uniprot and p2 in uniprot and uniprot[p1][0] != uniprot[p2][0]}
@@ -48,7 +40,13 @@ string = {(uniprot[p1][0], uniprot[p2][0]) for p1, p2 in string if p1 in uniprot
 string_proteins = {p for p1, p2 in string for p in [p1, p2]}
 print 'string', len(string)
 
+# Overlap
+p_pairs = corum.union(string)
+p_pairs_proteins = corum_proteins.union(string_proteins)
+print 'p_pairs', len(p_pairs)
 
+
+# -- Import data-sets
 # Transcriptomics
 transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0)
 print 'transcriptomics', transcriptomics.shape
@@ -57,7 +55,14 @@ print 'transcriptomics', transcriptomics.shape
 proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
 print 'proteomics', proteomics.shape
 
-# uniprot Protein lists
+# Overlap
+proteins = set(transcriptomics.index).intersection(proteomics.index)
+samples = set(transcriptomics).intersection(proteomics)
+print len(proteins), len(samples)
+
+
+# -- Import gene-sets
+# Uniprot PTMs lists
 ptms = {'_'.join(f[:-4].split('_')[1:]):
             {uniprot[i][0] for i in read_csv('%s/files/uniprot_ptms_proteins/%s' % (wd, f), sep='\t')['Entry'] if i in uniprot}
     for f in os.listdir('%s/files/uniprot_ptms_proteins/' % wd) if f.startswith('uniprot_')
@@ -65,21 +70,16 @@ ptms = {'_'.join(f[:-4].split('_')[1:]):
 print 'ptms', len(ptms)
 
 # GO terms
-go_terms_bp = read_gmt('%s/files/c5.bp.v5.1.symbols.gmt' % wd)
-go_terms_cc = read_gmt('%s/files/c5.cc.v5.1.symbols.gmt' % wd)
-go_terms_mf = read_gmt('%s/files/c5.mf.v5.1.symbols.gmt' % wd)
-print 'go_terms_mf', 'go_terms_cc', 'go_terms_bp', len(go_terms_mf), len(go_terms_cc), len(go_terms_bp)
+msigdb_go_bp = read_gmt('%s/files/c5.bp.v5.1.symbols.gmt' % wd)
+msigdb_go_cc = read_gmt('%s/files/c5.cc.v5.1.symbols.gmt' % wd)
+msigdb_go_mf = read_gmt('%s/files/c5.mf.v5.1.symbols.gmt' % wd)
+print 'msigdb_go_mf', 'msigdb_go_cc', 'msigdb_go_bp', len(msigdb_go_mf), len(msigdb_go_cc), len(msigdb_go_bp)
 
+# Pathways
 msigdb_cp = read_gmt('%s/files/c2.cp.v5.1.symbols.gmt' % wd)
 msigdb_kegg = read_gmt('%s/files/c2.cp.kegg.v5.1.symbols.gmt' % wd)
 msigdb_cgp = read_gmt('%s/files/c2.cgp.v5.1.symbols.gmt' % wd)
 print 'msigdb_cp', 'msigdb_kegg', 'msigdb_cgp', len(msigdb_cp), len(msigdb_kegg), len(msigdb_cgp)
-
-
-# -- Overlap
-proteins = set(transcriptomics.index).intersection(proteomics.index)
-samples = set(transcriptomics).intersection(proteomics)
-print len(proteins), len(samples)
 
 
 # -- Protein pairs correlation
@@ -93,7 +93,7 @@ def protein_correlation(p1, p2):
 
         return {'p1': p1, 'p2': p2, 'p_cor': p_cor, 'p_pval': p_pval, 't_cor': t_cor, 't_pval': t_pval, 'len': len(samples)}
 
-cor_df = {'%s_%s' % (p1, p2): protein_correlation(p1, p2) for p1, p2 in string}
+cor_df = {'%s_%s' % (p1, p2): protein_correlation(p1, p2) for p1, p2 in p_pairs}
 cor_df = DataFrame({i: cor_df[i] for i in cor_df if cor_df[i]}).T
 
 cor_df['diff'] = [p_cor - t_cor for p_cor, t_cor in cor_df[['p_cor', 't_cor']].values]
@@ -101,118 +101,55 @@ cor_df['sum'] = [p_cor + t_cor for p_cor, t_cor in cor_df[['p_cor', 't_cor']].va
 
 cor_df['t_fdr'] = multipletests(cor_df['t_pval'], method='fdr_bh')[1]
 cor_df['p_fdr'] = multipletests(cor_df['p_pval'], method='fdr_bh')[1]
-
 print cor_df.sort('diff')
 
 
-# --
-sns.set(style='ticks', context='paper', rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'}, font_scale=.75)
-g = sns.distplot(cor_df['diff'], color=default_color, hist=False, kde_kws={'shade': True})
-plt.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
-plt.title('Correlation difference (median: %.2f)' % cor_df['diff'].median())
-plt.xlabel('pearson(proteomics) - pearson(transcriptomics)')
-plt.ylabel('Density')
-sns.despine(trim=True)
-plt.gcf().set_size_inches(6, 3)
-plt.savefig('%s/reports/corum_pairs_correlation_difference_histogram.pdf' % wd, bbox_inches='tight')
-plt.close('all')
-print '[INFO] Done'
-
-
-# --
+# -- Gene set enrichment
 p_pairs_trans = cor_df[(cor_df['t_fdr'] < .05) & (cor_df['t_cor'] > 0) & (cor_df['p_fdr'] > .05)]
 p_pairs_prot = cor_df[(cor_df['p_fdr'] < .05) & (cor_df['p_cor'] > 0) & (cor_df['t_fdr'] > .05)]
 
 
-def enrichment_hypergeom(set_type, set_name, subset_type, pair_set, background, subset):
-    h_pval, h_len = hypergeom_test(pair_set, background, {p for i in subset.index for p in i.split('_')})
-    return {'type': set_type, 'set_name': set_name, 'subset_type': subset_type, 'pval': h_pval, 'len': h_len}
+# signature_type, signature_name, signature, background = 'mf', 'PROTEIN_PHOSPHATASE_BINDING', msigdb_go_mf['PROTEIN_PHOSPHATASE_BINDING'], p_pairs_proteins
+def enrichment_hypergeom(signature_type, signature_name, signature, background):
+    # Hypergeometric
+    t_pval, t_len = hypergeom_test(signature, background, {p for i in p_pairs_trans.index for p in i.split('_')})
+    p_pval, p_len = hypergeom_test(signature, background, {p for i in p_pairs_prot.index for p in i.split('_')})
 
-hyper = DataFrame([enrichment_hypergeom(set_type, set_name, subset_type, pair_set, string_proteins, subset) for set_type, set_paths in [
-    ('mf', go_terms_mf), ('cc', go_terms_cc), ('bp', go_terms_bp),
-    ('ptms', ptms),
-    ('cp', msigdb_cp)
-    # ('kegg', msigdb_kegg)
-] for set_name, pair_set in set_paths.items() for subset_type, subset in [('transcriptomics', p_pairs_trans), ('proteomics', p_pairs_prot)]])
-# print go_term_enrch[go_term_enrch['len'] > 20].sort('aroc')
-hyper['fdr'] = multipletests(hyper['pval'], method='fdr_bh')[1]
-print hyper.sort('fdr')
+    # Effect size
+    idx = Series({i: int(np.any([p in signature for p in i.split('_')])) for i in cor_df.index})
 
+    t_mean = cor_df.ix[idx[idx == 0].index, 't_cor'].mean() - cor_df.ix[idx[idx == 1].index, 't_cor'].mean()
+    p_mean = cor_df.ix[idx[idx == 0].index, 'p_cor'].mean() - cor_df.ix[idx[idx == 1].index, 'p_cor'].mean()
 
-hyper_trans = hyper[(hyper['subset_type'] == 'transcriptomics') & (hyper['fdr'] < .05)]
-hyper_prot = hyper[(hyper['subset_type'] == 'proteomics') & (hyper['fdr'] < .05)]
+    return {
+        'type': signature_type,
+        'name': signature_name,
+        't_pval': t_pval,
+        't_len': t_len,
+        't_mean': t_mean,
+        'p_pval': p_pval,
+        'p_len': p_len,
+        'p_mean': p_mean,
+        's_len': len(signature.intersection(background))
+    }
 
-hyper_ov = set(hyper_trans['set_name']).intersection(hyper_prot['set_name'])
+hyper = DataFrame([enrichment_hypergeom(signature_type, signature_name, signatures[signature_name], p_pairs_proteins) for signature_type, signatures in [
+    ('mf', msigdb_go_mf), ('cc', msigdb_go_cc), ('bp', msigdb_go_bp), ('ptms', ptms), ('kegg', msigdb_kegg)
+] for signature_name in signatures]).dropna()
 
-print hyper_trans[[i not in hyper_ov for i in hyper_trans['set_name']]].sort('fdr')
-print hyper_prot[[i not in hyper_ov for i in hyper_prot['set_name']]].sort('fdr')
-
-
-# --
-# type_set, pair_set = ('isopeptide_bond', ptms['isopeptide_bond'])
-def enrichment_ttest(type_set, pair_set):
-    indx = Series({i: int(np.all([p in pair_set for p in i.split('_')])) for i in cor_df.index})
-    p_bck, p_set = cor_df.ix[indx[indx == 0].index, 'diff'], cor_df.ix[indx[indx == 1].index, 'diff']
-
-    t_stat, t_pval = ttest_ind(p_bck, p_set, equal_var=False)
-    return {'type': type_set, 't_stat': t_stat, 't_pval': t_pval, 'size': len(p_set), 'diff': p_bck.mean() - p_set.mean()}
-
-go_term_enrch = DataFrame({k.lower(): enrichment_ttest(t, v) for t, df in [
-    # ('mf', go_terms_mf),
-    # ('cc', go_terms_cc),
-    # ('bp', go_terms_bp)
-    ('ptms', ptms)
-    # ('cp', msigdb_cp)
-    # ('kegg', msigdb_kegg)
-] for k, v in df.items()}).T.dropna()
-print go_term_enrch.sort('diff')
+hyper['t_fdr'] = multipletests(hyper['t_pval'], method='fdr_bh')[1]
+hyper['p_fdr'] = multipletests(hyper['p_pval'], method='fdr_bh')[1]
+print hyper
 
 
-# -- Enrichment analysis
-# pair_set = go_terms_bp['UBIQUITIN_CYCLE']
-# type_set, pair_set = ('oxidation', ptms['oxidation'])
-def enrichment_aroc(type_set, pair_set):
-    df = cor_df[['diff']].copy()
-    df['TP'] = [int(np.all([p in pair_set for p in i.split('_')])) for i in df.index]
+# -- Plot enrichment
+plot_df = hyper.loc[(hyper['t_fdr'] < .05) | (hyper['p_fdr'] < .05), ['name', 't_mean', 'p_mean']].set_index('name')
+plot_df = plot_df[(plot_df.abs() > .1).sum(1) != 0]
 
-    curve_fpr, curve_tpr, _ = roc_curve(df['TP'], df['diff'])
-    curve_auc = auc(curve_fpr, curve_tpr)
-
-    return {'aroc': curve_auc, 'type': type_set, 'len': df['TP'].sum()}
-
-go_term_enrch = DataFrame({k.lower(): enrichment_aroc(t, v) for t, df in [
-    # ('mf', go_terms_mf),
-    # ('cc', go_terms_cc),
-    # ('bp', go_terms_bp)
-    ('ptms', ptms)
-    # ('cp', msigdb_cp)
-    # ('kegg', msigdb_kegg)
-] for k, v in df.items()}).T.dropna()
-print go_term_enrch.sort('aroc')
-
-
-# type_set, pair_set = 'kegg', msigdb_kegg['kegg_n_glycan_biosynthesis'.upper()]
-def enrichment_hypergeom(type_set, pair_set, background, thres=.0):
-    tran_proteins = {p for i in cor_df[(cor_df['t_fdr'] < .05) & (cor_df['p_fdr'] > .05) & (cor_df['diff'].abs() > thres)].index for p in i.split('_')}
-    prot_proteins = {p for i in cor_df[(cor_df['t_fdr'] > .05) & (cor_df['p_fdr'] < .05) & (cor_df['diff'].abs() > thres)].index for p in i.split('_')}
-
-    # tran_proteins = {p for i in cor_df[cor_df['diff'] < -thres].index for p in i.split('_')}
-    # prot_proteins = {p for i in cor_df[cor_df['diff'] > thres].index for p in i.split('_')}
-
-    tran_pval, tran_len = hypergeom_test(pair_set, background, tran_proteins)
-    prot_pval, prot_len = hypergeom_test(pair_set, background, prot_proteins)
-
-    if tran_len <= 1 and prot_len <= 1:
-        return {'type': type_set, 'trans_pval': np.nan, 'prot_pval': np.nan, 'trans_len': tran_len, 'prot_len': prot_len}
-    else:
-        return {'type': type_set, 'trans_pval': tran_pval, 'prot_pval': prot_pval, 'trans_len': tran_len, 'prot_len': prot_len}
-
-hyper = DataFrame({k.lower(): enrichment_hypergeom(t, v, string_proteins) for t, df in [
-    # ('mf', go_terms_mf), ('cc', go_terms_cc), ('bp', go_terms_bp)
-    ('ptms', ptms)
-    # ('cp', msigdb_cp)
-    # ('kegg', msigdb_kegg)
-] for k, v in df.items()}).T.dropna()
-# print go_term_enrch[go_term_enrch['len'] > 20].sort('aroc')
-print hyper.sort('trans_pval')
-print hyper.sort('prot_pval')
+cmap = sns.diverging_palette(220, 20, n=7, as_cmap=True)
+sns.set(style='white', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+sns.clustermap(plot_df, cmap=cmap, center=0)
+plt.gcf().set_size_inches(3, 20)
+plt.savefig('%s/reports/protein_pairs_geneset_enrichment_clustermap.pdf' % wd, bbox_inches='tight')
+plt.close('all')
+print '[INFO] Plot done'
