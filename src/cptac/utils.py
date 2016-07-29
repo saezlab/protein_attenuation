@@ -94,6 +94,6 @@ def hypergeom_test(signature, background, sublist):
         len(sublist)
     )
 
-    intersection = len(background.intersection(signature))
+    intersection = len(sublist.intersection(signature).intersection(signature))
 
     return pvalue, intersection
