@@ -1,8 +1,11 @@
+import pydot
+import igraph
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from scipy import stats
+from scipy.stats.stats import pearsonr
 from matplotlib.gridspec import GridSpec
 from cptac import wd, palette, default_color, palette_cnv_number
 from cptac.utils import log_likelihood, f_statistic, r_squared
@@ -10,186 +13,221 @@ from sklearn.linear_model import LinearRegression
 from matplotlib_venn import venn3, venn3_circles
 from statsmodels.stats.multitest import multipletests
 from pandas import DataFrame, Series, read_csv, concat
+from pymist.utils.corumdb import get_complexes_pairs
+from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
 
 # -- Imports
 # CNV
 cnv = read_csv('%s/data/tcga_cnv.tsv' % wd, sep='\t', index_col=0)
-# cnv = cnv.applymap(lambda x: 0 if -1 <= x <= 1 else x)
-# cnv = cnv.loc[:, (cnv != 0).sum() != 0]
-print cnv
+print 'cnv', cnv.shape
 
 # Transcriptomics
 transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0)
-print transcriptomics
+print 'transcriptomics', transcriptomics.shape
 
 # Proteomics
 proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
-print proteomics
-
-# Residuals
-residuals = read_csv('%s/tables/protein_residuals.csv' % wd, index_col=0)
-print residuals
-
-# Clinical data
-clinical = read_csv('%s/data/clinical_data.tsv' % wd, sep='\t').dropna(subset=['VITAL_STATUS', 'DAYS_TO_LAST_FOLLOWUP'])
-clinical['VITAL_STATUS'] = [0 if i == 'Alive' else 1 for i in clinical['VITAL_STATUS']]
-clinical = clinical[clinical['DAYS_TO_LAST_FOLLOWUP'] > 1]
-clinical_gender = clinical.groupby('SAMPLE_brcID')['GENDER'].first().to_dict()
-clinical_age = clinical.groupby('SAMPLE_brcID')['AGE'].first().to_dict()
-
+print 'proteomics', proteomics.shape
 
 # -- Overlap
-genes = set(cnv.index).intersection(proteomics.index).intersection(transcriptomics.index).intersection(residuals.index)
-samples = set(cnv).intersection(proteomics).intersection(transcriptomics).intersection(residuals).intersection(clinical['SAMPLE_brcID'])
-print len(genes), len(samples)
+genes = set(cnv.index).intersection(proteomics.index).intersection(transcriptomics.index)
+samples = set(cnv).intersection(proteomics).intersection(transcriptomics)
+print 'genes', 'samples', len(genes), len(samples)
 
 
-# -- Covariates
-samplesheet = Series.from_csv('%s/data/samplesheet.csv' % wd)
-samplesheet = {k: v for k, v in samplesheet.to_dict().items()}
-
-design = Series([samplesheet[i] for i in samples], index=samples)
-design = design.str.get_dummies()
-
-design = concat([design, Series({i: clinical_gender[i] for i in design.index}).str.get_dummies()], axis=1)
-design['AGE'] = [clinical_age[i] for i in design.index]
-print list(design)
+# -- Protein complexes interactions
+uniprot = read_uniprot_genename()
+corum = get_complexes_pairs()
+corum = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in corum for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot}
+corum = {(p1, p2) for p1, p2 in corum if p1 in genes and p2 in genes}
+print 'corum', len(corum)
 
 
-# -- Regressions
-# p, c, df, thres = 'ERBB2', 2, transcriptomics, 5
-def regressions(p, c, df, thres=5):
+# --
+# g = 'ZW10'
+def protein_residual(g):
+    y = proteomics.ix[g, samples].dropna()
+    x = transcriptomics.ix[[g], y.index].T
+
+    lm = LinearRegression().fit(x, y)
+    y_ = y - lm.coef_[0] * x[g] - lm.intercept_
+
+    return y_
+residuals = DataFrame({g: protein_residual(g) for g in genes}).T
+print 'residuals', residuals.shape
+
+
+# -- Regressions: Py Residuals ~ Px CNV
+# px, py = 'ARID1A', 'DPF2'
+def regressions(px, py):
     # Protein measurements
-    y = df.ix[p, samples].dropna()
-    x = concat([cnv.ix[p]], axis=True).ix[y.index].dropna()
+    y = residuals.ix[py, samples].dropna()
+    x = cnv.ix[[px], y.index].T
 
-    y = y.ix[x.index]
+    # Fit models
+    lm = LinearRegression().fit(x, y)
 
-    # Discretise
-    x.ix[x[p] != c, p] = 0
-    x.ix[x[p] == c, p] = 1
+    # Predict
+    y_true, y_pred = y.copy(), Series(dict(zip(*(x.index, lm.predict(x)))))
 
-    if x[p].sum() >= thres:
-        # Fit models
-        lm = LinearRegression().fit(x, y)
+    # Log likelihood
+    l_lm = log_likelihood(y_true, y_pred)
 
-        # Predict
-        y_true, y_pred = y.copy(), Series(dict(zip(*(x.index, lm.predict(x)))))
+    # F-statistic
+    f, f_pval = f_statistic(y_true, y_pred, len(y), x.shape[1])
 
-        # Log likelihood
-        l_lm = log_likelihood(y_true, y_pred)
+    # R-squared
+    r = r_squared(y_true, y_pred)
 
-        # # Log likelihood ratio
-        # lr = 2 * (l_lm1 - l_lm2)
-        # lr_pval = stats.chi2.sf(lr, 1)
+    res = {
+        'px': px, 'py': py, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm
+    }
 
-        # Effect size
-        effect = y[x[p] == 1].mean() - y[x[p] != 1].mean()
-
-        # F-statistic
-        f, f_pval = f_statistic(y_true, y_pred, len(y), x.shape[1])
-
-        # R-squared
-        r = r_squared(y_true, y_pred)
-
-        res = {
-            'protein': p, 'cnv': c, 'rsquared': r, 'effect_size': effect, 'f': f, 'f_pval': f_pval, 'll': l_lm
-        }
-
-        print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e' % (res['protein'], res['rsquared'], res['f'], res['f_pval'])
-        # print sm.OLS(y, sm.add_constant(x, has_constant='add')).fit().summary()
-
-        return res
-
-
-def regressions_dataset(df, adj_pval='bonferroni'):
-    res = [regressions(p, c, df) for p in genes for c in [-2, 2]]
-    res = DataFrame([i for i in res if i])
-
-    res['f_adjpval'] = multipletests(res['f_pval'], method=adj_pval)[1]
+    print 'Px (%s), Py (%s): Rsquared: %.2f, F: %.2f, F pval: %.2e' % (px, py, res['rsquared'], res['f'], res['f_pval'])
+    # print sm.OLS(y, sm.add_constant(x, has_constant='add')).fit().summary()
 
     return res
 
-res = {n: regressions_dataset(df, 'fdr_bh') for n, df in [('Transcriptomics', transcriptomics), ('Proteomics', proteomics), ('Residuals', residuals)]}
-print res
-
-
-# -- Export
-for d in res:
-    res[d].sort('f_adjpval').to_csv('%s/tables/regressions_overlap_%s_cnv.csv' % (wd, d.lower()), index=False)
-print '[INFO] Tables exported'
-
-
-# -- Plot
-# Significant associations venn diagram
-sns.set(style='white', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-fig, gs, pos = plt.figure(figsize=(5, 10)), GridSpec(1, 2, hspace=.3), 0
-
-for c in [-2, 2]:
-    ax = plt.subplot(gs[pos])
-
-    associations = {
-        d: {p for p, t, f in res[d][['protein', 'cnv', 'f_adjpval']].values if c == t and f < .05}
-        for d in res}
-
-    venn3(associations.values(), set_labels=associations.keys(), set_colors=[palette[k] for k in associations])
-    venn3_circles(associations.values(), linestyle='solid', color='white')
-
-    ax.set_title('Depletion' if c == -2 else 'Amplification')
-
-    pos += 1
-
-plt.savefig('%s/reports/regressions_overlap_venn.pdf' % wd, bbox_inches='tight')
-plt.close('all')
-print '[INFO] Done'
+ppairs = DataFrame([regressions(px, py) for px, py in corum])
+ppairs['fdr'] = multipletests(ppairs['f_pval'], method='fdr_bh')[1]
+print ppairs.sort('fdr')
 
 
 # -- QQ-plot
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
 
-fig, gs, pos = plt.figure(figsize=(3 * len(res), 3)), GridSpec(1, len(res), hspace=.3), 0
-for d in res:
-    plot_df = DataFrame({
-        'x': sorted([-np.log10(np.float(i) / len(res[d])) for i in np.arange(1, len(res[d]) + 1)]),
-        'y': sorted(-np.log10(res[d]['f_pval']))
-    })
+plot_df = DataFrame({
+    'x': sorted([-np.log10(np.float(i) / len(ppairs)) for i in np.arange(1, len(ppairs) + 1)]),
+    'y': sorted(-np.log10(ppairs['f_pval']))
+})
 
+g = sns.regplot('x', 'y', plot_df, fit_reg=False, ci=False, color=default_color, line_kws={'lw': .3})
+g.set_xlim(0)
+g.set_ylim(0)
+plt.plot(plt.xlim(), plt.xlim(), 'k--', lw=.3)
+plt.xlabel('Theoretical -log(P)')
+plt.ylabel('Observed -log(P)')
+plt.title('Residuals ~ Copy Number')
+sns.despine(trim=True)
+plt.gcf().set_size_inches(3, 3)
+plt.savefig('%s/reports/ppairs_cnv_regulation_qqplot.png' % wd, bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Plot done'
+
+
+# -- Create network
+network_i = igraph.Graph(directed=True)
+
+# Initialise network lists
+edges = [(px, py) for px, py in ppairs[ppairs['fdr'] < .05][['px', 'py']].values]
+vertices = list({p for px, py in edges for p in (px, py)})
+
+# Add nodes
+network_i.add_vertices(vertices)
+print network_i.summary()
+
+# Add edges
+network_i.add_edges(edges)
+print network_i.summary()
+
+# Draw network
+graph = pydot.Dot(graph_type='digraph', rankdir='LR')
+
+graph.set_node_defaults(fontcolor='white', penwidth='3', fillcolor='#CCCCCC')
+graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee')
+
+for edge in network_i.es:
+    source_id, target_id = network_i.vs[[edge.source, edge.target]]['name']
+
+    source = pydot.Node(source_id, style='filled', shape='ellipse', penwidth='0')
+    target = pydot.Node(target_id, style='filled', shape='ellipse', penwidth='0')
+
+    graph.add_node(source)
+    graph.add_node(target)
+
+    edge = pydot.Edge(source, target)
+    graph.add_edge(edge)
+
+graph.write_pdf('%s/reports/ppairs_cnv_regulation_network.pdf' % wd)
+print '[INFO] Network PDF exported'
+
+
+# -- Scatter
+def ppair_correlation(px, py):
+    x, y = zip(*proteomics.ix[[px, py]].T.dropna().values)
+    return pearsonr(x, y)
+
+ppairs_signif = ppairs[ppairs['fdr'] < .05].sort('fdr')
+ppairs_signif['cor'] = [ppair_correlation(px, py)[0] for px, py in ppairs_signif[['px', 'py']].values]
+ppairs_signif.to_csv('%s/tables/ppairs_cnv_regulation.csv' % wd, index=False)
+
+# px, py = 'COG3', 'COG2'
+gs, pos = GridSpec(len(ppairs_signif), 2, hspace=.5), 0
+for px, py in ppairs_signif[['px', 'py']].values:
+    #
     ax = plt.subplot(gs[pos])
-    g = sns.regplot('x', 'y', plot_df, fit_reg=False, ci=False, color=default_color, line_kws={'lw': .3}, ax=ax)
-    g.set_xlim(0)
-    g.set_ylim(0)
-    plt.plot(plt.xlim(), plt.xlim(), 'k--', lw=.3)
-    plt.xlabel('Theoretical -log(P)')
-    plt.ylabel('Observed -log(P)')
-    plt.title('%s ~ Copy Number' % d)
-    sns.despine(trim=True)
 
-    pos += 1
+    y = residuals.ix[py, samples].dropna()
+    x = cnv.ix[px, y.index]
+    plot_df = concat([x, y], axis=1).dropna()
 
-plt.savefig('%s/reports/regressions_overlap_cnv_qqplot.pdf' % wd, bbox_inches='tight')
+    sns.regplot(plot_df[px], plot_df[py], ax=ax, color=default_color, fit_reg=True, scatter=True, truncate=True)
+    for c in [0, -1, 1, -2, 2]:
+        sns.regplot(plot_df[plot_df[px] == c][px], plot_df[plot_df[px] == c][py], ax=ax, color=palette_cnv_number[c], fit_reg=False, truncate=True)
+    sns.despine(ax=ax)
+    ax.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    ax.set_xlabel('%s (copy number)' % px)
+    ax.set_ylabel('%s (residuals)' % py)
+    ax.set_title('Pearson\'s r: %.2f, p-value: %.2e' % pearsonr(x, y))
+    ax.set_ylim(plot_df[py].min() * 1.05, plot_df[py].max() * 1.05)
+
+    #
+    ax = plt.subplot(gs[pos + 1])
+
+    y = proteomics.ix[py, samples].dropna()
+    x = proteomics.ix[px, y.index]
+    plot_df = concat([x, y, cnv.ix[px, y.index].rename('cnv')], axis=1).dropna()
+
+    sns.regplot(plot_df[px], plot_df[py], ax=ax, color=default_color, fit_reg=True, scatter=True, truncate=True)
+    for c in [0, -1, 1, -2, 2]:
+        sns.regplot(plot_df[plot_df['cnv'] == c][px], plot_df[plot_df['cnv'] == c][py], ax=ax, color=palette_cnv_number[c], fit_reg=False, truncate=True)
+    sns.despine(ax=ax)
+    ax.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    ax.set_xlabel('%s (proteomics)' % px)
+    ax.set_ylabel('%s (proteomics)' % py)
+    ax.set_title('Pearson\'s r: %.2f, p-value: %.2e' % pearsonr(plot_df[px], plot_df[py]))
+    ax.set_ylim(plot_df[py].min() * 1.05, plot_df[py].max() * 1.05)
+
+    pos += 2
+
+plt.gcf().set_size_inches(4, 2 * len(ppairs_signif))
+plt.savefig('%s/reports/ppairs_cnv_regulation_scatter.png' % wd, bbox_inches='tight', dpi=150)
 plt.close('all')
 print '[INFO] Plot done'
 
+# # -- Plot
+# # Significant associations venn diagram
+# sns.set(style='white', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
+# fig, gs, pos = plt.figure(figsize=(5, 10)), GridSpec(1, 2, hspace=.3), 0
+#
+# for c in [-2, 2]:
+#     ax = plt.subplot(gs[pos])
+#
+#     associations = {
+#         d: {p for p, t, f in res[d][['protein', 'cnv', 'f_adjpval']].values if c == t and f < .05}
+#         for d in res}
+#
+#     venn3(associations.values(), set_labels=associations.keys(), set_colors=[palette[k] for k in associations])
+#     venn3_circles(associations.values(), linestyle='solid', color='white')
+#
+#     ax.set_title('Depletion' if c == -2 else 'Amplification')
+#
+#     pos += 1
+#
+# plt.savefig('%s/reports/regressions_overlap_venn.pdf' % wd, bbox_inches='tight')
+# plt.close('all')
+# print '[INFO] Done'
 
-# --
-trans_p = set(res['Transcriptomics'][res['Transcriptomics']['f_adjpval'] < .05]['protein'])
-prot_p = set(res['Proteomics'][res['Proteomics']['f_adjpval'] < .05]['protein'])
-resid_p = set(res['Residuals'][res['Residuals']['f_adjpval'] < .05]['protein'])
-
-proteins = set(resid_p).intersection(trans_p).intersection(prot_p)
-
-p = 'AKT1'
-
-plot_df = DataFrame({'transcriptomics': transcriptomics.ix[p, samples], 'proteomics': proteomics.ix[p, samples], 'residuals': residuals.ix[p, samples], 'cnv': cnv.ix[p, samples]}).dropna()
-
-sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
-
-g = sns.PairGrid(plot_df)
-g.map_upper(sns.regplot, fit_reg=False)
-g.map_diag(sns.distplot, kde=False)
-g.map_lower(sns.regplot)
-
-plt.savefig('%s/reports/regressions_overlap_pairplot.pdf' % wd, bbox_inches='tight')
-plt.close('all')
-print '[INFO] Plot done'
