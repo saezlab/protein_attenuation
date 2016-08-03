@@ -15,7 +15,8 @@ print len(regulons)
 
 
 # -- Transcriptomics
-trans = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0).dropna()
+trans = read_csv('%s/data/tcga_rnaseq_fpkm.csv' % wd, index_col=0).replace(0, np.nan)
+trans = np.log2(trans)
 print trans
 
 
@@ -29,26 +30,26 @@ tf_activity.to_csv('%s/tables/tf_activities.csv' % wd)
 print tf_activity.sort('pval')
 
 
-# -- QQ-plot
-sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
-
-plot_df = DataFrame({
-    'x': sorted([-np.log10(np.float(i) / len(tf_activity)) for i in np.arange(1, len(tf_activity) + 1)]),
-    'y': sorted(-np.log10(tf_activity['pval']))
-})
-
-g = sns.regplot('x', 'y', plot_df, fit_reg=False, ci=False, color=default_color, line_kws={'lw': .3})
-g.set_xlim(0)
-g.set_ylim(0)
-plt.plot(plt.xlim(), plt.xlim(), 'k--', lw=.3)
-plt.xlabel('Theoretical -log(P)')
-plt.ylabel('Observed -log(P)')
-plt.title('TF activities')
-sns.despine(trim=True)
-plt.gcf().set_size_inches(3, 3)
-plt.savefig('%s/reports/tf_activities_qqplot.pdf' % wd, bbox_inches='tight')
-plt.close('all')
-print '[INFO] Plot done'
+# # -- QQ-plot
+# sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+#
+# plot_df = DataFrame({
+#     'x': sorted([-np.log10(np.float(i) / len(tf_activity)) for i in np.arange(1, len(tf_activity) + 1)]),
+#     'y': sorted(-np.log10(tf_activity['pval']))
+# })
+#
+# g = sns.regplot('x', 'y', plot_df, fit_reg=False, ci=False, color=default_color, line_kws={'lw': .3})
+# g.set_xlim(0)
+# g.set_ylim(0)
+# plt.plot(plt.xlim(), plt.xlim(), 'k--', lw=.3)
+# plt.xlabel('Theoretical -log(P)')
+# plt.ylabel('Observed -log(P)')
+# plt.title('TF activities')
+# sns.despine(trim=True)
+# plt.gcf().set_size_inches(3, 3)
+# plt.savefig('%s/reports/tf_activities_qqplot.pdf' % wd, bbox_inches='tight')
+# plt.close('all')
+# print '[INFO] Plot done'
 
 
 # -- CNV validation

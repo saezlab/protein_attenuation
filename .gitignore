@@ -66,3 +66,4 @@ target/
 tables/tcga_genomics.csv
 .idea/
 protein_pairs_residuals.csv
+GSM1536837_01_27_15_TCGA_20.Illumina.tumor_Rsubread_FPKM.txt

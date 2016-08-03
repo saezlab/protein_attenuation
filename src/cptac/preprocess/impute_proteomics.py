@@ -14,8 +14,8 @@ from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
 
 # -- Correlated protein pairs
-p_pairs = read_csv('%s/tables/proteomics_top_correlated_protein_pairs.csv' % wd)
-p_pairs = p_pairs[p_pairs['score'] > .5]
+p_pairs = read_csv('%s/tables/top_correlated_protein_pairs_proteomics.csv' % wd)
+p_pairs = p_pairs[p_pairs['cor'] > .5]
 p_pairs = {(p1, p2) for p1, p2 in p_pairs[['p1', 'p2']].values}
 print len(p_pairs)
 
@@ -37,7 +37,7 @@ print network_i.summary()
 
 # -- Proteomics
 proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
-print proteomics
+print 'proteomics', proteomics.shape
 
 
 # -- Impute

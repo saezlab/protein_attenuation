@@ -19,30 +19,35 @@ uniprot = read_uniprot_genename()
 # CORUM
 corum = get_complexes_pairs()
 corum = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in corum for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot}
-print len(corum)
+print 'corum', len(corum)
 
 # String
 string_thres = {'low': 150, 'medium': 400, 'high': 700, 'highest': 900}
 
 string = {thres: {(uniprot[s][0], uniprot[t][0]) for p1, p2 in get_stringdb(string_thres[thres]) for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot} for thres in string_thres}
-print len(string)
+print 'string', len(string)
 
 string_action = {thres: get_stringdb_actions(string_thres[thres]).groupby('mode')['interaction'].agg(lambda x: set(x)).to_dict() for thres in string_thres}
 string_action = {thres: {mode: {(uniprot[s][0], uniprot[t][0]) for p1, p2 in string_action[thres][mode] for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot} for mode in string_action[thres]} for thres in string_thres}
-print len(string_action)
+print 'string_action', len(string_action)
 
 # Biogrid
 biogrid = get_biogriddb()
 biogrid = {(s, t) for p1, p2 in biogrid for s, t in [(p1, p2), (p2, p1)]}
-print len(biogrid)
+print 'biogrid', len(biogrid)
 
 biogrid_action = get_biogriddb_action().groupby('Experimental System')['interaction'].agg(lambda x: set(x)).to_dict()
-print len(biogrid_action)
+print 'biogrid_action', len(biogrid_action)
 
 # Omnipath
-omnipath = read_csv('%s/files/omnipathdb.txt' % wd, sep='\t')
+omnipath = read_csv('%s/files/omnipath_interactions.txt' % wd, sep='\t')
 omnipath = {(uniprot[s][0], uniprot[t][0]) for s, t in omnipath[['source', 'target']].values if s in uniprot and t in uniprot}
-print len(omnipath)
+print 'omnipath', len(omnipath)
+
+omnipath_action = read_csv('%s/files/omnipath_interactions.txt' % wd, sep='\t')
+omnipath_sources = {s for i in omnipath_action['sources'] for s in i.split(';')}
+omnipath_action = {s: {(uniprot[s][0], uniprot[t][0]) for s, t in omnipath_action[[s in i for i in omnipath_action['sources']]][['source', 'target']].values if s in uniprot and t in uniprot} for s in omnipath_sources}
+print 'omnipath_action', len(omnipath_action)
 
 
 # -- Proteomics
@@ -60,10 +65,10 @@ brca, hgsc, coread = brca.ix[ov_prot], hgsc.ix[ov_prot], coread.ix[ov_prot]
 
 proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0).ix[ov_prot]
 proteomics = proteomics[proteomics.count(1) > (proteomics.shape[1] * .5)]
-print proteomics.shape
+print 'proteomics', proteomics.shape
 
 transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0).ix[ov_prot].dropna()
-print transcriptomics.shape
+print 'transcriptomics', transcriptomics.shape
 
 
 # -- Protein-protein correlation
@@ -98,6 +103,10 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
         df['BioGRID_%s' % action] = [1 if ((p1, p2) in biogrid_action[action]) else 0 for p1, p2 in df[['p1', 'p2']].values]
         print 'BioGRID_%s' % action
 
+    for action in omnipath_action:
+        df['OmniPath_%s' % action] = [1 if ((p1, p2) in omnipath_action[action]) else 0 for p1, p2 in df[['p1', 'p2']].values]
+        print 'OmniPath_%s' % action
+
     # -- Estimate ROC curves
     cor_res[name] = {}
     for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
@@ -117,9 +126,13 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
         curve_fpr, curve_tpr, _ = roc_curve(df['BioGRID_%s' % action], df['cor'])
         cor_res[name]['BioGRID_%s' % action] = (curve_fpr, curve_tpr)
 
+    for action in omnipath_action:
+        curve_fpr, curve_tpr, _ = roc_curve(df['OmniPath_%s' % action], df['cor'])
+        cor_res[name]['OmniPath_%s' % action] = (curve_fpr, curve_tpr)
+
     # -- Histograms
     sns.set(style='ticks', context='paper', rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'}, font_scale=.75)
-    fig, gs = plt.figure(figsize=(16, 3)), GridSpec(1, 4, hspace=.3, wspace=.3)
+    fig, gs = plt.figure(figsize=(20, 3)), GridSpec(1, 5, hspace=.3, wspace=.3)
 
     # All data-bases
     ax = plt.subplot(gs[0])
@@ -136,8 +149,9 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
 
     # STRING thresholds
     ax = plt.subplot(gs[1])
-    pal = dict(zip(*(['low', 'medium', 'high', 'highest'], sns.light_palette(palette_dbs['STRING'], n_colors=5).as_hex()[1:])))
-    for thres in ['low', 'medium', 'high', 'highest']:
+    order = ['low', 'medium', 'high', 'highest']
+    pal = dict(zip(*(order, sns.light_palette(palette_dbs['STRING'], n_colors=len(order) + 1).as_hex()[1:])))
+    for thres in order:
         g = sns.distplot(df.ix[df['STRING_%s' % thres] == 1, 'cor'], color=pal[thres], hist=False, kde_kws={'shade': True}, label='%s (> %d)' % (thres, string_thres[thres]), ax=ax)
         g.set_xlim(-1, 1)
 
@@ -150,8 +164,9 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
     # STRING type
     ax = plt.subplot(gs[2])
     thres = 'highest'
-    pal = dict(zip(*(['reaction', 'binding', 'catalysis', 'activation'], sns.light_palette(palette_dbs['STRING'], n_colors=5).as_hex()[1:])))
-    for action in ['reaction', 'binding', 'catalysis', 'activation']:
+    order = ['reaction', 'binding', 'catalysis', 'activation']
+    pal = dict(zip(*(order, sns.light_palette(palette_dbs['STRING'], n_colors=len(order) + 1).as_hex()[1:])))
+    for action in order:
         if len(df.ix[df['STRING_%s_%s' % (thres, action)] == 1, 'cor']) > 0:
             g = sns.distplot(df.ix[df['STRING_%s_%s' % (thres, action)] == 1, 'cor'], color=pal[action], hist=False, kde_kws={'shade': True}, label=action, ax=ax)
             g.set_xlim(-1, 1)
@@ -164,14 +179,30 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
 
     # BioGRID
     ax = plt.subplot(gs[3])
-    pal = dict(zip(*(['Co-purification', 'Co-crystal Structure', 'Far Western', 'FRET'], sns.light_palette(palette_dbs['BioGRID'], n_colors=5).as_hex()[1:])))
-    for action in ['Co-purification', 'Co-crystal Structure', 'Far Western', 'FRET']:
+    order = ['Co-purification', 'Co-crystal Structure', 'Far Western', 'FRET']
+    pal = dict(zip(*(order, sns.light_palette(palette_dbs['BioGRID'], n_colors=len(order) + 1).as_hex()[1:])))
+    for action in order:
         if len(df.ix[df['BioGRID_%s' % action] == 1, 'cor']) > 0:
             g = sns.distplot(df.ix[df['BioGRID_%s' % action] == 1, 'cor'], color=pal[action], hist=False, kde_kws={'shade': True}, label=action, ax=ax)
             g.set_xlim(-1, 1)
 
     ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
     ax.set_title('%s\nBioGRID interaction type' % name)
+    ax.set_xlabel('Pearson\'s r')
+    ax.set_ylabel('Density')
+    sns.despine(trim=True, ax=ax)
+
+    # OmniPath
+    ax = plt.subplot(gs[4])
+    order = ['KEGG', 'PhosphoSite', 'Signor', 'Laudanna_sigflow']
+    pal = dict(zip(*(order, sns.light_palette(palette_dbs['OmniPath'], n_colors=len(order) + 1).as_hex()[1:])))
+    for action in order:
+        if len(df.ix[df['OmniPath_%s' % action] == 1, 'cor']) > 0:
+            g = sns.distplot(df.ix[df['OmniPath_%s' % action] == 1, 'cor'], color=pal[action], hist=False, kde_kws={'shade': True}, label=action, ax=ax)
+            g.set_xlim(-1, 1)
+
+    ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    ax.set_title('%s\nOmniPath resource' % name)
     ax.set_xlabel('Pearson\'s r')
     ax.set_ylabel('Density')
     sns.despine(trim=True, ax=ax)
@@ -266,7 +297,7 @@ plt.close('all')
 print '[INFO] Plot done'
 
 
-# -- Plot STRING interactions types by threshold
+# -- Plot BioGRID interactions types
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
 gs, pos = GridSpec(5, 5, hspace=.45, wspace=.45), 0
 
@@ -288,5 +319,31 @@ for action in biogrid_action:
 
 plt.gcf().set_size_inches(18, 18)
 plt.savefig('%s/reports/proteomics_ppi_aroc_biogrid_type.pdf' % wd, bbox_inches='tight')
+plt.close('all')
+print '[INFO] Plot done'
+
+
+# -- Plot OmniPath interactions by resources types
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+gs, pos = GridSpec(8, 5, hspace=.45, wspace=.45), 0
+
+for action in omnipath_action:
+    ax = plt.subplot(gs[pos])
+
+    for name in ['BRCA', 'COREAD', 'HGSC', 'Proteomics', 'Transcriptomics']:
+        curve_fpr, curve_tpr = cor_res[name]['OmniPath_%s' % action]
+        plt.plot(curve_fpr, curve_tpr, label='%s (AUC %0.2f)' % (name, auc(curve_fpr, curve_tpr)), c=palette[name])
+
+    ax.plot([0, 1], [0, 1], 'k--', lw=.3)
+    sns.despine(trim=True)
+    ax.legend(loc='lower right')
+    ax.set_xlabel('False positive rate')
+    ax.set_ylabel('True positive rate')
+    ax.set_title('OmniPath \nresource: %s' % action)
+
+    pos += 1
+
+plt.gcf().set_size_inches(18, 29)
+plt.savefig('%s/reports/proteomics_ppi_aroc_omnipath_type.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'

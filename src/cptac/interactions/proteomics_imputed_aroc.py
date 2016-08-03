@@ -12,12 +12,24 @@ from pymist.utils.corumdb import get_complexes_pairs
 from pandas import DataFrame, Series, read_csv, concat
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
+# -- Get overlapping proteins
+brca = read_csv('%s/data/brca_proteomics_processed.csv' % wd, index_col=0)
+brca = brca[brca.count(1) > (brca.shape[1] * .5)]
+
+hgsc = read_csv('%s/data/hgsc_proteomics_processed.csv' % wd, index_col=0)
+hgsc = hgsc[hgsc.count(1) > (hgsc.shape[1] * .5)]
+
+coread = read_csv('%s/data/coread_proteomics_processed.csv' % wd, index_col=0)
+coread = coread[coread.count(1) > (coread.shape[1] * .5)]
+
+ov_prot = set(brca.index).intersection(hgsc.index).intersection(coread.index)
 
 # -- Import imputed proteomics
-proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised_imputed.csv' % wd, index_col=0).dropna()
+proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised_imputed.csv' % wd, index_col=0).ix[ov_prot]
+proteomics = proteomics[proteomics.count(1) > (proteomics.shape[1] * .5)]
 print proteomics.shape
 
-transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0).ix[proteomics.index].dropna()
+transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0).ix[ov_prot].dropna()
 print transcriptomics.shape
 
 
@@ -59,11 +71,9 @@ for name, d_df in [('Proteomics', proteomics), ('Transcriptomics', transcriptomi
     df['BioGRID'] = [1 if ((p1, p2) in biogrid) else 0 for p1, p2 in df[['p1', 'p2']].values]
     df['OmniPath'] = [1 if ((p1, p2) in omnipath) else 0 for p1, p2 in df[['p1', 'p2']].values]
 
-    df['score'] = df['cor'].abs()
-
     cor_res[name] = {}
     for db in ['CORUM', 'STRING', 'BioGRID', 'OmniPath']:
-        curve_fpr, curve_tpr, _ = roc_curve(df[db], df['score'])
+        curve_fpr, curve_tpr, _ = roc_curve(df[db], df['cor'])
         cor_res[name][db] = (curve_fpr, curve_tpr)
 
 print '[INFO] Done'
