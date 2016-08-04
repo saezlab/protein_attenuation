@@ -1,7 +1,7 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from cptac import wd, default_color
+from cptac import wd, default_color, palette_cnv_number
 from cptac.utils import gkn
 from sklearn.linear_model import LinearRegression
 from pandas import DataFrame, Series, read_csv, pivot_table
@@ -44,8 +44,19 @@ print 'proteomics', proteomics.shape
 # -- GDSC genomics
 genomics = read_csv('/Users/emanuel/Projects/data/sanger/genomic/All_variants_cell-lines_30112015_indelMod_ANNOVfun_mutCons.txt', sep='\t')
 genomics = genomics[[i in set(proteomics) for i in genomics['SAMPLE_NAME']]]
-genomics_m = pivot_table(genomics, index='GENE_NAME', columns='SAMPLE_NAME', values='Consequence', aggfunc=lambda x: set(x), fill_value=np.nan)
+genomics = genomics[genomics['ZYGOSITY'] == 'homozygous']
+genomics['value'] = 1
+genomics_m = pivot_table(genomics, index='GENE_NAME', columns='SAMPLE_NAME', values='value', aggfunc='first', fill_value=0)
 print 'genomics', genomics_m.shape
+
+
+# -- Copy number variation
+cnv = read_csv('%s/data/CosmicCLP_CompleteCNA.tsv' % wd, sep='\t')
+cnv = cnv[[i in set(proteomics) for i in cnv['SAMPLE_NAME']]]
+cnv['gene_name'] = [i.split('_')[0] for i in cnv['gene_name']]
+cnv['consequence'] = [1 if i == 'gain' else 0 for i in cnv['MUT_TYPE']]
+cnv_m = pivot_table(cnv, index='gene_name', columns='SAMPLE_NAME', values='consequence', fill_value=0, aggfunc='first')
+print 'genomics', cnv_m.shape
 
 
 # -- Transcriptomics
@@ -92,14 +103,17 @@ print ppairs
 
 # --
 plot_df = DataFrame([{'px': px, 'py': py, 'sample': s, 'x': residuals.ix[px, s], 'y': residuals.ix[py, s]} for px, py in ppairs[['px', 'py']].values for s in proteomics]).dropna()
-plot_df['mutation_x'] = ['Mutated' if p in genomics_m.index and s in genomics_m.ix[p].dropna().index else 'Wild-type' for p, s in plot_df[['px', 'sample']].values]
+plot_df['mutation_x'] = [genomics_m.ix[p, s] if p in genomics_m.index else 0 for p, s in plot_df[['px', 'sample']].values]
 print plot_df.sort(['mutation_x', 'y'])
 
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-sns.boxplot('mutation_x', 'y', data=plot_df, sym='', linewidth=.3)
-sns.stripplot('mutation_x', 'y', data=plot_df, split=True, jitter=True, edgecolor='white', linewidth=.3)
+sns.boxplot('mutation_x', 'y', data=plot_df, sym='', linewidth=.3, palette=palette_cnv_number)
+sns.stripplot('mutation_x', 'y', data=plot_df, split=True, jitter=True, edgecolor='white', linewidth=.3, palette=palette_cnv_number)
+plt.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
 sns.despine(trim=True)
-plt.gcf().set_size_inches(2, 5)
+plt.xlabel('Copy number')
+plt.ylabel('Residuals')
+plt.gcf().set_size_inches(1, 4)
 plt.savefig('%s/reports/ppairs_cnv_regulation_validation_brca_boxplots.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'

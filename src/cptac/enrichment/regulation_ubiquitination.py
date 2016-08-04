@@ -33,24 +33,17 @@ print 'transcriptomics', transcriptomics.shape
 proteins, samples = set(proteomics.index).intersection(transcriptomics.index), set(proteomics).intersection(transcriptomics)
 print 'proteins', 'samples', len(proteins), len(samples)
 
-# -- Cor
-t_p_cor = DataFrame({s: pearson(transcriptomics.ix[proteins, s], proteomics.ix[proteins, s]) for s in samples}, index=['cor', 'pval', 'meas']).T
-t_p_cor = t_p_cor[t_p_cor['cor'] > .1]
-
-samples = samples.intersection(t_p_cor.index)
-
-proteomics.ix[proteins, samples].T.corrwith(transcriptomics.ix[proteins, samples].T).hist()
-
 
 # -- Residuals
 # p = 'LAMB1'
 def protein_residual(p):
     y = proteomics.ix[p, samples].dropna()
-    x = transcriptomics.ix[[p], y.index].dropna().T
+    x = transcriptomics.ix[[p], y.index].T
 
     lm = LinearRegression().fit(x, y)
+    y_ = y - lm.coef_[0] * x[p] - lm.intercept_
 
-    return y - lm.predict(x)
+    return y_
 residuals = DataFrame({p: protein_residual(p) for p in proteins}).T
 print 'residuals', residuals.shape
 
