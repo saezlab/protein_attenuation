@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from scipy import stats
-from scipy.stats.stats import pearsonr
+from scipy.stats.stats import pearsonr, ttest_ind
 from matplotlib.gridspec import GridSpec
 from cptac import wd, palette, default_color, palette_cnv_number
 from cptac.utils import log_likelihood, f_statistic, r_squared
@@ -14,7 +14,7 @@ from matplotlib_venn import venn3, venn3_circles
 from statsmodels.stats.multitest import multipletests
 from pandas import DataFrame, Series, read_csv, concat
 from pymist.utils.corumdb import get_complexes_pairs
-from pymist.utils.map_peptide_sequence import read_uniprot_genename
+from pymist.utils.map_peptide_sequence import read_uniprot_genename, read_fasta
 
 
 # -- Imports
@@ -38,6 +38,8 @@ print 'genes', 'samples', len(genes), len(samples)
 
 # -- Protein complexes interactions
 uniprot = read_uniprot_genename()
+uniprot_fasta = read_fasta()
+
 corum = get_complexes_pairs()
 corum = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in corum for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot}
 corum = {(p1, p2) for p1, p2 in corum if p1 in genes and p2 in genes}
@@ -91,6 +93,8 @@ def regressions(px, py):
 
 ppairs = DataFrame([regressions(px, py) for px, py in corum])
 ppairs['fdr'] = multipletests(ppairs['f_pval'], method='fdr_bh')[1]
+ppairs.to_csv('%s/tables/ppairs_cnv_regulation_all.csv' % wd, index=False)
+# ppairs = read_csv('%s/tables/ppairs_cnv_regulation_all.csv' % wd)
 print ppairs.sort('fdr')
 
 
@@ -207,6 +211,32 @@ plt.gcf().set_size_inches(4, 2 * len(ppairs_signif))
 plt.savefig('%s/reports/ppairs_cnv_regulation_scatter.png' % wd, bbox_inches='tight', dpi=150)
 plt.close('all')
 print '[INFO] Plot done'
+
+
+# -- Boxplot protein sequence length
+p_info = read_csv('%s/files/expasy_mol_weight.txt' % wd, sep='\t')
+p_info = p_info[p_info['pI'] != 'UNDEFINED']
+p_info = p_info.groupby('id').max()
+p_info['length'] = [len(uniprot_fasta[i]) for i in p_info.index]
+p_info.index = [uniprot[i][0] for i in p_info.index]
+
+plot_df = DataFrame([{'type': t, 'protein': p, 'signif': int(fdr < .05), 'feature': f, 'value': p_info.ix[p, f]} for px, py, fdr in ppairs[['px', 'py', 'fdr']].values for t, p in [('px', px), ('py', py)] for f in ['length'] if p in p_info.index])
+plot_df = plot_df[plot_df['signif'] == 1]
+print plot_df.sort('signif')
+
+ttest, pval = ttest_ind(plot_df[plot_df['type'] == 'px']['value'], plot_df[plot_df['type'] == 'py']['value'])
+
+sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+sns.violinplot(x='type', y='value', data=plot_df, linewidth=.3, cut=0, inner='quartile', split=False, color=palette_cnv_number[0])
+sns.stripplot(x='type', y='value', data=plot_df, linewidth=.3, jitter=True, edgecolor='white', split=False, color=default_color)
+plt.ylim(0)
+sns.despine(trim=True)
+plt.ylabel('Protein sequence length (number of AA)')
+plt.title('Px (CNV) ~ Py (Residuals)\nT-test: %.2f, p-value: %.2e' % (ttest, pval))
+plt.gcf().set_size_inches(2, 4)
+plt.savefig('%s/reports/protein_pairs_protein_info_boxplots.pdf' % wd, bbox_inches='tight')
+plt.close('all')
+print '[INFO] Done'
 
 # # -- Plot
 # # Significant associations venn diagram
