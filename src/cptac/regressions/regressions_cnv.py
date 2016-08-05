@@ -7,6 +7,7 @@ import statsmodels.api as sm
 from scipy import stats
 from scipy.stats.stats import pearsonr, ttest_ind
 from matplotlib.gridspec import GridSpec
+from statsmodels.stats.weightstats import ztest
 from cptac import wd, palette, default_color, palette_cnv_number
 from cptac.utils import log_likelihood, f_statistic, r_squared
 from sklearn.linear_model import LinearRegression
@@ -213,7 +214,7 @@ plt.close('all')
 print '[INFO] Plot done'
 
 
-# -- Boxplot protein sequence length
+# -- Protein sequence length
 p_info = read_csv('%s/files/expasy_mol_weight.txt' % wd, sep='\t')
 p_info = p_info[p_info['pI'] != 'UNDEFINED']
 p_info = p_info.groupby('id').max()
@@ -225,7 +226,9 @@ plot_df = plot_df[plot_df['signif'] == 1]
 print plot_df.sort('signif')
 
 ttest, pval = ttest_ind(plot_df[plot_df['type'] == 'px']['value'], plot_df[plot_df['type'] == 'py']['value'])
+print 'ttest', 'pval', ttest, pval
 
+# Boxplot
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
 sns.violinplot(x='type', y='value', data=plot_df, linewidth=.3, cut=0, inner='quartile', split=False, color=palette_cnv_number[0])
 sns.stripplot(x='type', y='value', data=plot_df, linewidth=.3, jitter=True, edgecolor='white', split=False, color=default_color)
@@ -237,6 +240,27 @@ plt.gcf().set_size_inches(2, 4)
 plt.savefig('%s/reports/protein_pairs_protein_info_boxplots.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
+
+# Histogram
+plot_df = DataFrame([{'px': px, 'py': py, 'len_px': p_info.ix[px, 'length'], 'len_py': p_info.ix[py, 'length'], 'signif': int(fdr < .05)} for px, py, fdr in ppairs[['px', 'py', 'fdr']].values if px in p_info.index and py in p_info.index])
+plot_df['diff'] = plot_df['len_px'] - plot_df['len_py']
+print plot_df.sort('signif')
+
+sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+for i in [0, 1]:
+    values = plot_df[plot_df['signif'] == i]['diff']
+    sns.distplot(values, hist=False, kde_kws={'shade': True}, color=palette_cnv_number[i], label='%s (mean = %.2f)' % ('Significant' if i else 'All', np.mean(values)))
+plt.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+plt.title('Protein length difference')
+plt.xlabel('len(Px) - len(Py)')
+sns.despine(trim=True)
+plt.legend()
+plt.gcf().set_size_inches(4, 2)
+plt.savefig('%s/reports/protein_pairs_protein_info_histogram.pdf' % wd, bbox_inches='tight')
+plt.close('all')
+print '[INFO] Done'
+
+
 
 # # -- Plot
 # # Significant associations venn diagram
