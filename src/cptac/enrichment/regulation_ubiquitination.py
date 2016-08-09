@@ -1,23 +1,12 @@
-import igraph
+import os
 import numpy as np
-from pandas.stats.misc import zscore
 import seaborn as sns
-from sklearn.cross_validation import ShuffleSplit
-from sklearn.preprocessing.imputation import Imputer
-import statsmodels.api as sm
 import matplotlib.pyplot as plt
+from scipy.stats.stats import spearmanr, pearsonr
 from statsmodels.stats.multitest import multipletests
-from yeast_phospho.utilities import pearson, spearman
-from scipy.stats.stats import spearmanr
-from cptac.utils import gkn
-from cptac import wd, palette
-from matplotlib.gridspec import GridSpec
-from pymist.utils.stringdb import get_stringdb
-from pymist.utils.biogriddb import get_biogriddb
+from cptac import wd, palette, default_color
 from sklearn.metrics.ranking import roc_curve, auc
-from pymist.utils.corumdb import get_complexes_pairs
-from sklearn.linear_model import LinearRegression, Lasso, LassoCV, Ridge, RidgeCV, ElasticNet, ElasticNetCV
-from sklearn.decomposition import FactorAnalysis, PCA
+from sklearn.linear_model import LinearRegression
 from pandas import DataFrame, Series, read_csv, concat
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
@@ -32,6 +21,16 @@ print 'transcriptomics', transcriptomics.shape
 # -- Overlap
 proteins, samples = set(proteomics.index).intersection(transcriptomics.index), set(proteomics).intersection(transcriptomics)
 print 'proteins', 'samples', len(proteins), len(samples)
+
+# -- Gene-sets
+uniprot = read_uniprot_genename()
+
+# Uniprot PTMs lists
+ptms = {'_'.join(f[:-4].split('_')[1:]):
+            {uniprot[i][0] for i in read_csv('%s/files/uniprot_ptms_proteins/%s' % (wd, f), sep='\t')['Entry'] if i in uniprot}
+    for f in os.listdir('%s/files/uniprot_ptms_proteins/' % wd) if f.startswith('uniprot_')
+}
+print 'ptms', len(ptms)
 
 
 # -- Residuals
@@ -50,26 +49,39 @@ print 'residuals', residuals.shape
 
 # --
 e3_ligases = set(read_csv('%s/files/putative_e3_ligases.csv' % wd).dropna()['gene']).intersection(proteins)
+print 'e3_ligases', len(e3_ligases)
 
-x = proteomics.ix[e3_ligases, samples].T.copy()
-y = residuals.drop(e3_ligases, axis=0, errors='ignore').ix[:, x.index].copy().T
 
-x = DataFrame(Imputer().fit_transform(x), index=x.index, columns=x.columns)
-y = DataFrame(Imputer().fit_transform(y), index=y.index, columns=y.columns)
+# ligase, protein = 'PPIL2', 'LAMB3'
+def cor_protein(ligase, protein):
+    x, y = zip(*DataFrame({'x': proteomics.ix[ligase, samples], 'y': residuals.ix[protein, samples]}).dropna().values)
 
-lm = LinearRegression().fit(x, y.ix[x.index])
-coefs = DataFrame(lm.coef_, index=y.columns, columns=x.columns)
-print coefs
+    cor, pval = pearsonr(x, y)
+    res = {'protein': protein, 'ligase': ligase, 'cor': cor, 'pval': pval}
 
-df = coefs.unstack().reset_index()
-df.columns = ['feature', 'protein', 'coef']
-print df.sort('coef')
+    return res
 
-# print df[df['e3_ligase'] == 'FBXW11'].sort('coef')
-# print df.sort('coef')
+cor_df = DataFrame([cor_protein(ligase, protein) for protein in proteins.difference(e3_ligases) for ligase in e3_ligases])
+cor_df['fdr'] = multipletests(cor_df['pval'], method='fdr_bh')[1]
+cor_df['ubq'] = [int(i in ptms['ubl_conjugation']) for i in cor_df['protein']]
+print cor_df.sort('cor')
 
-# df = DataFrame({'coef': coefs.mean(1)})
-# df['e3_ligases'] = [int(i in e3_ligases) for i in df.index]
 
-# print pearson(proteomics.ix['TP53', samples], proteomics.ix['UBE3A', samples])
-# print pearson(residuals.ix['TP53', samples], proteomics.ix['UBE3A', samples])
+# -- Enrichment
+(float(cor_df[(cor_df['cor'] < 0) & (cor_df['fdr'] < .05)]['ubq'].sum()) / cor_df['ubq'].sum())
+
+(float(cor_df[(cor_df['cor'] > 0) & (cor_df['fdr'] < .05)]['ubq'].sum()) / cor_df['ubq'].sum())
+
+curve_fpr, curve_tpr, _ = roc_curve(cor_df['ubq'], cor_df['cor'])
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+plt.plot(curve_fpr, curve_tpr, label='AUC %0.2f' % auc(curve_fpr, curve_tpr), c=default_color)
+plt.plot([0, 1], [0, 1], 'k--', lw=.3)
+sns.despine(trim=True)
+plt.legend(loc='lower right')
+plt.xlabel('False positive rate')
+plt.ylabel('True positive rate')
+plt.gcf().set_size_inches(4, 4)
+plt.savefig('%s/reports/protein_ubiquitination_aroc.pdf' % wd, bbox_inches='tight')
+plt.close('all')
+print '[INFO] Plot done'
