@@ -1,8 +1,9 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from cptac import wd, default_color, palette_cnv_number
+from cptac import wd, default_color, palette_cnv_number, palette
 from cptac.utils import gkn
+from matplotlib_venn import venn3, venn3_circles
 from sklearn.linear_model import LinearRegression
 from pandas import DataFrame, Series, read_csv, pivot_table
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
@@ -72,6 +73,21 @@ transcriptomics = DataFrame({g: gkn(transcriptomics.ix[g].dropna()) for g in tra
 print 'transcriptomics', transcriptomics.shape
 
 
+# # Venn
+# plot_df = {
+#     'CNV': set(cnv_m),
+#     'Transcriptomics': set(transcriptomics),
+#     'Proteomics': set(proteomics)
+# }
+#
+# venn3(plot_df.values(), set_labels=plot_df.keys(), set_colors=[palette[k] for k in plot_df])
+# venn3_circles(plot_df.values(), linestyle='solid', color='white')
+# plt.title('GDSC cell lines samples overlap')
+# plt.savefig('%s/reports/venn_cell_lines_samples.pdf' % wd, bbox_inches='tight')
+# plt.close('all')
+# print '[INFO] Done'
+
+
 # -- Overlap
 samples = set(proteomics).intersection(transcriptomics)
 proteins = set(proteomics.index).intersection(transcriptomics.index)
@@ -103,7 +119,7 @@ print ppairs
 
 # --
 plot_df = DataFrame([{'px': px, 'py': py, 'sample': s, 'x': residuals.ix[px, s], 'y': residuals.ix[py, s]} for px, py in ppairs[['px', 'py']].values for s in proteomics]).dropna()
-plot_df['mutation_x'] = [genomics_m.ix[p, s] if p in genomics_m.index else 0 for p, s in plot_df[['px', 'sample']].values]
+plot_df['mutation_x'] = [cnv_m.ix[p, s] if p in cnv_m.index else 0 for p, s in plot_df[['px', 'sample']].values]
 print plot_df.sort(['mutation_x', 'y'])
 
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})

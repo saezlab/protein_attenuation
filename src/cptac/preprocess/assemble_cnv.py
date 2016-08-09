@@ -1,7 +1,8 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from cptac import wd
+from matplotlib_venn import venn3, venn3_circles
+from cptac import wd, palette
 from pandas import DataFrame, Series, read_csv, pivot_table
 
 # Overlapping samples with the proteome
@@ -11,6 +12,24 @@ print len(samples)
 # Import whole CNV data-set
 cnv = read_csv('/Users/emanuel/Projects/data/cptac/cna_thresholded.tsv', sep='\t')
 print cnv
+
+gexp = read_csv('/Users/emanuel/Projects/data/cptac/GSE62944_merged_expression_voom.tsv', sep='\t', index_col=0)
+print gexp.shape
+
+
+# Venn diagram
+plot_df = {
+    'CNV': {i[:15] for i in cnv['barcode']},
+    'Transcriptomics': {i[:15] for i in gexp},
+    'Proteomics': samples
+}
+
+venn3(plot_df.values(), set_labels=plot_df.keys(), set_colors=[palette[k] for k in plot_df])
+venn3_circles(plot_df.values(), linestyle='solid', color='white')
+plt.title('Overlap between proteomics and copy number variation')
+plt.savefig('%s/reports/venn_cnv_proteomics.pdf' % wd, bbox_inches='tight')
+plt.close('all')
+print '[INFO] Done'
 
 # Sub-set by proteomics samples
 cnv = cnv[[i[:15] in samples for i in cnv['barcode']]]

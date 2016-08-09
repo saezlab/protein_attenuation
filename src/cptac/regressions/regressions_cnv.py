@@ -139,14 +139,17 @@ print network_i.summary()
 # Draw network
 graph = pydot.Dot(graph_type='digraph', rankdir='LR')
 
-graph.set_node_defaults(fontcolor='white', penwidth='3', fillcolor='#CCCCCC')
+graph.set_node_defaults(fontcolor='white', penwidth='3', fillcolor='#CCCCCC', )
 graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee')
 
 for edge in network_i.es:
     source_id, target_id = network_i.vs[[edge.source, edge.target]]['name']
 
     source = pydot.Node(source_id, style='filled', shape='ellipse', penwidth='0')
+    source.set_fillcolor(palette['CNV'])
+
     target = pydot.Node(target_id, style='filled', shape='ellipse', penwidth='0')
+    target.set_fillcolor(palette['Proteomics'])
 
     graph.add_node(source)
     graph.add_node(target)
@@ -167,22 +170,28 @@ ppairs_signif = ppairs[ppairs['fdr'] < .05].sort('fdr')
 ppairs_signif['cor'] = [ppair_correlation(px, py)[0] for px, py in ppairs_signif[['px', 'py']].values]
 ppairs_signif.to_csv('%s/tables/ppairs_cnv_regulation.csv' % wd, index=False)
 
+plot_df_short = ppairs_signif.sort('fdr')[:3]
+plot_df_short = ppairs_signif.ix[[32758]]
+
 # px, py = 'COG3', 'COG2'
-gs, pos = GridSpec(len(ppairs_signif), 2, hspace=.5), 0
-for px, py in ppairs_signif[['px', 'py']].values:
+sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
+gs, pos = GridSpec(len(plot_df_short), 2, hspace=.5, wspace=.3), 0
+for px, py in plot_df_short[['px', 'py']].values:
     #
     ax = plt.subplot(gs[pos])
 
     y = residuals.ix[py, samples].dropna()
     x = cnv.ix[px, y.index]
-    plot_df = concat([x, y], axis=1).dropna()
+    plot_df = concat([x, y], axis=1).dropna().astype(float)
 
-    sns.regplot(plot_df[px], plot_df[py], ax=ax, color=default_color, fit_reg=True, scatter=True, truncate=True)
-    for c in [0, -1, 1, -2, 2]:
-        sns.regplot(plot_df[plot_df[px] == c][px], plot_df[plot_df[px] == c][py], ax=ax, color=palette_cnv_number[c], fit_reg=False, truncate=True)
+    # sns.regplot(plot_df[px], plot_df[py], ax=ax, color=default_color, fit_reg=True, scatter=False, truncate=False)
+    # for c in [0, -1, 1, -2, 2]:
+    #     sns.regplot(plot_df[plot_df[px] == c][px], plot_df[plot_df[px] == c][py], ax=ax, color=palette_cnv_number[c], fit_reg=False, truncate=True)
+    sns.boxplot(x=px, y=py, data=plot_df, ax=ax, palette=palette_cnv_number, sym='', linewidth=.3)
+    sns.stripplot(x=px, y=py, data=plot_df, ax=ax, palette=palette_cnv_number, jitter=True, size=3, linewidth=.3, edgecolor='white')
     sns.despine(ax=ax)
     ax.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
-    ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+    # ax.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
     ax.set_xlabel('%s (copy number)' % px)
     ax.set_ylabel('%s (residuals)' % py)
     ax.set_title('Pearson\'s r: %.2f, p-value: %.2e' % pearsonr(x, y))
@@ -208,30 +217,28 @@ for px, py in ppairs_signif[['px', 'py']].values:
 
     pos += 2
 
-plt.gcf().set_size_inches(4, 2 * len(ppairs_signif))
-plt.savefig('%s/reports/ppairs_cnv_regulation_scatter.png' % wd, bbox_inches='tight', dpi=150)
+plt.gcf().set_size_inches(5, 2 * len(plot_df_short))
+# plt.savefig('%s/reports/ppairs_cnv_regulation_scatter.png' % wd, bbox_inches='tight', dpi=150)
+plt.savefig('%s/reports/ppairs_cnv_regulation_scatter.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'
 
 
 # -- Protein sequence length
-p_info = read_csv('%s/files/expasy_mol_weight.txt' % wd, sep='\t')
-p_info = p_info[p_info['pI'] != 'UNDEFINED']
-p_info = p_info.groupby('id').max()
-p_info['length'] = [len(uniprot_fasta[i]) for i in p_info.index]
-p_info.index = [uniprot[i][0] for i in p_info.index]
+ppairs_signif = ppairs_signif[ppairs_signif['cor'] > 0]
 
-plot_df = DataFrame([{'type': t, 'protein': p, 'signif': int(fdr < .05), 'feature': f, 'value': p_info.ix[p, f]} for px, py, fdr in ppairs[['px', 'py', 'fdr']].values for t, p in [('px', px), ('py', py)] for f in ['length'] if p in p_info.index])
-plot_df = plot_df[plot_df['signif'] == 1]
-print plot_df.sort('signif')
+p_length = DataFrame([{'uniprot': p, 'name': uniprot[p][0], 'length': len(uniprot_fasta[p])} for p in uniprot_fasta if p in uniprot]).groupby('name')['length'].max().to_dict()
 
-ttest, pval = ttest_ind(plot_df[plot_df['type'] == 'px']['value'], plot_df[plot_df['type'] == 'py']['value'])
+plot_df = DataFrame([{'type': t, 'protein': p, 'length': p_length[p]} for px, py in ppairs_signif[['px', 'py']].values for t, p in [('px', px), ('py', py)] if p in p_length])
+print plot_df
+
+ttest, pval = ttest_ind(plot_df[plot_df['type'] == 'px']['length'], plot_df[plot_df['type'] == 'py']['length'])
 print 'ttest', 'pval', ttest, pval
 
 # Boxplot
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-sns.violinplot(x='type', y='value', data=plot_df, linewidth=.3, cut=0, inner='quartile', split=False, color=palette_cnv_number[0])
-sns.stripplot(x='type', y='value', data=plot_df, linewidth=.3, jitter=True, edgecolor='white', split=False, color=default_color)
+sns.violinplot(x='type', y='length', data=plot_df, linewidth=.3, cut=0, inner='quartile', split=False, color=palette_cnv_number[0])
+sns.stripplot(x='type', y='length', data=plot_df, linewidth=.3, jitter=True, edgecolor='white', split=False, color=default_color)
 plt.ylim(0)
 sns.despine(trim=True)
 plt.ylabel('Protein sequence length (number of AA)')
@@ -242,16 +249,18 @@ plt.close('all')
 print '[INFO] Done'
 
 # Histogram
-plot_df = DataFrame([{'px': px, 'py': py, 'len_px': p_info.ix[px, 'length'], 'len_py': p_info.ix[py, 'length'], 'signif': int(fdr < .05)} for px, py, fdr in ppairs[['px', 'py', 'fdr']].values if px in p_info.index and py in p_info.index])
+plot_df = DataFrame([{'px': px, 'py': py, 'len_px': p_length[px], 'len_py': p_length[py], 'signif': int(fdr < .05)} for px, py, fdr in ppairs[['px', 'py', 'fdr']].values if px in p_length and py in p_length])
 plot_df['diff'] = plot_df['len_px'] - plot_df['len_py']
-print plot_df.sort('signif')
+print plot_df.sort('diff')
+
+z, zpval = ttest_ind(plot_df.loc[plot_df['signif'] == 1, 'diff'].values, plot_df.loc[plot_df['signif'] == 0, 'diff'].values, equal_var=False)
 
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
 for i in [0, 1]:
     values = plot_df[plot_df['signif'] == i]['diff']
     sns.distplot(values, hist=False, kde_kws={'shade': True}, color=palette_cnv_number[i], label='%s (mean = %.2f)' % ('Significant' if i else 'All', np.mean(values)))
 plt.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
-plt.title('Protein length difference')
+plt.title('Protein length difference\nT-test: %.2f, %.2e' % (z, zpval))
 plt.xlabel('len(Px) - len(Py)')
 sns.despine(trim=True)
 plt.legend()
@@ -259,29 +268,3 @@ plt.gcf().set_size_inches(4, 2)
 plt.savefig('%s/reports/protein_pairs_protein_info_histogram.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
-
-
-
-# # -- Plot
-# # Significant associations venn diagram
-# sns.set(style='white', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-# fig, gs, pos = plt.figure(figsize=(5, 10)), GridSpec(1, 2, hspace=.3), 0
-#
-# for c in [-2, 2]:
-#     ax = plt.subplot(gs[pos])
-#
-#     associations = {
-#         d: {p for p, t, f in res[d][['protein', 'cnv', 'f_adjpval']].values if c == t and f < .05}
-#         for d in res}
-#
-#     venn3(associations.values(), set_labels=associations.keys(), set_colors=[palette[k] for k in associations])
-#     venn3_circles(associations.values(), linestyle='solid', color='white')
-#
-#     ax.set_title('Depletion' if c == -2 else 'Amplification')
-#
-#     pos += 1
-#
-# plt.savefig('%s/reports/regressions_overlap_venn.pdf' % wd, bbox_inches='tight')
-# plt.close('all')
-# print '[INFO] Done'
-

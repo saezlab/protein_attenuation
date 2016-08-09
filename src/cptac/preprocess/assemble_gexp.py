@@ -1,15 +1,31 @@
-from cptac import wd
+from cptac import wd, palette
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn2, venn2_circles
 from pandas import DataFrame, Series, read_csv
 
 # Overlapping samples with the proteome
 samples = set(Series.from_csv('%s/data/samplesheet.csv' % wd).index)
 print len(samples)
 
-
 # -- Voom transformed
 # Import TCGA pancancer rna-seq data
 gexp = read_csv('/Users/emanuel/Projects/data/cptac/GSE62944_merged_expression_voom.tsv', sep='\t', index_col=0)
 print gexp.shape
+
+# Venn diagram
+plot_df = {
+    'Transcriptomics': {i[:15] for i in gexp},
+    'Proteomics': samples
+}
+
+venn2(plot_df.values(), set_labels=plot_df.keys(), set_colors=[palette[k] for k in plot_df])
+venn2_circles(plot_df.values(), linestyle='solid', color='white')
+plt.title('Overlap between proteomics and transcriptomics')
+plt.savefig('%s/reports/venn_transcriptomics_proteomics.pdf' % wd, bbox_inches='tight')
+plt.close('all')
+print '[INFO] Done'
+
 
 # Overlap
 gexp = gexp.loc[:, [i[:15] in samples for i in gexp]]
