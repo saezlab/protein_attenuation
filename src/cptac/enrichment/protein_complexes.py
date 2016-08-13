@@ -3,6 +3,7 @@ import numpy as np
 import seaborn as sns
 import itertools as it
 import matplotlib.pyplot as plt
+import matplotlib.colors
 import statsmodels.api as sm
 from pandas.stats.misc import zscore
 from scipy.stats.stats import pearsonr
@@ -191,16 +192,16 @@ print plot_df
 
 order = ['Stable - Stable', 'Stable - Unstable', 'Unstable - Stable', 'Unstable - Unstable']
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(plot_df, row='l_type', xlim=[-1, 1], size=1.5, aspect=.8, legend_out=False)
-# g.map(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='quartile', linewidth=.3)
-g.map(sns.boxplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, orient='h', sym='', notch=True, linewidth=.3)
-g.map(sns.stripplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, split=True, orient='h', size=2, edgecolor='white', linewidth=.3, jitter=True, alpha=.2)
-g.map(plt.axvline, x=0, ls='--', lw=0.3, c='black', alpha=.5)
+g = sns.FacetGrid(plot_df, row='l_type', xlim=[-1, 1], size=1.5, aspect=.8, legend_out=True)
+g = g.map(plt.axvline, x=0, ls='--', lw=0.3, c='black', alpha=.5)
+g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='box', linewidth=1., notch=True, scale='width')
+g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='quartile', linewidth=.3, notch=True, scale='width')
+g = g.map_dataframe(sns.stripplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, split=True, orient='h', size=.5, jitter=.2, alpha=.2, linewidth=.5, edgecolor='white')
 g.set_axis_labels('Pearson\'s r', '')
 g.add_legend()
 g.despine(trim=True)
 g.set_titles(row_template='{row_name}')
-plt.gcf().set_size_inches(3, 4)
+plt.gcf().set_size_inches(4, 4)
 plt.savefig('%s/reports/protein_pairs_correlation_halflife_violin.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
