@@ -16,8 +16,8 @@ files = ['%s/%s/%s.merged_only_clinical_clin_format.txt' % (dwd, d, d.split('_')
 dfs = []
 for f in files:
     df = read_csv(f, sep='\t', index_col=0)
-    df.ix['days_to_last_followup'] = df.ix[[i for i in df.index if 'days_to_last_followup' in i]].max()
-    df.ix['days_to_death'] = df.ix[[i for i in df.index if 'days_to_death' in i]].max()
+    df.ix['days_to_last_followup'] = df.ix[[i for i in df.index if 'days_to_last_followup' in i]].astype(np.float).max()
+    df.ix['days_to_death'] = df.ix[[i for i in df.index if 'days_to_death' in i]].astype(np.float).max()
     df.ix['patient.bcr_patient_barcode'] = [i.upper() for i in df.ix['patient.bcr_patient_barcode']]
     dfs.append(df)
 
@@ -35,3 +35,5 @@ print df.shape
 
 # Export
 df.to_csv('%s/tcga_clinical.csv' % dwd)
+df.to_csv('./data/tcga_clinical.csv')
+print '[INFO] Exported'
