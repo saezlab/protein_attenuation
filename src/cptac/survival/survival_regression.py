@@ -68,41 +68,71 @@ print 'residuals', residuals.shape
 
 # -- Signif Px -> Py associations
 ppairs = read_csv('./tables/ppairs_cnv_regulation.csv')
-p_complexes = [c for px, py in ppairs[['px', 'py']].values for c in corum if px in corum[c] and py in corum[c]]
+p_complexes = {c for px, py in ppairs[['px', 'py']].values for c in corum if px in corum[c] and py in corum[c]}
 print ppairs
 
 
 # --
-# c = 394
+# c = 5233
 def survival_regression(c):
-    df = cnv.ix[c, samples].dropna()
-    # df = df.map(lambda i: 1 if i > np.percentile(df, 50) else (-1 if i < np.percentile(df, 50) else 0))
+    c_proteins = list(corum[c].intersection(genes))
+
+    df = proteomics.ix[c_proteins, samples].T
     df = concat([df, clinical.ix[samples, ['time', 'status']]], axis=1).dropna()
+    df['const'] = 1
 
-    samples_up = set(df[df[c] == 1].index)
-    samples_down = set(df[df[c] == -1].index)
+    phm = PHReg(df['time'], df[c_proteins + ['const']], df['status'], ties='efron').fit_regularized(alpha=.1)
+    phm_cindex = concordance_index(df['time'], -phm.predict(df[c_proteins + ['const']], pred_type='hr').predicted_values, df['status'])
+    print phm.summary()
+    print phm_cindex
 
-    logrank = logrank_test(
-        df.ix[samples_up, 'time'], df.ix[samples_down, 'time'],
-        df.ix[samples_up, 'status'], df.ix[samples_down, 'status']
-    )
+    # cf = CoxPHFitter(normalize=False).fit(df, 'time', event_col='status')
+    # print cf.print_summary()
+    # print concordance_index(df['time'], -cf.predict_partial_hazard(df[c_proteins]), df['status'])
 
-    res = {'c': c, 'logrank': logrank.p_value}
+    res = {'c': c, 'cindex': phm_cindex, 'len': len(c_proteins)}
     return res
 
-c_survival = [survival_regression(c) for c in ppairs['px']]
+c_survival = [survival_regression(c) for c in p_complexes]
 c_survival = DataFrame([i for i in c_survival if i])
-print c_survival.sort('logrank')
+print c_survival.sort('cindex')
 
 
-c = c_survival.ix[c_survival['logrank'].argmin(), 'c']
+# c = c_survival.ix[c_survival['cindex'].argmax(), 'c']
+# c_proteins = list(corum[c].intersection(genes))
+#
+#
+# df = proteomics.ix[c_proteins, samples].mean()
+# df = df.map(lambda i: 1 if i > np.percentile(df, 50) else -1)
+# df = {}
+# for p in c_proteins:
+#     x = proteomics.ix[p, samples].dropna()
+#     thres = np.percentile(x, 50)
+#     df[p] = x.map(lambda i: 1 if i > thres else -1)
+# df = DataFrame(df).mode(axis=1).apply(lambda x: min(x.min(), x.max(), key=abs), axis=1)
+# df = concat([df, clinical.ix[samples, ['time', 'status']]], axis=1).dropna()
 
-df = cnv.ix[c, samples].dropna()
+# df = proteomics.ix[c_proteins, samples].dropna()
 # df = df.map(lambda i: 1 if i > np.percentile(df, 50) else (-1 if i < np.percentile(df, 50) else 0))
+# df = concat([df, clinical.ix[samples, ['time', 'status']]], axis=1).dropna()
+
+c = c_survival.ix[c_survival['cindex'].argmax(), 'c']
+c_proteins = list(corum[c].intersection(genes))
+
+df = proteomics.ix[c_proteins, samples].replace(np.nan, 0).T
 df = concat([df, clinical.ix[samples, ['time', 'status']]], axis=1).dropna()
 
-samples_up = set(df[df[c] == 1].index)
-samples_down = set(df[df[c] == -1].index)
+phm = PHReg(df['time'], df[c_proteins], df['status'], ties='efron').fit_regularized(alpha=.1)
+phm_cindex = concordance_index(df['time'], -phm.predict(df[c_proteins], pred_type='hr').predicted_values, df['status'])
+print phm.summary()
+print phm_cindex
+
+df = Series(dict(zip(*(df.index, phm.predict(pred_type='hr').predicted_values))))
+df = df.map(lambda i: 1 if i > np.percentile(df, 50) else (-1 if i < np.percentile(df, 50) else 0))
+df = concat([df, clinical.ix[samples, ['time', 'status']]], axis=1).dropna()
+
+samples_up = set(df[df[0] == 1].index)
+samples_down = set(df[df[0] == -1].index)
 
 logrank = logrank_test(
     df.ix[samples_up, 'time'], df.ix[samples_down, 'time'],
