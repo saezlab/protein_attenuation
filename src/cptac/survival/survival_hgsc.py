@@ -99,32 +99,33 @@ for px, c in p_complexes:
     for train, test in cv:
         x_train, x_test = df.ix[train], df.ix[test]
 
-        # # Statsmodels
-        # # Proportional Hazard with L1 regularisation
-        # model = PHReg(x_train['time'], x_train[c_proteins], x_train['status'], ties='efron')
-        # model = model.fit_regularized(L1_wt=1, alpha=.01)
-        #
-        # # Predict hazards
-        # hazards_train = Series(dict(zip(*(x_train.index, model.predict(exog=x_train[c_proteins], pred_type='hr').predicted_values))))
-        # hazards_test = Series(dict(zip(*(x_test.index, model.predict(exog=x_test[c_proteins], pred_type='hr').predicted_values))))
-        #
-        # # Concordance index (c-index)
-        # cindex_train = concordance_index(x_train['time'], -hazards_train, x_train['status'])
-        # cindex_test = concordance_index(x_test['time'], -hazards_test, x_test['status'])
-
-        # LifeLines
-        model = CoxPHFitter(normalize=False, penalizer=.1)
-        model = model.fit(x_train, 'time', event_col='status')
+        # -- Statsmodels
+        # Proportional Hazard with L1 regularisation
+        model = PHReg(x_train['time'], x_train[c_proteins], x_train['status'], ties='efron')
+        model = model.fit_regularized(L1_wt=0, alpha=.1)
 
         # Predict hazards
-        hazards_train = model.predict_partial_hazard(x_train[c_proteins])
-        hazards_test = model.predict_partial_hazard(x_test[c_proteins])
+        hazards_train = Series(dict(zip(*(x_train.index, model.predict(exog=x_train[c_proteins], pred_type='hr').predicted_values))))
+        hazards_test = Series(dict(zip(*(x_test.index, model.predict(exog=x_test[c_proteins], pred_type='hr').predicted_values))))
 
         # Concordance index (c-index)
         cindex_train = concordance_index(x_train['time'], -hazards_train, x_train['status'])
         cindex_test = concordance_index(x_test['time'], -hazards_test, x_test['status'])
 
-        # Store results
+        # # -- LifeLines
+        # model = CoxPHFitter(normalize=False, penalizer=.1)
+        # model = model.fit(x_train, 'time', event_col='status')
+        # # print model.print_summary()
+        #
+        # # Predict hazards
+        # hazards_train = model.predict_partial_hazard(x_train[c_proteins])
+        # hazards_test = model.predict_partial_hazard(x_test[c_proteins])
+        #
+        # # Concordance index (c-index)
+        # cindex_train = concordance_index(x_train['time'], -hazards_train, x_train['status'])
+        # cindex_test = concordance_index(x_test['time'], -hazards_test, x_test['status'])
+
+        # -- Store results
         cindexes_train.append(cindex_train)
         cindexes_test.append(cindex_test)
         # # print 'cindex: train %.2f, test %.2f' % (cindex_train, cindex_test)
