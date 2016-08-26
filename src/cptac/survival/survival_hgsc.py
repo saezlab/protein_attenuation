@@ -2,7 +2,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from cptac import palette_cnv_number, palette
-from cptac.utils import gkn
+from cptac.utils import gkn, randomise_matrix
 from pandas import DataFrame, Series, read_csv, concat
 from lifelines import CoxPHFitter
 from lifelines import KaplanMeierFitter
@@ -75,94 +75,89 @@ print 'corum', len(corum)
 
 # -- Signif Px -> Py associations
 ppairs = read_csv('./tables/ppairs_cnv_regulation.csv')
-p_complexes = {(px, c) for px, py in ppairs[['px', 'py']].values for c in corum if px in corum[c] and py in corum[c]}
+p_complexes = list({(px, c) for px, py in ppairs[['px', 'py']].values for c in corum if px in corum[c] and py in corum[c]})
 print 'p_complexes', len(p_complexes)
 
 
-# --
-# px, c = 'EIF3A', 1097
-c_survival = {}
-for px, c in p_complexes:
+# -- Regression: c = 811
+alpha, n_folds, n_randomisations = 1., 3, 100
+
+# K-fold
+regressions = {c[1]: {} for c in p_complexes}
+for permutation in range(15):
+    # Complex proteins
     c_proteins = list(corum[c])
-    print corum_n[c], len(c_proteins)
 
-    # Assemble data-set
-    df = concat([proteomics.ix[c_proteins].T, clinical[['time', 'status']]], axis=1).dropna()
+    #
+    x = concat([proteomics.ix[c_proteins].T, clinical[['time', 'status']]], axis=1).dropna()
 
-    # Bootstrap
-    # cv = ShuffleSplit(len(df), test_size=.1, n_iter=20)
-    cv = KFold(len(df), n_folds=5)
+    # KFold
+    groups, cv = [], KFold(len(samples), n_folds=n_folds, shuffle=True)
 
-    cindexes_train, cindexes_test, group = [], [], []
+    #
     for train, test in cv:
-        x_train, x_test = df.ix[train], df.ix[test]
+        # Assemble
+        x_train, x_test = x.ix[train], x.ix[test]
 
-        # # -- Statsmodels
-        # # Train
-        # model = PHReg(x_train['time'], x_train[c_proteins], x_train['status'], ties='efron')
-        # model = model.fit_regularized(L1_wt=0, alpha=.1)
-        # # print model.summary()
-        #
-        # # Predict
-        # hazards_train = Series(dict(zip(*(x_train.index, model.predict(exog=x_train[c_proteins], pred_type='hr').predicted_values))))
-        # hazards_test = Series(dict(zip(*(x_test.index, model.predict(exog=x_test[c_proteins], pred_type='hr').predicted_values))))
-
-        # -- LifeLines
-        # Train
-        model = CoxPHFitter(normalize=False, penalizer=1.)
-        model = model.fit(x_train, 'time', event_col='status')
-        # print model.print_summary()
+        # Train: LifeLines
+        model = CoxPHFitter(normalize=False, penalizer=alpha).fit(x_train, 'time', event_col='status')
 
         # Predict
-        hazards_train = model.predict_partial_hazard(x_train[c_proteins])[0]
-        hazards_test = model.predict_partial_hazard(x_test[c_proteins])[0]
+        hazards = model.predict_partial_hazard(x_test[c_proteins])[0]
 
-        # -- Evalute
-        # Concordance index (c-index)
-        cindex_train = concordance_index(x_train['time'], -hazards_train, x_train['status'])
-        cindex_test = concordance_index(x_test['time'], -hazards_test, x_test['status'])
+        # Classify
+        groups.append(hazards.apply(lambda i: 1 if i > np.percentile(hazards, 50) else -1))
 
-        # Classify into groups
-        groups_train = hazards_train.apply(lambda i: 1 if i > np.percentile(hazards_train, 50) else -1)
-        groups_test = hazards_test.apply(lambda i: 1 if i > np.percentile(hazards_test, 50) else -1)
+    # Aggregate predicted samples groups
+    groups = concat(groups)
 
-        # # Log-rank test
-        # rank_train = logrank_test(
-        #     x_train.ix[groups_train[groups_train == 1].index, 'time'], x_train.ix[groups_train[groups_train == -1].index, 'time'],
-        #     x_train.ix[groups_train[groups_train == 1].index, 'status'], x_train.ix[groups_train[groups_train == -1].index, 'status']
-        # )
-        #
-        # rank_test = logrank_test(
-        #     x_test.ix[groups_test[groups_test == 1].index, 'time'], x_test.ix[groups_test[groups_test == -1].index, 'time'],
-        #     x_test.ix[groups_test[groups_test == 1].index, 'status'], x_test.ix[groups_test[groups_test == -1].index, 'status']
-        # )
+    # Logrank test
+    logrank = logrank_test(
+        x.ix[groups[groups == 1].index, 'time'], x.ix[groups[groups == -1].index, 'time'],
+        x.ix[groups[groups == 1].index, 'status'], x.ix[groups[groups == -1].index, 'status']
+    ).test_statistic
 
-        # -- Store results
-        group.append(groups_test)
-        cindexes_train.append(cindex_train)
-        cindexes_test.append(cindex_test)
+    #
+    rand_logranks = []
+    for randomisation in range(n_randomisations):
+        rand_x = concat([proteomics.ix[c_proteins].T, randomise_matrix(clinical['time']), randomise_matrix(clinical['status'])], axis=1).dropna()
 
-        # print 'cindex: train %.2f, test %.2f' % (cindex_train, cindex_test)
-        # print 'logrank: train %.2e, test %.2f' % (rank_train.p_value, rank_test.p_value)
+        rand_groups = []
+        for train, test in cv:
+            # Assemble
+            x_train, x_test = rand_x.ix[train], rand_x.ix[test]
 
-    cindexes_train_mean, cindexes_test_mean = np.median(cindexes_train), np.median(cindexes_test)
-    print 'train %.2f, test %.2f\n' % (cindexes_train_mean, cindexes_test_mean)
+            # Train: LifeLines
+            model = CoxPHFitter(normalize=False, penalizer=alpha).fit(x_train, 'time', event_col='status')
 
-    c_survival[c] = {
-        'complex': c, 'len': len(c_proteins), 'group': concat(group),
-        'cindexes_train': cindexes_train, 'cindexes_test': cindexes_test,
-        'cindexes_train_mean': cindexes_train_mean, 'cindexes_test_mean': cindexes_test_mean
-    }
+            # Predict
+            hazards = model.predict_partial_hazard(x_test[c_proteins])[0]
 
-c_survival = DataFrame(c_survival).T
-c_survival['name'] = [corum_n[i] for i in c_survival.index]
-print c_survival.sort('cindexes_test_mean', ascending=False)[['cindexes_train_mean', 'cindexes_test_mean', 'name', 'len']]
+            # Classify
+            rand_groups.append(hazards.apply(lambda i: 1 if i > np.percentile(hazards, 50) else -1))
+
+        # Aggregate predicted samples groups
+        rand_groups = concat(rand_groups)
+
+        # Logrank test
+        rand_logranks.append(logrank_test(
+            rand_x.ix[rand_groups[rand_groups == 1].index, 'time'], rand_x.ix[rand_groups[rand_groups == -1].index, 'time'],
+            rand_x.ix[rand_groups[rand_groups == 1].index, 'status'], rand_x.ix[rand_groups[rand_groups == -1].index, 'status']
+        ).test_statistic)
+
+    p_value = float(sum([logrank > i for i in rand_logranks])) / n_randomisations
+    p_value = 1. / n_randomisations if p_value == 0 else p_value
+
+    print logrank, p_value
+
+    # Store results
+    regressions[c][permutation] = groups
 
 
 # -- Plot
 c = 811
 
-df = c_survival.ix[c, 'group']
+df = DataFrame(regressions[c]).mode(axis=1).apply(lambda x: min(x.min(), x.max(), key=abs), axis=1)
 df = concat([df, clinical[['time', 'status']]], axis=1).dropna()
 
 samples_up = set(df[df[0] == 1].index)
