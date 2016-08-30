@@ -1,0 +1,129 @@
+group,omics,auc,len
+Folding:Chaperome:HSP60:Chaperonin:CCT/TRiC,Proteomics,0.999957731306,28
+Folding:Chaperome:HSP60:Chaperonin:CCT/TRiC,Transcriptomics,0.977321551927,28
+Protein synthesis:Ribosome:MITO,Proteomics,0.975607231738,55
+Folding:Chaperome:MITO:Hsp100/AAA+,Proteomics,0.973156211087,15
+Protein synthesis:Protein maturation:Glycosylation:Oligosaccharides:ER,Proteomics,0.965456563545,6
+Protein synthesis:Ribosome,Proteomics,0.938571546402,595
+Folding:Chaperome:PFD:Prefoldin,Transcriptomics,0.922709249586,28
+Protein synthesis:Ribosome,Transcriptomics,0.909219452794,595
+Protein synthesis:Ribosome:MITO,Transcriptomics,0.904508154004,55
+Trafficking:MITO,Proteomics,0.901525690817,3
+Folding:Chaperome:PFD:Prefoldin,Proteomics,0.899112938269,28
+Folding:Chaperome:sHSP,Proteomics,0.884222791865,3
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:APC/C,Proteomics,0.878320390179,6
+Protein synthesis:Protein maturation:Glycosylation:GPI-anchor biosynthesis:ER,Proteomics,0.875170075147,6
+Folding:Chaperome:ER:Hsp100/AAA+,Proteomics,0.87092803259,10
+PN-signaling:Calcium signaling:ER,Proteomics,0.856782869595,15
+Folding:Chaperome:ER:Hsp100/AAA+,Transcriptomics,0.847013662456,10
+Folding:Chaperome:MITO:Prohibitin,Proteomics,0.83477819356,3
+Folding:Chaperome:ER:Oxidoreductases:PDI,Transcriptomics,0.826056299042,21
+Folding:Chaperome:ER:Oxidoreductases:PDI,Proteomics,0.810842347869,21
+Clearance:UPS:Proteasome,Transcriptomics,0.807035690721,946
+Folding:Chaperome:sHSP,Transcriptomics,0.803648755123,3
+Trafficking:Golgi:Retrograde Golgi vesicle transport,Proteomics,0.803286630472,210
+Clearance:UPS:Proteasome,Proteomics,0.779933492358,946
+Trafficking:Golgi:Anterograde Golgi vesicle transport,Proteomics,0.755236229682,231
+Folding:Chaperome:MITO:Hsp100/AAA+,Transcriptomics,0.740596901971,15
+Folding:Chaperome:ER,Proteomics,0.740254950153,36
+PN-signaling:Stress response:HSR,Transcriptomics,0.721275752965,10
+PN-signaling:Other:Membrane,Proteomics,0.697983559967,10
+Protein synthesis:Protein maturation:Glycosylation:GPI-anchor biosynthesis:ER,Transcriptomics,0.681062202821,6
+Folding:Chaperome:HSP70:HSP70s:Hsp110s,Transcriptomics,0.675836054523,3
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Cullin-complexes:Cul4 complex,Proteomics,0.675344529606,15
+PN-metabolism:Lipid metabolism:ER,Proteomics,0.663553151777,171
+Protein synthesis:Protein maturation:Glycosylation:Oligosaccharides:ER,Transcriptomics,0.650949441992,6
+Folding:Chaperome:ER:Oxidoreductases:Thioredoxin/PDI,Proteomics,0.646784469468,36
+Folding:Chaperome:ER:Oxidoreductases:Thioredoxin/PDI,Transcriptomics,0.645259556381,36
+Clearance:UPS:Ubiquitome:Ubiquitination:E1 ubiquitin-activating enzyme,Proteomics,0.636577251415,28
+Trafficking:ER,Proteomics,0.635217627212,666
+Trafficking:Golgi:Golgi membrane,Proteomics,0.630893996387,561
+Clearance:ERAD,Proteomics,0.630746242221,10
+Trafficking:Endo/Exo:Endocytosis,Proteomics,0.619415213155,190
+PN-signaling:Stress response:HSR,Proteomics,0.617745573992,10
+PN-signaling:Stress response:UPR,Proteomics,0.615409722237,28
+Clearance:Proteolysis,Proteomics,0.615025999353,78
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:Other,Transcriptomics,0.610386638313,666
+Folding:Chaperome:HSP40:Co-chaperones:Co-Hsp70:DnaJ,Proteomics,0.60717957034,378
+PN-metabolism:RedOx:ER,Proteomics,0.586954491514,6
+PN-signaling:Other:ER,Proteomics,0.581999702654,6
+Clearance:UPS:Ubiquitome:Ubiquitination:Ubiquitin-ligase activity:TRIM family,Transcriptomics,0.576262848597,91
+Trafficking:Golgi:Golgi vesicle,Proteomics,0.574638835099,2850
+Clearance:UPS:Ubiquitome:Ubiquitination:Ubiquitin-ligase activity:TRIM family,Proteomics,0.572979315182,91
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:HECT domain,Transcriptomics,0.56876465284,15
+Clearance:UPS:Ubiquitome:Ubiquitination:E2 ubiquitin-conjugating enzyme,Transcriptomics,0.566660491046,276
+Clearance:UPS:Ubiquitome:Ubiquitination:Ubiquitin-ligase activity:Ring finger,Transcriptomics,0.564743910054,91
+Clearance:UPS:Ubiquitome:Ubiquitination:E2 ubiquitin-conjugating enzyme,Proteomics,0.564345841437,276
+Folding:Chaperome:HSP70:Co-chaperones:Co-Hsp70:BAGs,Proteomics,0.564306853771,10
+Clearance:UPS:Ubiquitome:DUB,Transcriptomics,0.56039241293,1035
+PN-signaling:Calcium signaling:ER,Transcriptomics,0.558336661085,15
+Trafficking:Endo/Exo:Endocytosis,Transcriptomics,0.557967576645,190
+Clearance:UPS:Ubiquitome:Other,Proteomics,0.557132041142,1225
+Clearance:UPS:Ubiquitome:Ubiquitination:Ubiquitin-ligase activity:Other,Transcriptomics,0.55696769127,378
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:SCF complex,Proteomics,0.554018251604,105
+Folding:Chaperome:HSP90:Co-chaperones:Co-Hsp90:Immunophilins/Cyclophilins,Transcriptomics,0.552686310636,91
+Folding:Chaperome:HSP70:HSP70s:Hsp110s,Proteomics,0.551175800631,3
+Trafficking:Cytoskeleton,Transcriptomics,0.551090171629,6
+Clearance:UPS:Ubiquitome:Ubiquitin:Ubiquitin-like protein,Transcriptomics,0.549160816265,15
+Folding:Chaperome:HSP70:Co-chaperones:Co-Hsp70:BAGs,Transcriptomics,0.54910046776,10
+Trafficking:Golgi:Anterograde Golgi vesicle transport,Transcriptomics,0.548671095162,231
+Clearance:UPS:Ubiquitome:Ubiquitin-binding,Proteomics,0.547508734479,66
+Folding:Chaperome:ER:Calnexins,Proteomics,0.546957420635,3
+Clearance:UPS:Ubiquitome:DUB,Proteomics,0.542563517898,1035
+Trafficking:ER,Transcriptomics,0.54215098875,666
+Trafficking:Golgi:Retrograde Golgi vesicle transport,Transcriptomics,0.539991773884,210
+PN-signaling:Other:Membrane,Transcriptomics,0.537960373242,10
+Folding:Chaperome:HSP40:Co-chaperones:Co-Hsp70:DnaJ,Transcriptomics,0.53642683118,378
+Trafficking:Endo/Exo:Endosome,Proteomics,0.535411434204,1485
+Folding:Chaperome:TPR:Co-chaperones:Co-Hsp70/Hsp90,Proteomics,0.534994758415,1653
+Folding:Chaperome:HSP90:Co-chaperones:Co-Hsp90:Immunophilins/Cyclophilins,Proteomics,0.533800352674,91
+Clearance:UPS:Ubiquitome:Ubiquitination:Ubiquitin-ligase activity:Other,Proteomics,0.532584777095,378
+Folding:Chaperome:HSP90:Co-chaperones:Co-Hsp90:Immunophilins/FKBPs,Proteomics,0.528030488185,78
+PN-metabolism:Lipid metabolism:ER,Transcriptomics,0.526154469777,171
+Trafficking:Endo/Exo:Exocytosis,Proteomics,0.526040142019,10
+Clearance:UPS:Ubiquitome:Ubiquitination:E1 ubiquitin-activating enzyme,Transcriptomics,0.524143619014,28
+Clearance:Autophagy,Transcriptomics,0.522719569406,595
+Folding:Chaperome:TPR:Co-chaperones:Co-Hsp70/Hsp90,Transcriptomics,0.520441744279,1653
+Trafficking:Golgi:Golgi membrane,Transcriptomics,0.519740360747,561
+Clearance:UPS:Ubiquitome:Ubiquitin-binding,Transcriptomics,0.518635986184,66
+Clearance:UPS:Ubiquitome:Other,Transcriptomics,0.518392856237,1225
+PN-signaling:Stress response:UPR,Transcriptomics,0.518308842795,28
+PN-signaling:Stress response:OSR,Proteomics,0.51566247823,741
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:Other,Proteomics,0.514532928645,666
+Trafficking:Endo/Exo:Endosome,Transcriptomics,0.513118473772,1485
+Clearance:Proteolysis,Transcriptomics,0.512447424144,78
+PN-signaling:Stress response:OSR,Transcriptomics,0.509070949079,741
+Clearance:Autophagy,Proteomics,0.506589507866,595
+Folding:Chaperome:HSP90:Co-chaperones:Co-Hsp90:Immunophilins/FKBPs,Transcriptomics,0.506192454463,78
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:SCF complex,Transcriptomics,0.505036775448,105
+Trafficking:Golgi:Golgi vesicle,Transcriptomics,0.50485626709,2850
+Folding:Chaperome:ER:Calnexins,Transcriptomics,0.504817095294,3
+Folding:Chaperome:HSP70:HSP70s,Proteomics,0.501203689241,36
+Trafficking:Endo/Exo:Exocytosis:ER,Proteomics,0.500354817221,78
+Trafficking:Endo/Exo:Exocytosis:ER,Transcriptomics,0.497560275468,78
+Trafficking:Golgi:Other,Transcriptomics,0.495832387682,1653
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:HECT domain,Proteomics,0.494725084804,15
+Clearance:UPS:Ubiquitome:Ubiquitination:Ubiquitin-ligase activity:Ring finger,Proteomics,0.493253692186,91
+Folding:Chaperome:ER,Transcriptomics,0.491253689501,36
+Trafficking:Endo/Exo:Exocytosis,Transcriptomics,0.485943530662,10
+Trafficking:Golgi:Other,Proteomics,0.48272011244,1653
+Clearance:UPS:Ubiquitome:Autophagy,Transcriptomics,0.478775816909,15
+Clearance:UPS:Ubiquitome:Ubiquitin:Ubiquitin-like protein,Proteomics,0.471364700073,15
+Folding:Chaperome:HSP70:HSP70s,Transcriptomics,0.469800127783,36
+Clearance:UPS:Ubiquitome:Ubiquitination:Ubiquitin-ligase activity:ZBTB family,Transcriptomics,0.469097983144,6
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Cullin-complexes:Cul4 complex,Transcriptomics,0.466367920477,15
+Clearance:UPS:Ubiquitome:Autophagy,Proteomics,0.465977017047,15
+Clearance:ERAD,Transcriptomics,0.464805448881,10
+PN-signaling:Other:ER,Transcriptomics,0.464540371747,6
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:Ring finger,Proteomics,0.454784757948,10
+Folding:Protein stabilization,Proteomics,0.449367123064,21
+Folding:Protein stabilization,Transcriptomics,0.446837509242,21
+Clearance:UPS:Ubiquitome:Ubiquitination:Ubiquitin-ligase activity:ZBTB family,Proteomics,0.441743727146,6
+PN-metabolism:RedOx:ER,Transcriptomics,0.410551878086,6
+Trafficking:Cytoskeleton,Proteomics,0.395679997338,6
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:Ring finger,Transcriptomics,0.388653479216,10
+Folding:Chaperome:MITO:Prohibitin,Transcriptomics,0.380152279251,3
+Trafficking:MITO,Transcriptomics,0.362562233114,3
+Clearance:UPS:Ubiquitome:Ubiquitination:E3 ubiquitin-ligase:Other:APC/C,Transcriptomics,0.353641580616,6
+PN-metabolism:Cytochrome P450:ER,Proteomics,0.310403423009,3
+PN-metabolism:Cytochrome P450:ER,Transcriptomics,0.240204255575,3
