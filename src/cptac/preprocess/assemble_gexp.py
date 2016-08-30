@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# Copyright (C) 2016  Emanuel Goncalves
+
 from cptac import wd, palette
 import seaborn as sns
 import matplotlib.pyplot as plt

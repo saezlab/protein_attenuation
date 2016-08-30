@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# Copyright (C) 2016  Emanuel Goncalves
+
 import os
 import numpy as np
 from pandas import read_csv, concat

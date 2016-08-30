@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# Copyright (C) 2016  Emanuel Goncalves
+
 from cptac import wd
 from cptac.utils import gkn
 from pandas import DataFrame, read_csv

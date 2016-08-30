@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# Copyright (C) 2016  Emanuel Goncalves
+
 import numpy as np
 from cptac import wd
 from scipy import stats
