@@ -61,6 +61,7 @@ for k in pslist_dict:
 
 roc_df = DataFrame(roc_df).dropna(subset=['auc'])
 roc_df[roc_df['len'] > 1].sort('auc', ascending=False)[['group', 'omics', 'auc', 'len']].to_csv('./tables/psn_aucs.csv', index=False)
+# roc_df = read_csv('./tables/psn_aucs.csv')
 print roc_df.sort('auc')[['auc', 'omics', 'len', 'group']]
 
 # Scatter

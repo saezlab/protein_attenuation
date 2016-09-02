@@ -51,22 +51,12 @@ proteins = set(transcriptomics.index).intersection(proteomics.index)
 samples = set(transcriptomics).intersection(proteomics)
 print len(proteins), len(samples)
 
+
 # -- Turnover rates
 turnover = read_csv('%s/files/proteins_turnovers_preprocessed.csv' % wd).dropna(subset=['Uniprot IDs human'])
 turnover = DataFrame([{'protein': i, 'p_halflife': r, 't_halflife': t} for p, r, t in turnover[['Uniprot IDs human', 'Protein half-life average [h]', 'mRNA half-life average [h]']].values for i in p.split(';')])
 turnover['protein'] = [uniprot[i][0] for i in turnover['protein']]
 turnover = turnover.groupby('protein').max().dropna()
-
-# -- Trans vs Prot
-# p = 'SPR'
-def pt_correlation(p):
-    x = proteomics.ix[p, samples].dropna()
-    y = transcriptomics.ix[p, x.index]
-    cor, pval = pearsonr(x, y)
-    return {'cor': cor, 'pval': pval}
-pt_cor = DataFrame({p: pt_correlation(p) for p in proteins}).T
-pt_cor['fdr'] = multipletests(pt_cor['pval'], method='fdr_bh')[1]
-print pt_cor
 
 
 # -- Import gene-sets
@@ -118,24 +108,20 @@ print cor_df.sort('p_fdr')
 
 
 # --
-bkg = set(pt_cor[pt_cor['fdr'] > .05].index).intersection(p_pairs_proteins)
-
-p_pairs = {p for pp in cor_df[(cor_df['p_fdr'] < .05) & (cor_df['p_cor'] > .0) & (cor_df['t_fdr'] > .05)].index for p in pp.split('_')}.intersection(bkg)
-t_pairs = {p for pp in cor_df[(cor_df['t_fdr'] < .05) & (cor_df['t_cor'] > .0) & (cor_df['p_fdr'] > .05)].index for p in pp.split('_')}.intersection(bkg)
-print 'bkg', 'p_pairs', 't_pairs', len(bkg), len(p_pairs), len(t_pairs)
+bkg = set(p_pairs_proteins).intersection(proteins)
+p_pairs = {p for pp in cor_df[(cor_df['p_fdr'] < .05) & (cor_df['p_cor'] > .5) & (cor_df['t_cor'] < .5) & (cor_df['t_fdr'] > .05)].index for p in pp.split('_')}.intersection(bkg)
+print 'bkg', 'p_pairs', len(bkg), len(p_pairs)
 
 
 def enrichment_hypergeom(signature_type, signature):
     # Hypergeometric
     p_pval, p_len = hypergeom_test(signature.intersection(bkg), bkg, p_pairs)
-    t_pval, t_len = hypergeom_test(signature.intersection(bkg), bkg, t_pairs)
 
     s_len = len(signature.intersection(bkg))
 
     return {
         'type': signature_type,
-        'p_pval': p_pval, 'p_len': p_len, 'p_perc': float(p_len) / s_len * 100,
-        't_pval': t_pval, 't_len': t_len, 't_perc': float(t_len) / s_len * 100,
+        'p_pval': p_pval, 'p_len': p_len, 'p_perc': float(p_len) / s_len,
         's_len': s_len
     }
 
@@ -144,31 +130,21 @@ hyper = DataFrame({
     for signature_name in signatures if len(signatures[signature_name].intersection(bkg)) > 0
 }).T.dropna()
 hyper['p_fdr'] = multipletests(hyper['p_pval'], method='fdr_bh')[1]
-hyper['t_fdr'] = multipletests(hyper['t_pval'], method='fdr_bh')[1]
-print hyper.sort(['p_len', 'p_perc'], ascending=False)
+print hyper.sort(['p_len', 'p_perc'], ascending=False)[['p_len', 'p_perc', 'p_fdr']]
 
-plot_df = hyper.loc[(hyper[['t_fdr', 'p_fdr']] < .05).sum(1) == 1, ['p_perc', 't_perc']].astype(float).T
-plot_df.columns = [i.lower().replace('_', ' ') for i in plot_df]
-plot_df.index = ['Proteomics' if i.startswith('p_') else 'Transcriptomics' for i in plot_df.index]
 
-sns.clustermap(plot_df, cmap=sns.diverging_palette(220, 20, n=7, as_cmap=True), row_colors=[palette[i] for i in plot_df.index], center=0)
-plt.gcf().set_size_inches(35, 3)
+plot_df = hyper.loc[hyper['p_fdr'] < .05, ['p_len', 's_len', 'p_perc']].astype(np.float)
+plot_df['p_perc'] *= 100
+plot_df.index = ['%s (%d / %d)' % (i.lower().replace('_', ' '), plot_df.ix[i, 'p_len'], plot_df.ix[i, 's_len']) for i in plot_df.index]
+plot_df = plot_df[plot_df['p_len'] > 1]
+plot_df.columns = ['Percentage of overlap' if c == 'p_perc' else c for c in plot_df]
+
+sns.set(style='white', font_scale=.5)
+sns.clustermap(plot_df['Percentage of overlap'], cmap=sns.light_palette((210, 90, 60), input='husl', as_cmap=True), col_cluster=False, annot=True, fmt='.0f')
+plt.gcf().set_size_inches(1, 10)
 plt.savefig('%s/reports/protein_pairs_goterms_clustermap.pdf' % wd, bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'
-
-
-plot_df = {
-    'Transcriptomics': t_pairs,
-    'Proteomics': p_pairs
-}
-
-order = ['Transcriptomics', 'Proteomics']
-venn2([plot_df[i] for i in order], set_labels=order, set_colors=[palette[k] for k in order])
-venn2_circles([plot_df[i] for i in order], linestyle='solid', color='white')
-plt.savefig('%s/reports/protein_pairs_correlation_venn.pdf' % wd, bbox_inches='tight')
-plt.close('all')
-print '[INFO] Done'
 
 
 # -- Half-life

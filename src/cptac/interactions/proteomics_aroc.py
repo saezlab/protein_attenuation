@@ -2,6 +2,7 @@
 # Copyright (C) 2016  Emanuel Goncalves
 
 import itertools as it
+import pickle
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -9,7 +10,8 @@ from cptac import wd, palette, palette_dbs
 from gdsc import wd as gdsc_wd
 from matplotlib.gridspec import GridSpec
 from pandas import read_csv, DataFrame, concat, Series
-from sklearn.metrics.ranking import roc_curve, auc
+from sklearn.metrics.classification import matthews_corrcoef
+from sklearn.metrics.ranking import roc_curve, auc, precision_recall_curve, average_precision_score
 from pymist.utils.stringdb import get_stringdb, get_stringdb_actions
 from pymist.utils.biogriddb import get_biogriddb, get_biogriddb_action
 from pymist.utils.corumdb import get_complexes_pairs
@@ -75,13 +77,13 @@ print 'transcriptomics', transcriptomics.shape
 
 
 # -- Protein-protein correlation
-cor_res = {}
-# name, d_df = 'BRCA', brca
+cor_res, cor_dfs = {}, {}
+# name, d_df = 'Proteomics', proteomics
 for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteomics', proteomics), ('Transcriptomics', transcriptomics)]:
     print name
 
     # -- Generate p-p correlations
-    df = d_df.T.corr(method='pearson')
+    df = d_df.ix[{p for x, y in corum for p in [x, y]}.intersection(proteomics.index)].T.corr(method='pearson')
     df.values[np.tril_indices(df.shape[0], 0)] = np.nan
     df.index.name = None
     df = df.unstack().reset_index().dropna()
@@ -92,6 +94,20 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
     df['STRING'] = [1 if ((p1, p2) in string['highest']) else 0 for p1, p2 in df[['p1', 'p2']].values]
     df['BioGRID'] = [1 if ((p1, p2) in biogrid) else 0 for p1, p2 in df[['p1', 'p2']].values]
     df['OmniPath'] = [1 if ((p1, p2) in omnipath) else 0 for p1, p2 in df[['p1', 'p2']].values]
+
+    precision, recall, threshold = precision_recall_curve(df['CORUM'], df['cor'])
+    fpr, tpr, _ = roc_curve(df['CORUM'], df['cor'])
+
+    aupr, aroc = auc(recall, precision), auc(fpr, tpr)
+    print 'aupr, aroc', aupr, aroc
+
+    plt.plot(threshold, precision[1:], ls='-', label='precision')
+    plt.plot(threshold, recall[1:], ls='--', label='recall')
+    plt.legend()
+
+    plt.plot(recall, precision)
+
+    print matthews_corrcoef(df['CORUM'], (df['cor'] > .40).astype(int))
 
     for thres in string_thres:
         df['STRING_%s' % thres] = [1 if ((p1, p2) in string[thres]) else 0 for p1, p2 in df[['p1', 'p2']].values]
@@ -132,6 +148,9 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
     for action in omnipath_action:
         curve_fpr, curve_tpr, _ = roc_curve(df['OmniPath_%s' % action], df['cor'])
         cor_res[name]['OmniPath_%s' % action] = (curve_fpr, curve_tpr)
+
+    # -- Store data-frame
+    cor_dfs[name] = df
 
     # -- Histograms
     sns.set(style='ticks', context='paper', rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'}, font_scale=.75)
