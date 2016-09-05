@@ -32,22 +32,11 @@ print 'clinical', clinical.shape
 
 
 # -- Proteomics
-proteomics = read_csv('./data/hgsc_proteomics_processed.csv', index_col=0)
-proteomics.columns = [i[:15] for i in proteomics]
+proteomics = read_csv('./data/cptac_proteomics_corrected_normalised.csv', index_col=0)
+samples = set(proteomics).intersection(clinical.index)
 
-# Average replicates
-remove_samples = {i for i in set(proteomics) if proteomics.loc[:, [i]].shape[1] == 2 and proteomics.loc[:, [i]].corr().ix[0, 1] < .4}
-proteomics = proteomics.drop(remove_samples, axis=1)
-proteomics = DataFrame({i: proteomics.loc[:, [i]].mean(1) for i in set(proteomics)})
-
-# Drop missing values
-proteomics = proteomics.dropna()
-
-# Overlap
-proteins, samples = list(set(proteomics.index)), list(set(proteomics).intersection(clinical.index))
-
-# Normalise
-proteomics = DataFrame({i: gkn(proteomics.ix[i].dropna()).to_dict() for i in proteins}).T
+proteomics = proteomics.ix[:, samples].dropna()
+proteins = set(proteomics.index)
 
 
 # -- Protein complexes
@@ -65,7 +54,7 @@ p_complexes = list({(px, c) for px, py in ppairs[['px', 'py']].values for c in c
 print 'p_complexes', len(p_complexes)
 
 
-# -- Regression: c = 351
+# -- Regression: c = 244
 strata = concat([
     clinical['age_at_diagnosis'],
     clinical['tumor_stage'].str.get_dummies(),
@@ -75,35 +64,42 @@ strata = concat([
     clinical['status']
 ], axis=1)
 
-m1 = CoxPHFitter(normalize=False, penalizer=.1).fit(strata, 'time', event_col='status', include_likelihood=True)
+alpha = 1e-4
+
+m1 = CoxPHFitter(normalize=False, penalizer=alpha).fit(strata, 'time', event_col='status', include_likelihood=True)
+m1_ll = m1._log_likelihood
+
 print m1.print_summary()
-print m1._log_likelihood
+print m1_ll
+
 
 c_surv = {}
 for c in corum:
     x = concat([strata, proteomics.ix[corum[c], samples].T], axis=1).dropna()
-    m2 = CoxPHFitter(normalize=False, penalizer=.1).fit(x, 'time', event_col='status', include_likelihood=True)
 
-    print m2.print_summary()
-    print m2._log_likelihood
+    m2 = CoxPHFitter(normalize=False, penalizer=alpha).fit(x, 'time', event_col='status', include_likelihood=True)
+    m2_ll = m2._log_likelihood
 
-    lr = 2 * (m2._log_likelihood - m1._log_likelihood)
+    lr = 2 * (m2_ll - m1_ll)
 
-    df = x.drop(['time', 'status'], axis=1).shape[1] - strata.drop(['time', 'status'], axis=1).shape[1]
+    df = len(corum[c])
     pval = stats.chi2.sf(lr, df)
 
     res = {
         'c': c, 'name': corum_n[c],
-        'df': df, 'll_m1': m1._log_likelihood, 'll_m2': m2._log_likelihood,
-        'lr': lr, 'pval': pval,
+        'df': df, 'll_m1': m1_ll, 'll_m2': m2_ll,
+        'lr': lr, 'pval': pval, 'samples': x.shape[0],
         'regulators': '_'.join(corum[c].intersection(p_regulators))
     }
+
+    print m2.print_summary()
+    print m2_ll
     print pval, df
 
     c_surv[c] = res
 
 c_surv = DataFrame(c_surv).T
 c_surv['adj_pval'] = multipletests(c_surv['pval'], method='bonferroni')[1]
-print c_surv.sort('pval')
+print c_surv[c_surv['adj_pval'] < .01].sort('adj_pval')
 
-print c_surv[[i != '' for i in c_surv['regulators']]].sort('pval')
+# print c_surv[(c_surv['adj_pval'] < .01) & ([i != '' for i in c_surv['regulators']])].sort('pval')

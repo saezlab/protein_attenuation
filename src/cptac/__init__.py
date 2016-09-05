@@ -9,9 +9,9 @@ data = '/Volumes/EBI BACKUP/CPTAC'
 default_color = '#808080'
 
 palette = {
-    'BRCA': '#f39c12', 'COREAD': '#bdc3c7', 'HGSC': '#f198a4',
-    'Proteomics': '#34495e', 'Transcriptomics': '#e74c3c', 'CNV': '#4aa3df', 'Residuals': '#81A949',
-    'Overlap': '#d8d8d8'
+    'BRCA': '#F39C12', 'COREAD': '#BDC3C7', 'HGSC': '#F198A4',
+    'Proteomics': '#34495E', 'Transcriptomics': '#E74C3C', 'CNV': '#4AA3DF', 'Residuals': '#81A949', 'Clinical': '#2ECC71',
+    'Overlap': '#D8D8D8',
 }
 
 palette_dbs = {'All': '#d8d8d8', 'CORUM': '#e39e54', 'STRING': '#d64d4d', 'BioGRID': '#4d7358', 'OmniPath': '#81A949'}

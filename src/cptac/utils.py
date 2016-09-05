@@ -100,3 +100,7 @@ def hypergeom_test(signature, background, sublist):
     intersection = len(sublist.intersection(signature).intersection(signature))
 
     return pvalue, intersection
+
+
+def jaccard(x, y):
+    return float(len(x.intersection(y))) / len(x.union(y))
