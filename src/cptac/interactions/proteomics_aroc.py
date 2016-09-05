@@ -95,20 +95,6 @@ for name, d_df in [('BRCA', brca), ('HGSC', hgsc), ('COREAD', coread), ('Proteom
     df['BioGRID'] = [1 if ((p1, p2) in biogrid) else 0 for p1, p2 in df[['p1', 'p2']].values]
     df['OmniPath'] = [1 if ((p1, p2) in omnipath) else 0 for p1, p2 in df[['p1', 'p2']].values]
 
-    precision, recall, threshold = precision_recall_curve(df['CORUM'], df['cor'])
-    fpr, tpr, _ = roc_curve(df['CORUM'], df['cor'])
-
-    aupr, aroc = auc(recall, precision), auc(fpr, tpr)
-    print 'aupr, aroc', aupr, aroc
-
-    plt.plot(threshold, precision[1:], ls='-', label='precision')
-    plt.plot(threshold, recall[1:], ls='--', label='recall')
-    plt.legend()
-
-    plt.plot(recall, precision)
-
-    print matthews_corrcoef(df['CORUM'], (df['cor'] > .40).astype(int))
-
     for thres in string_thres:
         df['STRING_%s' % thres] = [1 if ((p1, p2) in string[thres]) else 0 for p1, p2 in df[['p1', 'p2']].values]
         print 'STRING_%s' % thres
