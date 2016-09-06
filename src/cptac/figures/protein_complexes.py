@@ -12,7 +12,7 @@ from pandas.stats.misc import zscore
 from scipy.stats.stats import pearsonr
 from matplotlib_venn import venn2, venn2_circles
 from cptac.utils import hypergeom_test, read_gmt
-from cptac import wd, palette
+from cptac import palette
 from statsmodels.stats.multitest import multipletests
 from pandas import DataFrame, Series, read_csv, concat, pivot_table
 from pymist.utils.corumdb import get_complexes_pairs
@@ -39,11 +39,11 @@ print 'p_pairs', len(p_pairs)
 
 # -- Import data-sets
 # Transcriptomics
-transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0)
+transcriptomics = read_csv('./data/tcga_rnaseq_corrected_normalised.csv', index_col=0)
 print 'transcriptomics', transcriptomics.shape
 
 # Proteomics
-proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
+proteomics = read_csv('./data/cptac_proteomics_corrected_normalised.csv', index_col=0)
 print 'proteomics', proteomics.shape
 
 # Overlap
@@ -53,7 +53,7 @@ print len(proteins), len(samples)
 
 
 # -- Turnover rates
-turnover = read_csv('%s/files/proteins_turnovers_preprocessed.csv' % wd).dropna(subset=['Uniprot IDs human'])
+turnover = read_csv('./files/proteins_turnovers_preprocessed.csv').dropna(subset=['Uniprot IDs human'])
 turnover = DataFrame([{'protein': i, 'p_halflife': r, 't_halflife': t} for p, r, t in turnover[['Uniprot IDs human', 'Protein half-life average [h]', 'mRNA half-life average [h]']].values for i in p.split(';')])
 turnover['protein'] = [uniprot[i][0] for i in turnover['protein']]
 turnover = turnover.groupby('protein').max().dropna()
@@ -62,21 +62,21 @@ turnover = turnover.groupby('protein').max().dropna()
 # -- Import gene-sets
 # Uniprot PTMs lists
 ptms = {'_'.join(f[:-4].split('_')[1:]):
-            {uniprot[i][0] for i in read_csv('%s/files/uniprot_ptms_proteins/%s' % (wd, f), sep='\t')['Entry'] if i in uniprot}
-    for f in os.listdir('%s/files/uniprot_ptms_proteins/' % wd) if f.startswith('uniprot_')
+            {uniprot[i][0] for i in read_csv('./files/uniprot_ptms_proteins/%s' % f, sep='\t')['Entry'] if i in uniprot}
+    for f in os.listdir('./files/uniprot_ptms_proteins/') if f.startswith('uniprot_')
 }
 print 'ptms', len(ptms)
 
 # GO terms
-msigdb_go_bp = read_gmt('%s/files/c5.bp.v5.1.symbols.gmt' % wd)
-msigdb_go_cc = read_gmt('%s/files/c5.cc.v5.1.symbols.gmt' % wd)
-msigdb_go_mf = read_gmt('%s/files/c5.mf.v5.1.symbols.gmt' % wd)
+msigdb_go_bp = read_gmt('./files/c5.bp.v5.1.symbols.gmt')
+msigdb_go_cc = read_gmt('./files/c5.cc.v5.1.symbols.gmt')
+msigdb_go_mf = read_gmt('./files/c5.mf.v5.1.symbols.gmt')
 print 'msigdb_go_mf', 'msigdb_go_cc', 'msigdb_go_bp', len(msigdb_go_mf), len(msigdb_go_cc), len(msigdb_go_bp)
 
 # Pathways
-msigdb_cp = read_gmt('%s/files/c2.cp.v5.1.symbols.gmt' % wd)
-msigdb_kegg = read_gmt('%s/files/c2.cp.kegg.v5.1.symbols.gmt' % wd)
-msigdb_cgp = read_gmt('%s/files/c2.cgp.v5.1.symbols.gmt' % wd)
+msigdb_cp = read_gmt('./files/c2.cp.v5.1.symbols.gmt')
+msigdb_kegg = read_gmt('./files/c2.cp.kegg.v5.1.symbols.gmt')
+msigdb_cgp = read_gmt('./files/c2.cgp.v5.1.symbols.gmt')
 print 'msigdb_cp', 'msigdb_kegg', 'msigdb_cgp', len(msigdb_cp), len(msigdb_kegg), len(msigdb_cgp)
 
 
@@ -107,21 +107,24 @@ cor_df['p_fdr'] = multipletests(cor_df['p_pval'], method='fdr_bh')[1]
 print cor_df.sort('p_fdr')
 
 
-# --
+# -- Enrichment analysis
 bkg = set(p_pairs_proteins).intersection(proteins)
 p_pairs = {p for pp in cor_df[(cor_df['p_fdr'] < .05) & (cor_df['p_cor'] > .5) & (cor_df['t_cor'] < .5) & (cor_df['t_fdr'] > .05)].index for p in pp.split('_')}.intersection(bkg)
-print 'bkg', 'p_pairs', len(bkg), len(p_pairs)
+t_pairs = {p for pp in cor_df[(cor_df['t_fdr'] < .05) & (cor_df['t_cor'] > .5) & (cor_df['p_cor'] < .5) & (cor_df['p_fdr'] > .05)].index for p in pp.split('_')}.intersection(bkg)
+print 'bkg', 'p_pairs', 't_pairs', len(bkg), len(p_pairs), len(t_pairs)
 
 
 def enrichment_hypergeom(signature_type, signature):
     # Hypergeometric
     p_pval, p_len = hypergeom_test(signature.intersection(bkg), bkg, p_pairs)
+    t_pval, t_len = hypergeom_test(signature.intersection(bkg), bkg, t_pairs)
 
     s_len = len(signature.intersection(bkg))
 
     return {
         'type': signature_type,
         'p_pval': p_pval, 'p_len': p_len, 'p_perc': float(p_len) / s_len,
+        't_pval': t_pval, 't_len': t_len, 't_perc': float(t_len) / s_len,
         's_len': s_len
     }
 
@@ -130,19 +133,30 @@ hyper = DataFrame({
     for signature_name in signatures if len(signatures[signature_name].intersection(bkg)) > 0
 }).T.dropna()
 hyper['p_fdr'] = multipletests(hyper['p_pval'], method='fdr_bh')[1]
+hyper['t_fdr'] = multipletests(hyper['t_pval'], method='fdr_bh')[1]
 print hyper.sort(['p_len', 'p_perc'], ascending=False)[['p_len', 'p_perc', 'p_fdr']]
 
+# Plot
+plot_df = hyper[(hyper['p_fdr'] < .05) | (hyper['t_fdr'] < .05)]
+plot_df = plot_df[(plot_df['p_len'] > 1) | (plot_df['t_len'] > 1)]
 
-plot_df = hyper.loc[hyper['p_fdr'] < .05, ['p_len', 's_len', 'p_perc']].astype(np.float)
-plot_df['p_perc'] *= 100
-plot_df.index = ['%s (%d / %d)' % (i.lower().replace('_', ' '), plot_df.ix[i, 'p_len'], plot_df.ix[i, 's_len']) for i in plot_df.index]
-plot_df = plot_df[plot_df['p_len'] > 1]
-plot_df.columns = ['Percentage of overlap' if c == 'p_perc' else c for c in plot_df]
+plot_df = plot_df[['p_perc', 't_perc', 'p_fdr', 't_fdr']]
+plot_df[['p_fdr', 't_fdr']] = ~(plot_df[['p_fdr', 't_fdr']] < .05)
+plot_df.index = [i.lower().replace('_', ' ') for i in plot_df.index]
+plot_df = plot_df.sort(['p_perc', 't_perc'], ascending=False)
 
-sns.set(style='white', font_scale=.5)
-sns.clustermap(plot_df['Percentage of overlap'], cmap=sns.light_palette((210, 90, 60), input='husl', as_cmap=True), col_cluster=False, annot=True, fmt='.0f')
-plt.gcf().set_size_inches(1, 10)
-plt.savefig('%s/reports/protein_pairs_goterms_clustermap.pdf' % wd, bbox_inches='tight')
+mask = plot_df[['p_fdr', 't_fdr']].copy()
+mask.columns = ['Proteomics', 'Transcriptomics']
+
+plot_df = plot_df[['p_perc', 't_perc']].copy().astype(np.float)
+plot_df.columns = ['Proteomics', 'Transcriptomics']
+
+sns.set(font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.clustermap(plot_df, mask=mask, linewidths=.2, annot=True, fmt='.2f', cmap=sns.light_palette('#680018', as_cmap=True), row_cluster=False, col_cluster=False)
+plt.title('Overlap')
+plt.setp(g.ax_heatmap.xaxis.get_majorticklabels(), rotation=90)
+plt.gcf().set_size_inches(1.5, 11)
+plt.savefig('./reports/protein_pairs_goterms_enrichment.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'
 
@@ -175,12 +189,12 @@ g = sns.FacetGrid(plot_df, row='l_type', xlim=[-1, 1], size=1.5, aspect=.8, lege
 g = g.map(plt.axvline, x=0, ls='--', lw=0.3, c='black', alpha=.5)
 g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='box', linewidth=1., notch=True, scale='width')
 g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='quartile', linewidth=.3, notch=True, scale='width')
-g = g.map_dataframe(sns.stripplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, split=True, orient='h', size=.5, jitter=.2, alpha=.2, linewidth=.5, edgecolor='white')
+# g = g.map_dataframe(sns.stripplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, split=True, orient='h', size=.5, jitter=.2, alpha=.2, linewidth=.5, edgecolor='white')
 g.set_axis_labels('Pearson\'s r', '')
 g.add_legend()
 g.despine(trim=True)
 g.set_titles(row_template='{row_name}')
 plt.gcf().set_size_inches(4, 4)
-plt.savefig('%s/reports/protein_pairs_correlation_halflife_violin.pdf' % wd, bbox_inches='tight')
+plt.savefig('./reports/protein_pairs_correlation_halflife_violin.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'

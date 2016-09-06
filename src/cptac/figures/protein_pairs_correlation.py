@@ -140,7 +140,7 @@ dsets = {
     'STRING_action_medium': string_action['medium'].items(),
     'STRING_action_low': string_action['low'].items(),
     'BioGRID_action': biogrid_action.items(),
-    'OmniPath': omnipath_action.items()
+    # 'OmniPath': omnipath_action.items()
 }
 
 for f in dsets:
@@ -163,7 +163,7 @@ for f in dsets:
     print plot_df
 
     sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
-    gs, pos = GridSpec(1, 2, hspace=.3, wspace=.3), 0
+    gs, pos = GridSpec(1, len(dsets[f]), hspace=.3, wspace=.3), 0
 
     for interaction in set(plot_df['Interaction']):
         ax = plt.subplot(gs[pos])
