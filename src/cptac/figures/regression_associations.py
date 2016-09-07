@@ -70,7 +70,7 @@ plt.scatter(
     x=plot_df['beta'], y=-np.log10(plot_df['fdr']),
     s=25, c=[palette['CNV'] if f < .05 else sns.light_palette(palette['CNV']).as_hex()[1] for f in plot_df['fdr']],
     linewidths=[.5 if (px, py) in associations['Transcriptomics'] else 0 for px, py in plot_df[['px', 'py']].values],
-    alpha=.7, edgecolor=palette['Transcriptomics']
+    alpha=.7, edgecolor=[palette['Transcriptomics'] if (px, py) in associations['Transcriptomics'] else '#FFFFFF' for px, py in plot_df[['px', 'py']].values]
 )
 
 for fdr, beta, px, py in plot_df[['fdr', 'beta', 'px', 'py']].values:
@@ -97,7 +97,7 @@ print '[INFO] Done'
 network_i = igraph.Graph(directed=True)
 
 # Initialise network lists
-edges = [(px, py) for px, py in ppairs_cnv[ppairs_cnv['fdr'] < .05][['px', 'py']].values if (px, py) in associations['Transcriptomics']]
+edges = [(px, py) for px, py in ppairs_cnv[ppairs_cnv['fdr'] < .05][['px', 'py']].values if (px, py) in associations['Transcriptomics'] and px in ['EIF3A', 'COG3', 'COG6', 'AP3B1', 'POLD3']]
 vertices = list({p for px, py in edges for p in (px, py)})
 
 # Add nodes
@@ -109,9 +109,9 @@ network_i.add_edges(edges)
 print network_i.summary()
 
 # Draw network
-graph = pydot.Dot(graph_type='digraph', rankdir='LR')
+graph = pydot.Dot(graph_type='digraph')
 
-graph.set_node_defaults(fontcolor='white', penwidth='3', fillcolor='#CCCCCC', )
+graph.set_node_defaults(fontcolor='white', penwidth='3', fillcolor='#CCCCCC', width='1', height='1')
 graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee')
 
 for edge in network_i.es:
@@ -138,7 +138,7 @@ def ppair_correlation(px, py):
     x, y = zip(*proteomics.ix[[px, py]].T.dropna().values)
     return pearsonr(x, y)
 
-plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(px_highlight)) & (ppairs_cnv['fdr'] < .05)]
+plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(['COG3', 'COG6', 'SMARCA2'])) & (ppairs_cnv['fdr'] < .05)]
 plot_df['cor'] = [ppair_correlation(px, py)[0] for px, py in plot_df[['px', 'py']].values]
 
 # px, py = 'COG3', 'COG2'
@@ -168,7 +168,7 @@ for px, py in plot_df.sort('cor', ascending=False)[['px', 'py']].values:
     x = proteomics.ix[px, y.index]
     df = concat([x, y, cnv.ix[px, y.index].rename('cnv')], axis=1).dropna()
 
-    sns.regplot(df[px], df[py], ax=ax, color=default_color, fit_reg=True, scatter=True, truncate=True)
+    sns.regplot(df[px], df[py], ax=ax, color=default_color, fit_reg=True, scatter=True, truncate=True, line_kws={'linewidth': .3})
     for c in [0, -1, 1, -2, 2]:
         sns.regplot(df[df['cnv'] == c][px], df[df['cnv'] == c][py], ax=ax, color=palette_cnv_number[c], fit_reg=False, truncate=True)
     sns.despine(ax=ax)
@@ -182,7 +182,7 @@ for px, py in plot_df.sort('cor', ascending=False)[['px', 'py']].values:
     pos += 2
 
 plt.gcf().set_size_inches(6, 3 * len(plot_df))
-# plt.savefig('%s/reports/ppairs_cnv_regulation_scatter.png' % wd, bbox_inches='tight', dpi=150)
-plt.savefig('./reports/ppairs_cnv_regulation_scatter.pdf', bbox_inches='tight')
+# plt.savefig('%s/reports/regressions_associations_scatter.png' % wd, bbox_inches='tight', dpi=150)
+plt.savefig('./reports/regressions_associations_scatter.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'

@@ -75,18 +75,33 @@ print 'omnipath_action', len(omnipath_action)
 
 
 # -- Plot: Boxplots
+labels = {
+    'CORUM': 'Direct', 'STRING': 'Functional', 'All': 'All'
+}
+
 # All
 plot_df = concat({'Proteomics': p_corr, 'Transcriptomics': t_corr}).reset_index()
 plot_df.columns = ['Data', 'Px', 'Py', 'Correlation']
 plot_df['Interaction'] = 'All'
 
+for n, sets in [('CORUM', corum), ('STRING', string['highest'])]:
+    df = concat({'Proteomics': p_corr[sets].dropna(), 'Transcriptomics': t_corr[sets].dropna()}).reset_index()
+    df.columns = ['Data', 'Px', 'Py', 'Correlation']
+    df['Interaction'] = n
+
+    plot_df = plot_df.append(df, ignore_index=True)
+    print n
+
+
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-sns.violinplot(x='Correlation', y='Interaction', hue='Data', data=plot_df, palette=palette, linewidth=1., cut=0, split=True, inner='quartile', orient='h')
+g = sns.violinplot(x='Correlation', y='Interaction', hue='Data', data=plot_df, palette=palette, linewidth=1., cut=0, split=True, inner='quartile', orient='h')
 plt.axvline(0.0, ls='--', lw=0.3, c='black', alpha=.5)
 plt.xlim(-1, 1)
 sns.despine(trim=True)
 plt.legend(loc=2)
-plt.gcf().set_size_inches(.5, 4)
+plt.ylabel('')
+g.set_yticklabels([labels[i.get_text()] for i in g.get_yticklabels()])
+plt.gcf().set_size_inches(4, .5 * len(set(plot_df['Interaction'])))
 plt.savefig('./reports/proteins_correlation_boxplot_all.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
@@ -95,14 +110,18 @@ print '[INFO] Done'
 # CORUM + STRING
 dsets = {
     'CORUM_STRING': [('CORUM', corum), ('STRING', string['highest'])],
-    'BioGRID_OmniPath': [('BioGRID', biogrid), ('OmniPath', omnipath)],
-    'STRING_thresholds': [(i, string[i]) for i in ['highest', 'high', 'medium', 'low']],
-    'STRING_action_highest': string_action['highest'].items(),
-    'STRING_action_high': string_action['high'].items(),
-    'STRING_action_medium': string_action['medium'].items(),
-    'STRING_action_low': string_action['low'].items(),
-    'BioGRID_action': biogrid_action.items(),
-    'OmniPath': omnipath_action.items()
+    # 'BioGRID_OmniPath': [('BioGRID', biogrid), ('OmniPath', omnipath)],
+    # 'STRING_thresholds': [(i, string[i]) for i in ['highest', 'high', 'medium', 'low']],
+    # 'STRING_action_highest': string_action['highest'].items(),
+    # 'STRING_action_high': string_action['high'].items(),
+    # 'STRING_action_medium': string_action['medium'].items(),
+    # 'STRING_action_low': string_action['low'].items(),
+    # 'BioGRID_action': biogrid_action.items(),
+    # 'OmniPath': omnipath_action.items()
+}
+
+labels = {
+    'CORUM_STRING': {'CORUM': 'Direct', 'STRING': 'Functional'}
 }
 
 for f in dsets:
@@ -119,11 +138,12 @@ for f in dsets:
     print plot_df
 
     sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-    sns.violinplot(x='Correlation', y='Interaction', hue='Data', data=plot_df, palette=palette, linewidth=1., cut=0, split=True, inner='quartile', orient='h')
+    g = sns.violinplot(x='Correlation', y='Interaction', hue='Data', data=plot_df, palette=palette, linewidth=1., cut=0, split=True, inner='quartile', orient='h')
     plt.axvline(0.0, ls='--', lw=0.3, c='black', alpha=.5)
     plt.xlim(-1, 1)
     sns.despine(trim=True)
     plt.legend(loc=2)
+    g.set_yticklabels([labels[f][i.get_text()] for i in g.get_yticklabels()])
     plt.ylabel('')
     plt.gcf().set_size_inches(4, .5 * len(dsets[f]))
     plt.savefig('./reports/proteins_correlation_boxplot_%s.pdf' % f, bbox_inches='tight')
@@ -133,15 +153,20 @@ for f in dsets:
 # ROC curves
 dsets = {
     'CORUM_STRING': [('CORUM', corum), ('STRING', string['highest'])],
-    'BioGRID_OmniPath': [('BioGRID', biogrid), ('OmniPath', omnipath)],
-    'STRING_thresholds': [(i, string[i]) for i in ['highest', 'high', 'medium', 'low']],
-    'STRING_action_highest': string_action['highest'].items(),
-    'STRING_action_high': string_action['high'].items(),
-    'STRING_action_medium': string_action['medium'].items(),
-    'STRING_action_low': string_action['low'].items(),
-    'BioGRID_action': biogrid_action.items(),
+    # 'BioGRID_OmniPath': [('BioGRID', biogrid), ('OmniPath', omnipath)],
+    # 'STRING_thresholds': [(i, string[i]) for i in ['highest', 'high', 'medium', 'low']],
+    # 'STRING_action_highest': string_action['highest'].items(),
+    # 'STRING_action_high': string_action['high'].items(),
+    # 'STRING_action_medium': string_action['medium'].items(),
+    # 'STRING_action_low': string_action['low'].items(),
+    # 'BioGRID_action': biogrid_action.items(),
     # 'OmniPath': omnipath_action.items()
 }
+
+labels = {
+    'CORUM_STRING': {'CORUM': 'Direct', 'STRING': 'Functional'}
+}
+
 
 for f in dsets:
     plot_df = []
@@ -165,7 +190,7 @@ for f in dsets:
     sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
     gs, pos = GridSpec(1, len(dsets[f]), hspace=.3, wspace=.3), 0
 
-    for interaction in set(plot_df['Interaction']):
+    for interaction, _ in dsets[f]:
         ax = plt.subplot(gs[pos])
 
         df = plot_df[plot_df['Interaction'] == interaction]
@@ -180,8 +205,8 @@ for f in dsets:
             curve_fpr, curve_tpr, curve_auc = df_d[['FPR', 'TPR', 'AUC']].values[0]
 
             ax.plot(
-                curve_fpr, curve_tpr, c=palette[dtype], lw=2.5, label='%s (AROC %.2f)' % (dtype, curve_auc),
-                path_effects=[pe.Stroke(linewidth=3, foreground='white'), pe.Normal()]
+                curve_fpr, curve_tpr, c=palette[dtype], lw=1., label='%s (AROC %.2f)' % (dtype, curve_auc),
+                path_effects=[pe.Stroke(linewidth=1.2, foreground='white'), pe.Normal()]
             )
 
         ax.plot([0, 1], [0, 1], 'k--', lw=.3)
@@ -189,7 +214,7 @@ for f in dsets:
 
         ax.set_xlabel('False positive rate')
         ax.set_ylabel('True positive rate')
-        ax.set_title(interaction)
+        ax.set_title(labels[f][interaction])
 
         ax.legend(loc='lower right')
 

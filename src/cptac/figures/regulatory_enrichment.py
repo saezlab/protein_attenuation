@@ -185,7 +185,7 @@ print plot_df
 
 order = ['Stable - Stable', 'Stable - Unstable', 'Unstable - Stable', 'Unstable - Unstable']
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(plot_df, row='l_type', xlim=[-1, 1], size=1.5, aspect=.8, legend_out=True)
+g = sns.FacetGrid(plot_df, row='l_type', xlim=[-1, 1], size=1.5, aspect=.8, legend_out=False)
 g = g.map(plt.axvline, x=0, ls='--', lw=0.3, c='black', alpha=.5)
 g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='box', linewidth=1., notch=True, scale='width')
 g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='quartile', linewidth=.3, notch=True, scale='width')
@@ -194,7 +194,7 @@ g.set_axis_labels('Pearson\'s r', '')
 g.add_legend()
 g.despine(trim=True)
 g.set_titles(row_template='{row_name}')
-plt.gcf().set_size_inches(4, 4)
+plt.gcf().set_size_inches(4, 3)
 plt.savefig('./reports/protein_pairs_correlation_halflife_violin.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
