@@ -3,6 +3,7 @@
 
 import numpy as np
 import seaborn as sns
+import itertools as it
 from scipy import stats
 import matplotlib.pyplot as plt
 from cptac import palette_cnv_number, palette
@@ -22,8 +23,6 @@ from pymist.utils.corumdb import get_complexes_name, get_complexes_dict
 
 # -- Clinical
 clinical = read_csv('./data/hgsc_clinical.csv', index_col=0)
-clinical.index = ['%s-01' % i for i in clinical.index]
-
 clinical['time'] = [i for i in clinical['daystodeath_or_LFU']]
 clinical['status'] = [0 if i == 'LIVING' else 1 for i in clinical['vital_status']]
 
@@ -74,15 +73,22 @@ print m1_ll
 
 
 c_surv = {}
-for c in corum:
-    x = concat([strata, proteomics.ix[corum[c], samples].T], axis=1).dropna()
+for c in [c for c in corum if len(corum[c]) < 15]:
+    c_proteins_comb_2 = list(it.combinations(corum[c], 2))
+
+    x = proteomics.ix[corum[c], samples].T
+    x = concat([
+        strata,
+        x,
+        DataFrame({'%s * %s' % (p1, p2): x.eval('%s * %s' % (p1, p2)) for p1, p2 in c_proteins_comb_2}),
+    ], axis=1).dropna()
 
     m2 = CoxPHFitter(normalize=False, penalizer=alpha).fit(x, 'time', event_col='status', include_likelihood=True)
     m2_ll = m2._log_likelihood
 
     lr = 2 * (m2_ll - m1_ll)
 
-    df = len(corum[c])
+    df = len(corum[c]) + len(c_proteins_comb_2)
     pval = stats.chi2.sf(lr, df)
 
     res = {
@@ -103,3 +109,27 @@ c_surv['adj_pval'] = multipletests(c_surv['pval'], method='bonferroni')[1]
 print c_surv[c_surv['adj_pval'] < .01].sort('adj_pval')
 
 # print c_surv[(c_surv['adj_pval'] < .01) & ([i != '' for i in c_surv['regulators']])].sort('pval')
+
+
+c_indexes = {}
+for c in [c for c in corum if len(corum[c]) < 15]:
+    c_proteins_comb_2 = list(it.combinations(corum[c], 2))
+
+    x = proteomics.ix[corum[c], samples].T
+    x = concat([
+        strata,
+        x
+        # DataFrame({'%s * %s' % (p1, p2): x.eval('%s * %s' % (p1, p2)) for p1, p2 in c_proteins_comb_2}),
+    ], axis=1).dropna()
+
+    c_indexes[c] = []
+    for i in range(100):
+        test = set(Series(x.index).sample(50))
+        train = set(x.index[~x.index.isin(test)])
+
+        m2_train = CoxPHFitter(normalize=False, penalizer=.1).fit(x.ix[train], 'time', event_col='status', include_likelihood=True)
+        c_indexes[c].append(concordance_index(x.ix[test, 'time'], -m2_train.predict_partial_hazard(x.ix[test]).values.ravel(), x.ix[test, 'status']))
+
+    print c, np.mean(c_indexes[c]), np.std(c_indexes[c])
+
+print DataFrame([{'p': p, 'mean': np.mean(c_indexes[p]), 'std': np.std(c_indexes[p])} for p in p_regulators if p in proteomics.index]).sort('mean')

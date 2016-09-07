@@ -11,7 +11,7 @@ from scipy import stats
 from scipy.stats.stats import pearsonr, ttest_ind
 from matplotlib.gridspec import GridSpec
 from statsmodels.stats.weightstats import ztest
-from cptac import wd, palette, default_color, palette_cnv_number
+from cptac import palette, default_color, palette_cnv_number
 from cptac.utils import log_likelihood, f_statistic, r_squared
 from sklearn.linear_model import LinearRegression
 from matplotlib_venn import venn3, venn3_circles
@@ -23,15 +23,15 @@ from pymist.utils.map_peptide_sequence import read_uniprot_genename, read_fasta
 
 # -- Imports
 # CNV
-cnv = read_csv('%s/data/tcga_cnv.tsv' % wd, sep='\t', index_col=0)
+cnv = read_csv('./data/tcga_cnv.csv', index_col=0)
 print 'cnv', cnv.shape
 
 # Transcriptomics
-transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0)
+transcriptomics = read_csv('./data/tcga_rnaseq_corrected_normalised.csv', index_col=0)
 print 'transcriptomics', transcriptomics.shape
 
 # Proteomics
-proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
+proteomics = read_csv('./data/cptac_proteomics_corrected_normalised.csv', index_col=0)
 print 'proteomics', proteomics.shape
 
 # -- Overlap
@@ -87,7 +87,7 @@ def regressions(px, py):
     r = r_squared(y_true, y_pred)
 
     res = {
-        'px': px, 'py': py, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm
+        'px': px, 'py': py, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm, 'beta': lm.coef_[0]
     }
 
     print 'Px (%s), Py (%s): Rsquared: %.2f, F: %.2f, F pval: %.2e' % (px, py, res['rsquared'], res['f'], res['f_pval'])
@@ -97,31 +97,9 @@ def regressions(px, py):
 
 ppairs = DataFrame([regressions(px, py) for px, py in corum])
 ppairs['fdr'] = multipletests(ppairs['f_pval'], method='fdr_bh')[1]
-ppairs.to_csv('%s/tables/ppairs_cnv_regulation_all.csv' % wd, index=False)
+ppairs.to_csv('./tables/ppairs_cnv_regulation_all.csv', index=False)
 # ppairs = read_csv('%s/tables/ppairs_cnv_regulation_all.csv' % wd)
 print ppairs.sort('fdr')
-
-
-# -- QQ-plot
-sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
-
-plot_df = DataFrame({
-    'x': sorted([-np.log10(np.float(i) / len(ppairs)) for i in np.arange(1, len(ppairs) + 1)]),
-    'y': sorted(-np.log10(ppairs['f_pval']))
-})
-
-g = sns.regplot('x', 'y', plot_df, fit_reg=False, ci=False, color=default_color, line_kws={'lw': .3})
-g.set_xlim(0)
-g.set_ylim(0)
-plt.plot(plt.xlim(), plt.xlim(), 'k--', lw=.3)
-plt.xlabel('Theoretical -log(P)')
-plt.ylabel('Observed -log(P)')
-plt.title('Residuals ~ Copy Number')
-sns.despine(trim=True)
-plt.gcf().set_size_inches(3, 3)
-plt.savefig('%s/reports/ppairs_cnv_regulation_qqplot.png' % wd, bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Plot done'
 
 
 # -- Create network
@@ -160,7 +138,7 @@ for edge in network_i.es:
     edge = pydot.Edge(source, target)
     graph.add_edge(edge)
 
-graph.write_pdf('%s/reports/ppairs_cnv_regulation_network.pdf' % wd)
+graph.write_pdf('./reports/ppairs_cnv_regulation_network.pdf')
 print '[INFO] Network PDF exported'
 
 
@@ -171,7 +149,7 @@ def ppair_correlation(px, py):
 
 ppairs_signif = ppairs[ppairs['fdr'] < .05].sort('fdr')
 ppairs_signif['cor'] = [ppair_correlation(px, py)[0] for px, py in ppairs_signif[['px', 'py']].values]
-ppairs_signif.to_csv('%s/tables/ppairs_cnv_regulation.csv' % wd, index=False)
+ppairs_signif.to_csv('./tables/ppairs_cnv_regulation.csv', index=False)
 
 plot_df_short = ppairs_signif.sort('fdr')[:3]
 plot_df_short = ppairs_signif.ix[[32758]]
@@ -222,7 +200,7 @@ for px, py in plot_df_short[['px', 'py']].values:
 
 plt.gcf().set_size_inches(5, 2 * len(plot_df_short))
 # plt.savefig('%s/reports/ppairs_cnv_regulation_scatter.png' % wd, bbox_inches='tight', dpi=150)
-plt.savefig('%s/reports/ppairs_cnv_regulation_scatter.pdf' % wd, bbox_inches='tight')
+plt.savefig('./reports/ppairs_cnv_regulation_scatter.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'
 
@@ -247,7 +225,7 @@ sns.despine(trim=True)
 plt.ylabel('Protein sequence length (number of AA)')
 plt.title('Px (CNV) ~ Py (Residuals)\nT-test: %.2f, p-value: %.2e' % (ttest, pval))
 plt.gcf().set_size_inches(2, 4)
-plt.savefig('%s/reports/protein_pairs_protein_info_boxplots.pdf' % wd, bbox_inches='tight')
+plt.savefig('./reports/protein_pairs_protein_info_boxplots.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
 
@@ -268,6 +246,6 @@ plt.xlabel('len(Px) - len(Py)')
 sns.despine(trim=True)
 plt.legend()
 plt.gcf().set_size_inches(4, 2)
-plt.savefig('%s/reports/protein_pairs_protein_info_histogram.pdf' % wd, bbox_inches='tight')
+plt.savefig('./reports/protein_pairs_protein_info_histogram.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
