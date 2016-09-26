@@ -64,7 +64,8 @@ print '[INFO] Done'
 # -- Volcano
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 
-plot_df = ppairs_cnv[ppairs_cnv['fdr'] < .05]
+plot_df = ppairs_cnv.copy()
+# plot_df = ppairs_cnv[ppairs_cnv['fdr'] < .05]
 
 plt.scatter(
     x=plot_df['beta'], y=-np.log10(plot_df['fdr']),
@@ -87,8 +88,8 @@ sns.despine()
 plt.xlabel('-log10(p)')
 plt.ylabel('beta')
 plt.gcf().set_size_inches(3, 6)
-# plt.savefig('./reports/regressions_associations_volcano.png', bbox_inches='tight', dpi=300)
-plt.savefig('./reports/regressions_associations_volcano.pdf', bbox_inches='tight')
+plt.savefig('./reports/regressions_associations_volcano.png', bbox_inches='tight', dpi=300)
+# plt.savefig('./reports/regressions_associations_volcano.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
 

@@ -152,10 +152,10 @@ plot_df = plot_df[['p_perc', 't_perc']].copy().astype(np.float)
 plot_df.columns = ['Proteomics', 'Transcriptomics']
 
 sns.set(font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.clustermap(plot_df, mask=mask, linewidths=.2, annot=True, fmt='.2f', cmap=sns.light_palette('#680018', as_cmap=True), row_cluster=False, col_cluster=False)
+g = sns.clustermap(plot_df * 100, mask=mask, linewidths=.2, annot=True, fmt='.0f', cmap=sns.light_palette('#680018', as_cmap=True), row_cluster=False, col_cluster=False, col_colors=Series(palette).rename('Data'))
 plt.title('Overlap')
+plt.gcf().set_size_inches(1, 10)
 plt.setp(g.ax_heatmap.xaxis.get_majorticklabels(), rotation=90)
-plt.gcf().set_size_inches(1.5, 11)
 plt.savefig('./reports/protein_pairs_goterms_enrichment.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'

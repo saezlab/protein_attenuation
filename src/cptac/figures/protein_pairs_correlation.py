@@ -9,6 +9,7 @@ from cptac import palette
 from matplotlib.gridspec import GridSpec
 from sklearn.metrics.ranking import roc_curve, auc
 from pandas import DataFrame, Series, read_csv, concat
+from cptac.utils import import_signor, import_kegg
 from pymist.utils.stringdb import get_stringdb, get_stringdb_actions
 from pymist.utils.biogriddb import get_biogriddb, get_biogriddb_action
 from pymist.utils.corumdb import get_complexes_pairs
@@ -72,6 +73,16 @@ omnipath_action = read_csv('./files/omnipath_interactions.txt', sep='\t')
 omnipath_sources = {s for i in omnipath_action['sources'] for s in i.split(';')}
 omnipath_action = {s: {(uniprot[s][0], uniprot[t][0]) for s, t in omnipath_action[[s in i for i in omnipath_action['sources']]][['source', 'target']].values if s in uniprot and t in uniprot} for s in omnipath_sources}
 print 'omnipath_action', len(omnipath_action)
+
+# Signor
+signor = import_signor()
+signor = {(s, t) for p1, p2 in signor for s, t in [(p1, p2), (p2, p1)]}
+print 'signor', len(signor)
+
+# KEGG metabolism
+kegg = import_kegg()
+kegg = {(s, t) for p1, p2 in kegg for s, t in [(p1, p2), (p2, p1)]}
+print 'kegg', len(kegg)
 
 
 # -- Plot: Boxplots
@@ -152,7 +163,7 @@ for f in dsets:
 
 # ROC curves
 dsets = {
-    'CORUM_STRING': [('CORUM', corum), ('STRING', string['highest'])],
+    # 'CORUM_STRING': [('CORUM', corum), ('STRING', string['highest'])],
     # 'BioGRID_OmniPath': [('BioGRID', biogrid), ('OmniPath', omnipath)],
     # 'STRING_thresholds': [(i, string[i]) for i in ['highest', 'high', 'medium', 'low']],
     # 'STRING_action_highest': string_action['highest'].items(),
@@ -160,7 +171,8 @@ dsets = {
     # 'STRING_action_medium': string_action['medium'].items(),
     # 'STRING_action_low': string_action['low'].items(),
     # 'BioGRID_action': biogrid_action.items(),
-    # 'OmniPath': omnipath_action.items()
+    # 'OmniPath': omnipath_action.items(),
+    'paths': [('Direct', corum), ('Signalling', signor), ('Metabolism', kegg)]
 }
 
 labels = {
@@ -187,6 +199,19 @@ for f in dsets:
     plot_df = DataFrame(plot_df)
     print plot_df
 
+    # Barplot
+    sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+    g = sns.factorplot(x='Interaction', y='AUC', data=plot_df, hue='Data', palette=palette, kind='bar', errwidth=.5, legend_out=False)
+    plt.axhline(0.5, ls='--', lw=0.3, c='black', alpha=.5)
+    # g.despine(left=True)
+    g.set_ylabels('AUC')
+    plt.ylim(0, 1)
+    plt.gcf().set_size_inches(3, 3)
+    plt.savefig('./reports/proteins_correlation_roc_%s_barplot.pdf' % f, bbox_inches='tight')
+    plt.close('all')
+    print '[INFO] Plot done'
+
+    # ROC curves
     sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
     gs, pos = GridSpec(1, len(dsets[f]), hspace=.3, wspace=.3), 0
 
@@ -214,7 +239,7 @@ for f in dsets:
 
         ax.set_xlabel('False positive rate')
         ax.set_ylabel('True positive rate')
-        ax.set_title(labels[f][interaction])
+        ax.set_title(labels[f][interaction] if interaction in labels else interaction)
 
         ax.legend(loc='lower right')
 

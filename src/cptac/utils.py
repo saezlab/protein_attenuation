@@ -2,6 +2,7 @@
 # Copyright (C) 2016  Emanuel Goncalves
 
 import numpy as np
+import itertools as it
 from cptac import wd
 from scipy import stats
 from pandas import read_csv, Series
@@ -104,3 +105,15 @@ def hypergeom_test(signature, background, sublist):
 
 def jaccard(x, y):
     return float(len(x.intersection(y))) / len(x.union(y))
+
+
+def import_signor():
+    tab = read_csv('./tables/human_phosphorylations_26_09_16.csv', sep=';')
+    tab = {(a, b) for a, b in tab[['ENTITYA', 'ENTITYB']].values}
+    return tab
+
+
+def import_kegg():
+    tab = read_gmt('./tables/c2.cp.kegg.v5.1.symbols_only_metabolism.gmt')
+    tab = {(a, b) for p in tab for a, b in it.combinations(tab[p], 2)}
+    return tab
