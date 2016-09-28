@@ -24,11 +24,8 @@ uniprot = read_uniprot_genename()
 uniprot_proteins = {v[0] for v in uniprot.values()}
 
 # CORUM
-corum = set()
-for p1, p2 in get_complexes_pairs():
-    if (p2, p1) not in corum:
-        corum.add((p1, p2))
-corum = {(uniprot[p1][0], uniprot[p2][0]) for p1, p2 in corum if p1 in uniprot and p2 in uniprot and uniprot[p1][0] != uniprot[p2][0]}
+corum = get_complexes_pairs()
+corum = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in corum for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot}
 print 'corum', len(corum)
 
 # Overlap
@@ -182,19 +179,24 @@ plot_df['c_type'] = ['Transcriptomics' if i.startswith('t_') else 'Proteomics' f
 plot_df['l_type'] = ['mRNA' if i == 't' else 'Protein' for i in plot_df['l_type']]
 print plot_df
 
+# Subset dataframe
+plot_df = plot_df[plot_df['l_type'] == 'Protein']
+plot_df = plot_df[[len(set(i.split(' - '))) == 1 for i in plot_df['halflife']]]
+plot_df['halflife'] = [''.join(set(i.split(' - '))) for i in plot_df['halflife']]
 
-order = ['Stable - Stable', 'Stable - Unstable', 'Unstable - Stable', 'Unstable - Unstable']
+order = ['Stable', 'Unstable']
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(plot_df, row='l_type', xlim=[-1, 1], size=1.5, aspect=.8, legend_out=False)
-g = g.map(plt.axvline, x=0, ls='--', lw=0.3, c='black', alpha=.5)
-g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='box', linewidth=1., notch=True, scale='width')
-g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='quartile', linewidth=.3, notch=True, scale='width')
-# g = g.map_dataframe(sns.stripplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, split=True, orient='h', size=.5, jitter=.2, alpha=.2, linewidth=.5, edgecolor='white')
-g.set_axis_labels('Pearson\'s r', '')
-g.add_legend()
+g = sns.FacetGrid(plot_df, row='l_type', xlim=[-.5, 1], size=1.5, aspect=.8, legend_out=False)
+g = g.map(plt.axhline, y=0, ls='-', lw=0.3, c='black', alpha=.5)
+# g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='box', linewidth=1., notch=True, scale='width')
+g = g.map_dataframe(sns.violinplot, 'halflife', 'cor', 'c_type', palette=palette, order=order, cut=0, orient='v', inner='quartile', linewidth=1., notch=True, scale='width', split=True)
+# g = g.map_dataframe(sns.stripplot, 'cor', 'halflife', 'c_type', color=palette, order=order, split=True, orient='h', size=1, jitter=.4, alpha=.5, linewidth=0, edgecolor='white')
+g.set_axis_labels('', 'Correlation')
 g.despine(trim=True)
-g.set_titles(row_template='{row_name}')
-plt.gcf().set_size_inches(4, 3)
-plt.savefig('./reports/protein_pairs_correlation_halflife_violin.pdf', bbox_inches='tight')
+plt.legend(loc=2)
+g.set_titles(row_template='')
+plt.gcf().set_size_inches(1, 4)
+plt.savefig('./reports/protein_pairs_correlation_halflife_violin.png', bbox_inches='tight', dpi=300)
+# plt.savefig('./reports/protein_pairs_correlation_halflife_violin.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'

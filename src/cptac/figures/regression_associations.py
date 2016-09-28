@@ -98,7 +98,8 @@ print '[INFO] Done'
 network_i = igraph.Graph(directed=True)
 
 # Initialise network lists
-edges = [(px, py) for px, py in ppairs_cnv[ppairs_cnv['fdr'] < .05][['px', 'py']].values if (px, py) in associations['Transcriptomics'] and px in ['EIF3A', 'COG3', 'COG6', 'AP3B1', 'POLD3']]
+# edges = [(px, py) for px, py in ppairs_cnv[ppairs_cnv['fdr'] < .05][['px', 'py']].values if (px, py) in associations['Transcriptomics'] and px in ['EIF3A', 'COG3', 'COG6', 'AP3B1', 'POLD3']]
+edges = [(px, py) for px, py in ppairs_cnv[ppairs_cnv['fdr'] < .05][['px', 'py']].values if (px, py) in associations['Transcriptomics']]
 vertices = list({p for px, py in edges for p in (px, py)})
 
 # Add nodes
@@ -112,8 +113,9 @@ print network_i.summary()
 # Draw network
 graph = pydot.Dot(graph_type='digraph')
 
+graph.set_graph_defaults(layout='neato', )
 graph.set_node_defaults(fontcolor='white', penwidth='3', fillcolor='#CCCCCC', width='1', height='1')
-graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee')
+graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee', len='1.3', penwidth='1')
 
 for edge in network_i.es:
     source_id, target_id = network_i.vs[[edge.source, edge.target]]['name']
@@ -183,7 +185,7 @@ for px, py in plot_df.sort('cor', ascending=False)[['px', 'py']].values:
     pos += 2
 
 plt.gcf().set_size_inches(6, 3 * len(plot_df))
-# plt.savefig('%s/reports/regressions_associations_scatter.png' % wd, bbox_inches='tight', dpi=150)
-plt.savefig('./reports/regressions_associations_scatter.pdf', bbox_inches='tight')
+plt.savefig('./reports/regressions_associations_scatter.png', bbox_inches='tight', dpi=300)
+# plt.savefig('./reports/regressions_associations_scatter.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'

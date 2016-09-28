@@ -87,7 +87,7 @@ print 'kegg', len(kegg)
 
 # -- Plot: Boxplots
 labels = {
-    'CORUM': 'Direct', 'STRING': 'Functional', 'All': 'All'
+    'CORUM': 'Complex', 'STRING': 'Functional', 'All': 'All'
 }
 
 # All
@@ -113,7 +113,8 @@ plt.legend(loc=2)
 plt.ylabel('')
 g.set_yticklabels([labels[i.get_text()] for i in g.get_yticklabels()])
 plt.gcf().set_size_inches(4, .5 * len(set(plot_df['Interaction'])))
-plt.savefig('./reports/proteins_correlation_boxplot_all.pdf', bbox_inches='tight')
+plt.savefig('./reports/proteins_correlation_boxplot_all.png', bbox_inches='tight', dpi=300)
+# plt.savefig('./reports/proteins_correlation_boxplot_all.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
 
@@ -172,7 +173,8 @@ dsets = {
     # 'STRING_action_low': string_action['low'].items(),
     # 'BioGRID_action': biogrid_action.items(),
     # 'OmniPath': omnipath_action.items(),
-    'paths': [('Direct', corum), ('Signalling', signor), ('Metabolism', kegg)]
+    'paths': [('Complex', corum), ('Functional', string['highest']), ('Signalling', signor), ('Metabolism', kegg)],
+    'experiments': ['']
 }
 
 labels = {
@@ -207,7 +209,8 @@ for f in dsets:
     g.set_ylabels('AUC')
     plt.ylim(0, 1)
     plt.gcf().set_size_inches(3, 3)
-    plt.savefig('./reports/proteins_correlation_roc_%s_barplot.pdf' % f, bbox_inches='tight')
+    # plt.savefig('./reports/proteins_correlation_roc_%s_barplot.pdf' % f, bbox_inches='tight')
+    plt.savefig('./reports/proteins_correlation_roc_%s_barplot.png' % f, bbox_inches='tight', dpi=300)
     plt.close('all')
     print '[INFO] Plot done'
 
@@ -246,6 +249,7 @@ for f in dsets:
         pos += 1
 
     plt.gcf().set_size_inches(3 * len(dsets[f]), 3)
-    plt.savefig('./reports/proteins_correlation_roc_%s.pdf' % f, bbox_inches='tight')
+    plt.savefig('./reports/proteins_correlation_roc_%s.png' % f, bbox_inches='tight', dpi=300)
+    # plt.savefig('./reports/proteins_correlation_roc_%s.pdf' % f, bbox_inches='tight')
     plt.close('all')
     print '[INFO] Plot done'

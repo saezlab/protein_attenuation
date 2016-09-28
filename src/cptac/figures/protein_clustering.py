@@ -63,6 +63,19 @@ plt.savefig('./reports/protein_clustering_heatmap.png', bbox_inches='tight', dpi
 plt.close('all')
 print '[INFO] Done'
 
+#
+sns.set(style='white', font_scale=1.)
+cmap = sns.diverging_palette(h_neg=hex_to_husl('#00B4FE')[0], h_pos=hex_to_husl('#FE4A00')[0], as_cmap=True, center='light', sep=10, l=50)
+
+for c in [387, 3544]:
+    plot_df = p_corr.ix[corum_dict[c], corum_dict[c]]
+
+    sns.clustermap(plot_df, figsize=(5, 5), cmap=cmap, center=0, vmax=1, vmin=-1, annot=True, fmt='.2f')
+    plt.suptitle(corum_n[c])
+    plt.savefig('./reports/protein_clustering_heatmap_%d.png' % c, bbox_inches='tight', dpi=300)
+    plt.close('all')
+print '[INFO] Done'
+
 
 # -- Clustering analysis
 lkg = fst.linkage(p_corr, method='average')
