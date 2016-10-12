@@ -1,15 +1,18 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
+import os
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from cptac import palette, palette_dbs
+from cptac.utils import read_gmt
 from scipy.stats.stats import ttest_ind
 from pandas import read_csv, DataFrame, Series
 from pymist.enrichment.gsea import gsea
 from scipy.stats.stats import spearmanr
+from pymist.utils.stringdb import get_stringdb
 from pymist.utils.corumdb import get_complexes_pairs, get_complexes_dict, get_complexes_name
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
@@ -43,8 +46,25 @@ corum = {uniprot[g][0] for p in corum for g in p if g in uniprot}.intersection(g
 corum_dict = get_complexes_dict()
 corum_dict = {k: {uniprot[g][0] for g in corum_dict[k] if g in uniprot and uniprot[g][0] in genes} for k in corum_dict}
 
+corum_proteins = {p for k in corum_dict for p in corum_dict[k]}
+
 corum_name = get_complexes_name()
 print 'corum', len(corum)
+
+
+# -- GO terms
+msigdb_go_bp = read_gmt('./files/c5.bp.v5.1.symbols.gmt')
+msigdb_go_cc = read_gmt('./files/c5.cc.v5.1.symbols.gmt')
+msigdb_go_mf = read_gmt('./files/c5.mf.v5.1.symbols.gmt')
+print 'msigdb_go_mf', 'msigdb_go_cc', 'msigdb_go_bp', len(msigdb_go_mf), len(msigdb_go_cc), len(msigdb_go_bp)
+
+
+# -- Uniprot PTMs lists
+ptms = {'_'.join(f[:-4].split('_')[1:]):
+            {uniprot[i][0] for i in read_csv('./files/uniprot_ptms_proteins/%s' % f, sep='\t')['Entry'] if i in uniprot}
+    for f in os.listdir('./files/uniprot_ptms_proteins/') if f.startswith('uniprot_')
+}
+print 'ptms', len(ptms)
 
 
 # -- Correlations
@@ -61,82 +81,13 @@ for g in genes:
     print g
 
 res = DataFrame(res).T
-res['Interaction'] = ['Complex' if i in corum else 'All' for i in res.index]
+res['diff'] = res['CNV_Transcriptomics'] - res['CNV_Proteomics']
 print res
 
-res_dict = {}
-for c in corum_dict:
-    p_corr = proteomics.ix[corum_dict[c].intersection(genes), samples].T.corr()
-    p_corr.values[np.tril_indices(p_corr.shape[0], 0)] = np.nan
-    p_corr = p_corr.unstack().dropna()
 
-    c_corr = [cnv.ix[g, samples].corr(proteomics.ix[g, samples]) for g in corum_dict[c] if g in genes]
+# --
+dataset, permutations = res['diff'].to_dict(), 10
 
-    res_dict[c] = {'Proteomics': list(p_corr), 'CNV': c_corr}
+# dataset, signature, permutations=1000, plot_name=None, plot_title='', y1_label='Enrichment score', y2_label='Data value'
+ptm_gsea = DataFrame({k: gsea(dataset, ptms[k], permutations, plot_name='./reports/correlation_difference_ptms_gsea_%s.pdf' % k) for k in ptms}, index=['escore', 'pval']).T
 
-    print corum_name[c]
-
-# -- Plot
-# Scatter of correlations
-ax_min, ax_max = np.min([res['CNV_Transcriptomics'].min() * 1.10, res['CNV_Proteomics'].min() * 1.10]), np.min([res['CNV_Transcriptomics'].max() * 1.10, res['CNV_Proteomics'].max() * 1.10])
-
-sns.set(style='ticks', context='paper', rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-g = sns.jointplot(
-    'CNV_Transcriptomics', 'CNV_Proteomics', res, 'scatter', color='#808080', xlim=[ax_min, ax_max], ylim=[ax_min, ax_max],
-    space=0, s=20, edgecolor='w', linewidth=.5, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.5
-)
-# g.plot_marginals(sns.kdeplot, shade=True, color='#595959')
-
-g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
-g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
-g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
-
-g.x = res[res['Interaction'] == 'All']['CNV_Transcriptomics']
-g.y = res[res['Interaction'] == 'All']['CNV_Proteomics']
-# g.plot_joint(sns.kdeplot, cmap=sns.light_palette(palette_dbs['All'], as_cmap=True), legend=False, shade=True, shade_lowest=False, n_levels=15, alpha=.5)
-g.plot_marginals(sns.kdeplot, color=palette_dbs['All'], shade=True, legend=False)
-
-g.x = res[res['Interaction'] == 'Complex']['CNV_Transcriptomics']
-g.y = res[res['Interaction'] == 'Complex']['CNV_Proteomics']
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette(palette_dbs['CORUM'], as_cmap=True), legend=False, shade=True, shade_lowest=False, n_levels=6, alpha=.8)
-g.plot_marginals(sns.kdeplot, color=palette_dbs['CORUM'], shade=True, legend=False)
-
-# cax = g.fig.add_axes([.98, .4, .01, .2])
-# cax.axis('off')
-handles = [mlines.Line2D([], [], color=palette_dbs['CORUM' if s == 'Complex' else s], linestyle='-', markersize=15, label=s) for s in ['All', 'Complex']]
-g.ax_joint.legend(loc=2, handles=handles)
-
-plt.gcf().set_size_inches(5, 5)
-
-g.set_axis_labels('CNV ~ Transcriptomics', 'CNV ~ Proteomics')
-plt.savefig('./reports/correlation_difference_lmplot_corr.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Plot done'
-
-
-# Scatter marginals
-plot_df = DataFrame([(np.mean(res_dict[c]['Proteomics']), np.mean(res_dict[c]['CNV'])) for c in res_dict]).dropna()
-plot_df.columns = ['Proteomics', 'CNV']
-
-sns.set(style='ticks', context='paper', rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-g = sns.jointplot(
-    'CNV', 'Proteomics', plot_df, 'reg', color=palette_dbs['CORUM'], joint_kws={'scatter_kws': {'s': 20, 'edgecolor': 'w', 'linewidth': .5}},
-    marginal_kws={'hist': False, 'rug': False}, annot_kws={'template': 'Pearson: {val:.2g}, p-value: {p:.1e}'}, space=0,
-    xlim=[-.05, .5], ylim=[-.4, 1.]
-)
-
-g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
-g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
-
-g.x = plot_df['CNV']
-g.y = plot_df['Proteomics']
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette(palette_dbs['CORUM'], as_cmap=True), legend=False, shade=True, shade_lowest=False, n_levels=10, alpha=.7)
-
-g.plot_marginals(sns.kdeplot, color=palette_dbs['CORUM'], shade=True, legend=False)
-
-plt.gcf().set_size_inches(5, 5)
-
-g.set_axis_labels('Mean correlation of proteomics with CNV', 'Mean correlation of protein complex proteomics')
-plt.savefig('./reports/correlation_difference_lmplot_marginals.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Plot done'
