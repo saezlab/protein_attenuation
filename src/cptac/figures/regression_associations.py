@@ -45,6 +45,14 @@ print ppairs_trans.sort('fdr')
 px_highlight = ['EIF3A', 'RPA2', 'COG3', 'COG6', 'SMARCA2']
 
 
+# -- E3 and DUB ligases
+e3_proteins = {(p1, p2) for p1, p2 in read_csv('./tables/E3_target_pairs.csv')[['Source', 'Target']].values}
+print 'e3_proteins', len(e3_proteins)
+
+dup_proteins = {(p1, p2) for p1, p2 in read_csv('./tables/DUB_target_pairs.csv')[['Source', 'Target']].values}
+print 'dup_proteins', len(dup_proteins)
+
+
 # -- Venn: overlap between transcriptomics and CNV
 sns.set(style='white', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 
@@ -98,7 +106,6 @@ print '[INFO] Done'
 network_i = igraph.Graph(directed=True)
 
 # Initialise network lists
-# edges = [(px, py) for px, py in ppairs_cnv[ppairs_cnv['fdr'] < .05][['px', 'py']].values if (px, py) in associations['Transcriptomics'] and px in ['EIF3A', 'COG3', 'COG6', 'AP3B1', 'POLD3']]
 edges = [(px, py) for px, py in ppairs_cnv[ppairs_cnv['fdr'] < .05][['px', 'py']].values if (px, py) in associations['Transcriptomics']]
 vertices = list({p for px, py in edges for p in (px, py)})
 
@@ -141,7 +148,7 @@ def ppair_correlation(px, py):
     x, y = zip(*proteomics.ix[[px, py]].T.dropna().values)
     return pearsonr(x, y)
 
-plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(['COG3', 'COG6', 'SMARCA2'])) & (ppairs_cnv['fdr'] < .05)]
+plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(['COG3'])) & (ppairs_cnv['fdr'] < .05)]
 plot_df['cor'] = [ppair_correlation(px, py)[0] for px, py in plot_df[['px', 'py']].values]
 
 # px, py = 'COG3', 'COG2'

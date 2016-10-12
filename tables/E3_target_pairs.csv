@@ -1,0 +1,27 @@
+Source,Target,Cell line,Physical interaction?,E3 knockdown phenotype?,E3 overexpression phenotype?,PMID ID,Reference
+FBXO11,DTL,293T,yes,"yes, chx",,23478441,Regulation of the CRL4(Cdt2) ubiquitin ligase and cell-cycle exit by the SCF(Fbxo11) ubiquitin ligase.
+CCNF,RRM2,293T,yes,"yes, G1/S arrest",,22632967,Cyclin F-mediated degradation of ribonucleotide reductase M2 controls genome integrity and DNA repair.
+FBXO11,BCL6,293T,yes,"yes, chx",,22113614,FBXO11 targets BCL6 for degradation and is inactivated in diffuse large B-cell lymphomas.
+FBXW7,NFKB2,293T,yes,"yes, chx",,22388891,Fbxw7_- and GSK3-mediated degradation of p100 is a pro-survival mechanism in multiple myeloma.
+CCNF,CCP110,293T,yes,"yes, chx",yes,20596027,SCF(Cyclin F) controls centrosome homeostasis and mitotic fidelity through CP110 degradation
+BTRC,DEPTOR,293T,yes,"yes, chx",,22017877,mTOR generates an auto-amplification loop by triggering the _TrCP- and Ck1_-dependent degradation of DEPTOR
+BTRC,BCL2L11,293T,yes,"yes, chx",,19150432,betaTrCP- and Rsk1/2-mediated degradation of BimEL inhibits apoptosis.
+BTRC,REST,293T,yes,"yes, G1/S arrest",,18354482,Control of chromosome stability by the beta-TrCP-REST-Mad2 axis.
+BTRC,PDCD4,293T,yes,"yes, serum activation",,17053147,S6K1- and betaTRCP-mediated degradation of PDCD4 promotes protein translation and cell growth.
+BTRC,CLSPN,293T,yes,"yes, chx",,16885022,SCF_TRCP-mediated degradation of Claspin regulates recovery from the DNA replication checkpoint response. 
+SKP2,CDKN1B,HeLa,yes,,yes,10559916,SKP2 is required for ubiquitin-mediated degradation of the CDK inhibitor p27.
+CDH1,SKP2,HeLa,yes,yes,yes,15014502,Control of the SCF(Skp2-Cks1) ubiquitin ligase by the APC/C(Cdh1) ubiquitin ligase.
+FBXL3,CRY1,293T,yes,"yes, serum shock",,23503662,SCF(FBXL3) ubiquitin ligase targets cryptochromes at their cofactor pocket.
+FBXL3,CRY2,293T,yes,"yes, serum shock",,23503662,SCF(FBXL3) ubiquitin ligase targets cryptochromes at their cofactor pocket.
+KEAP1,NFE2L2,,yes,yes,yes,12360409,"Nrf2 degradation by the ubiquitin proteasome pathway is inhibited by KIAA0132, the human homolog to INrf2."
+FBXW7,MCL1,293T,yes,,yes; coexpress GSK3,21368834,Sensitivity to antitubulin chemotherapeutics is regulated by MCL1 and FBW7.
+FBXW7,MYC,293,yes,,yes,15103331,Phosphorylation-dependent degradation of c-Myc is mediated by the F-box protein Fbw7.
+VHL,HIF1A,RCC4,yes,yes,yes,10353251,The tumour suppressor protein VHL targets hypoxia-inducible factors for oxygen-dependent proteolysis
+ZBTB16,ATG14,HeLa,,yes,yes,25821988,G-protein-coupled receptors regulate autophagy by ZBTB16-mediated ubiquitination and proteasomal degradation of Atg14L.
+SIAH2,LATS2,293T,yes,yes,yes,25438054,Hypoxia regulates Hippo signalling through the _SIAH2 ubiquitin E3 ligase
+MDM2,TP53,,yes,yes,yes,9153395,Mdm2 promotes the rapid degradation of p53.
+RFWD2,ETV1,LNCaP,yes,yes,yes,21572435,COP1 is a tumour suppressor that causes degradation of ETS transcription factors.
+RFWD2,ETV4,PC3,yes,,yes,21572435,COP1 is a tumour suppressor that causes degradation of ETS transcription factors.
+RFWD2,ETV5,PC3,yes,,yes,21572435,COP1 is a tumour suppressor that causes degradation of ETS transcription factors.
+RFWD2,TP53,"U2OS, Saos-2",yes,yes,yes,15103385,The ubiquitin ligase COP1 is a critical negative regulator of p53.
+LNX1,NUMB,293T,yes,,yes,11782429,LNX functions as a RING type E3 ubiquitin ligase that targets the cell fate determinant Numb for ubiquitin-dependent degradation.
