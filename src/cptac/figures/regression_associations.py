@@ -6,6 +6,7 @@ import igraph
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from igraph import plot
 from cptac import palette, palette_cnv_number, default_color
 from matplotlib.gridspec import GridSpec
 from scipy.stats.stats import pearsonr
@@ -95,7 +96,7 @@ plt.ylim(0)
 sns.despine()
 plt.xlabel('-log10(p)')
 plt.ylabel('beta')
-plt.gcf().set_size_inches(3, 6)
+plt.gcf().set_size_inches(4.5, 7)
 plt.savefig('./reports/regressions_associations_volcano.png', bbox_inches='tight', dpi=300)
 # plt.savefig('./reports/regressions_associations_volcano.pdf', bbox_inches='tight')
 plt.close('all')
@@ -120,26 +121,31 @@ print network_i.summary()
 # Draw network
 graph = pydot.Dot(graph_type='digraph')
 
-graph.set_graph_defaults(layout='neato', )
-graph.set_node_defaults(fontcolor='white', penwidth='3', fillcolor='#CCCCCC', width='1', height='1')
-graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee', len='1.3', penwidth='1')
+graph.set_graph_defaults(resolution='300', ratio='compress', page='600')
+graph.set_node_defaults(fontcolor='white', penwidth='5', fillcolor='#CCCCCC', width='1', height='1', fontsize='20', fontname='sans-serif')
+graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee', penwidth='2.')
 
-for edge in network_i.es:
-    source_id, target_id = network_i.vs[[edge.source, edge.target]]['name']
+edges = DataFrame([{'index': i.index, 'degree': network_i.degree(i.index, mode='OUT'), 'fdr': -np.log10(ppairs_cnv.loc[ppairs_cnv['px'] == i['name'], 'fdr'].min())} for i in network_i.vs])
+edges = edges[edges['degree'] != 0]
+edges = edges.sort(['degree', 'fdr'], ascending=False)
 
-    source = pydot.Node(source_id, style='filled', shape='ellipse', penwidth='0')
-    source.set_fillcolor(palette['CNV'])
+for i in edges.index:
+    for edge in network_i.es[network_i.incident(i)]:
+        source_id, target_id = network_i.vs[[edge.source, edge.target]]['name']
 
-    target = pydot.Node(target_id, style='filled', shape='ellipse', penwidth='0')
-    target.set_fillcolor(palette['Proteomics'])
+        source = pydot.Node(source_id, style='filled', shape='ellipse', penwidth='0')
+        source.set_fillcolor(palette['CNV'])
 
-    graph.add_node(source)
-    graph.add_node(target)
+        target = pydot.Node(target_id, style='filled', shape='ellipse', penwidth='0')
+        target.set_fillcolor(palette['Proteomics'])
 
-    edge = pydot.Edge(source, target)
-    graph.add_edge(edge)
+        graph.add_node(source)
+        graph.add_node(target)
 
-graph.write_pdf('./reports/regressions_associations_network.pdf')
+        edge = pydot.Edge(source, target)
+        graph.add_edge(edge)
+
+graph.write_png('./reports/regressions_associations_network.png')
 print '[INFO] Network PDF exported'
 
 
@@ -148,7 +154,7 @@ def ppair_correlation(px, py):
     x, y = zip(*proteomics.ix[[px, py]].T.dropna().values)
     return pearsonr(x, y)
 
-plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(['COG3'])) & (ppairs_cnv['fdr'] < .05)]
+plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(['COG3', 'SMARCA2'])) & (ppairs_cnv['fdr'] < .05)]
 plot_df['cor'] = [ppair_correlation(px, py)[0] for px, py in plot_df[['px', 'py']].values]
 
 # px, py = 'COG3', 'COG2'

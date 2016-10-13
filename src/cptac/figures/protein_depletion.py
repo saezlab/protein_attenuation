@@ -6,11 +6,15 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+from statsmodels.stats.multitest import multipletests
 from cptac import palette, palette_dbs
 from cptac.utils import read_gmt
+from sklearn.linear_model import LinearRegression
 from scipy.stats.stats import ttest_ind
-from pandas import read_csv, DataFrame, Series
+from pandas.stats.misc import zscore
+from pandas import read_csv, DataFrame, Series, concat
 from pymist.enrichment.gsea import gsea
+from sklearn.metrics.ranking import roc_curve, auc, roc_auc_score
 from scipy.stats.stats import spearmanr
 from pymist.utils.stringdb import get_stringdb
 from pymist.utils.corumdb import get_complexes_pairs, get_complexes_dict, get_complexes_name
@@ -58,6 +62,10 @@ msigdb_go_cc = read_gmt('./files/c5.cc.v5.1.symbols.gmt')
 msigdb_go_mf = read_gmt('./files/c5.mf.v5.1.symbols.gmt')
 print 'msigdb_go_mf', 'msigdb_go_cc', 'msigdb_go_bp', len(msigdb_go_mf), len(msigdb_go_cc), len(msigdb_go_bp)
 
+# -- Ubiquitination
+ubq = read_csv('./tables/ubiquitin_site_dataset.csv')
+ubq = ubq[ubq['Regulation'] == 'Up_regulated']
+ubq = {uniprot[i][0] for i in ubq['uniprot_accession'] if i in uniprot}
 
 # -- Uniprot PTMs lists
 ptms = {'_'.join(f[:-4].split('_')[1:]):
@@ -81,13 +89,74 @@ for g in genes:
     print g
 
 res = DataFrame(res).T
-res['diff'] = res['CNV_Transcriptomics'] - res['CNV_Proteomics']
+res.to_csv('./tables/proteins_correlations.csv')
+# res = read_csv('./tables/proteins_correlations.csv', index_col=0)
 print res
 
 
-# --
-dataset, permutations = res['diff'].to_dict(), 10
+# -- Plot scatter of correlations
+ax_min, ax_max = np.min([res['CNV_Transcriptomics'].min() * 1.10, res['CNV_Proteomics'].min() * 1.10]), np.min([res['CNV_Transcriptomics'].max() * 1.10, res['CNV_Proteomics'].max() * 1.10])
 
-# dataset, signature, permutations=1000, plot_name=None, plot_title='', y1_label='Enrichment score', y2_label='Data value'
-ptm_gsea = DataFrame({k: gsea(dataset, ptms[k], permutations, plot_name='./reports/correlation_difference_ptms_gsea_%s.pdf' % k) for k in ptms}, index=['escore', 'pval']).T
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
+g = sns.jointplot(
+    'CNV_Transcriptomics', 'CNV_Proteomics', res, 'scatter', color='#808080', xlim=[ax_min, ax_max], ylim=[ax_min, ax_max],
+    space=0, s=15, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.3
+)
+g.plot_marginals(sns.kdeplot, shade=True, color='#595959', lw=.3)
 
+g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
+g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
+g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
+
+g.x = res['CNV_Transcriptomics']
+g.y = res['CNV_Proteomics']
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette('#595959', as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+
+plt.gcf().set_size_inches(3, 3)
+
+g.set_axis_labels('CNV ~ Transcriptomics', 'CNV ~ Proteomics')
+plt.savefig('./reports/correlation_difference_lmplot_corr.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Plot done'
+
+
+# -- Enrichment
+dataset = zscore(res['CNV_Transcriptomics'] - res['CNV_Proteomics']).to_dict()
+signatures = {'PTM': ptms, 'BP': msigdb_go_bp, 'CC': msigdb_go_cc}
+
+df_enrichment = [(t, sig, len(db[sig].intersection(dataset)), gsea(dataset, db[sig], 1000)) for t, db in signatures.items() for sig in db]
+df_enrichment = DataFrame([{'type': t, 'signature': s, 'length': l, 'escore': es, 'pvalue': pval} for t, s, l, (es, pval) in df_enrichment]).dropna()
+df_enrichment.sort(['pvalue', 'escore']).to_csv('./tables/protein_depletion_enrichment.csv', index=False)
+# df_enrichment = read_csv('./tables/protein_depletion_enrichment.csv')
+print df_enrichment[df_enrichment['length'] > 5].sort('escore')
+
+# Plot
+plot_df = df_enrichment[(df_enrichment['length'] > 5) & (df_enrichment['type'] != 'MF')].copy()
+plot_df['fdr'] = multipletests(plot_df['pvalue'], method='fdr_bh')[1]
+plot_df = plot_df[plot_df['fdr'].abs() < .05].sort('escore')
+plot_df['signature'] = [i.replace('_', ' ').lower() for i in plot_df['signature']]
+plot_df = concat([plot_df.head(30), plot_df.tail(30)])
+print plot_df.sort('fdr')
+
+pal = dict(zip(*(set(plot_df['type']), sns.color_palette('Set1', n_colors=4).as_hex())))
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+sns.stripplot(y='signature', x='escore', hue='type', data=plot_df, palette=pal, s=8)
+plt.axvline(0, ls='-', lw=0.3, c='black', alpha=.5)
+sns.despine(trim=True)
+plt.xlabel('Enrichment score (GSEA)')
+plt.ylabel('')
+plt.title('Enrichment for regulation differences\n(CNV~Transcriptomics - CNV~Proteomics)')
+plt.gcf().set_size_inches(2, 14)
+plt.savefig('./reports/protein_correlation_difference_enrichment.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Plot done'
+
+
+sigs = {
+    'INTEGRATOR_COMPLEX': msigdb_go_cc['INTEGRATOR_COMPLEX'],
+    'BIOGENIC_AMINE_METABOLIC_PROCESS': msigdb_go_bp['BIOGENIC_AMINE_METABOLIC_PROCESS'],
+    'sulfation': ptms['sulfation']
+}
+
+[gsea(dataset, sigs[k], 1, './reports/protein_correlation_difference_enrichment_gsea_%s.png' % k, plot_title=k.replace('_', ' ').lower(), y2_label='Correlation difference\n(centered)') for k in sigs]
