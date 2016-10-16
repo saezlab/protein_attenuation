@@ -174,7 +174,6 @@ dsets = {
     # 'BioGRID_action': biogrid_action.items(),
     # 'OmniPath': omnipath_action.items(),
     'paths': [('Complex', corum), ('Functional', string['highest']), ('Signalling', signor), ('Metabolism', kegg)],
-    'experiments': ['']
 }
 
 labels = {
@@ -200,6 +199,9 @@ for f in dsets:
 
     plot_df = DataFrame(plot_df)
     print plot_df
+
+    # plot_df[(plot_df['Interaction'] == 'Metabolism') & (plot_df['Data'] == 'Proteomics')]['AUC'].mean()
+    # plot_df[(plot_df['Interaction'] == 'Metabolism') & (plot_df['Data'] == 'Transcriptomics')]['AUC'].mean()
 
     # Barplot
     sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})

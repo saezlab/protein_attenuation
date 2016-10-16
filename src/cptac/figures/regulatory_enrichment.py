@@ -184,6 +184,8 @@ plot_df = plot_df[plot_df['l_type'] == 'Protein']
 plot_df = plot_df[[len(set(i.split(' - '))) == 1 for i in plot_df['halflife']]]
 plot_df['halflife'] = [''.join(set(i.split(' - '))) for i in plot_df['halflife']]
 
+# plot_df[(plot_df['halflife'] == 'Unstable') & (plot_df['c_type'] == 'Transcriptomics')]['cor'].mean()
+
 order = ['Stable', 'Unstable']
 sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
 g = sns.FacetGrid(plot_df, row='l_type', xlim=[-.5, 1], size=1.5, aspect=.8, legend_out=False)

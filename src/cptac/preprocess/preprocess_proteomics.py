@@ -98,12 +98,14 @@ ax.figure.gca().xaxis.set_major_formatter(mtick.FormatStrFormatter('%.1f%%'))
 
 fig.suptitle('%s samples - PCA before normalisation' % ', '.join(set(samplesheet)))
 
+plt.savefig('./reports/proteomics_pca_before_correction.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/proteomics_pca_before_correction.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] PCA before normalisation'
 
 sns.set(style='white', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 sns.clustermap(pcs.corr(), linewidths=.3, cmap=sns.diverging_palette(220, 10, n=20, as_cmap=True), figsize=(5, 5))
+plt.savefig('./reports/proteomics_clustermap_before_correction.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/proteomics_clustermap_before_correction.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] PCA before normalisation'
@@ -158,12 +160,14 @@ ax.figure.gca().xaxis.set_major_formatter(mtick.FormatStrFormatter('%.1f%%'))
 
 fig.suptitle('%s samples - PCA after normalisation' % ', '.join(set(samplesheet)))
 
+plt.savefig('./reports/proteomics_pca_after_correction.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/proteomics_pca_after_correction.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] PCA after normalisation'
 
 sns.set(style='white', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 sns.clustermap(pcs.corr(), linewidths=.3, cmap=sns.diverging_palette(220, 10, n=20, as_cmap=True), figsize=(5, 5))
+plt.savefig('./reports/proteomics_clustermap_after_correction.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/proteomics_clustermap_after_correction.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] PCA after normalisation'

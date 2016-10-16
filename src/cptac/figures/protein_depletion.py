@@ -8,10 +8,9 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from statsmodels.stats.multitest import multipletests
 from cptac import palette, palette_dbs
-from cptac.utils import read_gmt
+from cptac.utils import read_gmt, gkn
 from sklearn.linear_model import LinearRegression
 from scipy.stats.stats import ttest_ind
-from pandas.stats.misc import zscore
 from pandas import read_csv, DataFrame, Series, concat
 from pymist.enrichment.gsea import gsea
 from sklearn.metrics.ranking import roc_curve, auc, roc_auc_score
@@ -121,7 +120,7 @@ print '[INFO] Plot done'
 
 
 # -- Enrichment
-dataset = zscore(res['CNV_Transcriptomics'] - res['CNV_Proteomics']).to_dict()
+dataset = gkn(res['CNV_Transcriptomics'] - res['CNV_Proteomics']).to_dict()
 signatures = {'PTM': ptms, 'BP': msigdb_go_bp, 'CC': msigdb_go_cc}
 
 df_enrichment = [(t, sig, len(db[sig].intersection(dataset)), gsea(dataset, db[sig], 1000)) for t, db in signatures.items() for sig in db]
@@ -130,7 +129,7 @@ df_enrichment.sort(['pvalue', 'escore']).to_csv('./tables/protein_depletion_enri
 # df_enrichment = read_csv('./tables/protein_depletion_enrichment.csv')
 print df_enrichment[df_enrichment['length'] > 5].sort('escore')
 
-# Plot
+# Plot - Striplot
 plot_df = df_enrichment[(df_enrichment['length'] > 5) & (df_enrichment['type'] != 'MF')].copy()
 plot_df['fdr'] = multipletests(plot_df['pvalue'], method='fdr_bh')[1]
 plot_df = plot_df[plot_df['fdr'].abs() < .05].sort('escore')
@@ -160,3 +159,21 @@ sigs = {
 }
 
 [gsea(dataset, sigs[k], 1, './reports/protein_correlation_difference_enrichment_gsea_%s.png' % k, plot_title=k.replace('_', ' ').lower(), y2_label='Correlation difference\n(centered)') for k in sigs]
+
+# Boxplot
+plot_df = df_enrichment[(df_enrichment['length'] > 5) & (df_enrichment['type'] != 'MF')].copy()
+plot_df['escore'] = gkn(plot_df['escore'])
+plot_df['type'] = ['complex' if 'COMPLEX' in i or 'SUBUNIT' in i else 'other' for i in plot_df['signature']]
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.FacetGrid(plot_df)
+g = g.map_dataframe(sns.stripplot, 'escore', 'type', orient='h', size=4, jitter=.2, alpha=.2, linewidth=.1, edgecolor='white', color='#808080')
+g = g.map_dataframe(sns.boxplot, 'escore', 'type', orient='h', linewidth=.3, sym='', color='#CCCCCC')
+g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
+g.set_axis_labels('Enrichment score')
+g.despine(trim=True)
+plt.gcf().set_size_inches(2, 1)
+plt.savefig('./reports/protein_correlation_difference_enrichment_boxplot.png', bbox_inches='tight', dpi=300)
+plt.savefig('./reports/protein_correlation_difference_enrichment_boxplot.pdf', bbox_inches='tight')
+plt.close('all')
+print '[INFO] Done'
