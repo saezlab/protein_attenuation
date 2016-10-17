@@ -22,12 +22,12 @@ from pandas import DataFrame, Series, read_csv, pivot_table, concat
 # -- Imports
 # Clinical data
 clinical = read_csv('./data/tcga_clinical.csv', index_col=0).dropna(subset=['time', 'status'])
-clinical = clinical[clinical['admin.disease_code'] == 'ov']
+clinical = clinical[(clinical['admin.disease_code'] == 'ov') & (clinical['time'] < (365 * 10))]
 print 'clinical', clinical.shape
 
 c_activities = read_csv('./tables/protein_complexes_proteomics_activities.csv')
-# c_activities = c_activities[c_activities['fdr'] < .1]
-c_activities = pivot_table(c_activities, index='complex', columns='sample', values='mean', fill_value=np.nan)
+# c_activities = c_activities[c_activities['fdr'] < .05]
+c_activities = pivot_table(c_activities, index='complex', columns='sample', values='z', fill_value=np.nan)
 print 'c_activities', c_activities.shape
 
 uniprot = read_uniprot_genename()
@@ -40,14 +40,20 @@ samples = set(c_activities).intersection(clinical.index)
 print 'samples', len(samples)
 
 
+# # -- Filter
+# c_activities = c_activities.ix[:, samples]
+# c_activities = c_activities[c_activities.count(1) >= 20]
+# print 'c_activities', c_activities.shape
+
+
 # -- Import regression results
 ppairs_trans = read_csv('./tables/ppairs_transcriptomics_regulation_all.csv')
-# ppairs_trans = {(px, py) for px, py in ppairs_trans[ppairs_trans['fdr'] < .05][['px', 'py']].values}
+ppairs_trans = {(px, py) for px, py in ppairs_trans[ppairs_trans['fdr'] < .05][['px', 'py']].values}
 print len(ppairs_trans)
 
 ppairs_cnv = read_csv('./tables/ppairs_cnv_regulation_all.csv')
 ppairs_cnv = ppairs_cnv[ppairs_cnv['fdr'] < .05]
-# ppairs_cnv = ppairs_cnv[[(px, py) in ppairs_trans for px, py in ppairs_cnv[['px', 'py']].values]]
+ppairs_cnv = ppairs_cnv[[(px, py) in ppairs_trans for px, py in ppairs_cnv[['px', 'py']].values]]
 print ppairs_cnv.sort('fdr')
 
 associations = {(px, py) for px, py in ppairs_cnv[['px', 'py']].values}
@@ -55,7 +61,7 @@ print len(associations)
 
 
 # -- Logrank test
-# px = 2815
+# px = 368
 surv = {}
 for px in c_activities.index:
     df = c_activities.ix[px, samples].dropna()
@@ -69,14 +75,13 @@ for px in c_activities.index:
         # samples_dw = set(df[df < 0].index)
         # samples_bg = set(samples).difference(samples_up.union(samples_dw))
 
-        if len(samples_dw) >= 5 and len(samples_up) >= 5:
-            logrank = logrank_test(
-                clinical.ix[samples_up, 'time'], clinical.ix[samples_dw, 'time'],
-                clinical.ix[samples_up, 'status'], clinical.ix[samples_dw, 'status']
-            )
-            print logrank
+        logrank = logrank_test(
+            clinical.ix[samples_up, 'time'], clinical.ix[samples_dw, 'time'],
+            clinical.ix[samples_up, 'status'], clinical.ix[samples_dw, 'status']
+        )
+        print logrank
 
-            surv[px] = {'pval': logrank.p_value, 't': logrank.test_statistic, 'name': corum_n[px]}
+        surv[px] = {'pval': logrank.p_value, 't': logrank.test_statistic, 'name': corum_n[px]}
 
 surv = DataFrame(surv).T
 surv['fdr'] = multipletests(surv['pval'], method='fdr_bh')[1]

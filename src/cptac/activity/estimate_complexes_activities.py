@@ -4,10 +4,10 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
 from statsmodels.stats.multitest import multipletests
 from statsmodels.stats.weightstats import CompareMeans, DescrStatsW
 from pandas import DataFrame, Series, read_csv, concat
-from sklearn.linear_model import LinearRegression
 from pymist.utils.corumdb import get_complexes_name, get_complexes_dict
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
@@ -38,7 +38,8 @@ corum_n = get_complexes_name()
 print 'corum', len(corum)
 
 
-# -- Activity functions
+# -- Estimate activity
+# z-test
 # s, c, df = 'TCGA-AG-A020', 2174, proteomics_dict
 def ztest_complex(s, c, df):
     x1 = [df[s][k] for k in df[s] if k in corum[c]]
@@ -59,16 +60,30 @@ def ztest_complex(s, c, df):
 
         return res
 
-
-# -- Estimate CORUM activity z-test
 c_proteomics = [ztest_complex(s, c, proteomics_dict) for s in proteomics for c in corum]
 c_proteomics = DataFrame([i for i in c_proteomics if i])
 c_proteomics['fdr'] = multipletests(c_proteomics['pval'],  method='fdr_bh')[1]
 c_proteomics.to_csv('./tables/protein_complexes_proteomics_activities.csv')
 print c_proteomics.sort('fdr')
 
+# lm
+c_matrix = DataFrame({k: {p: 1 for p in corum[k]} for k in corum}).replace(np.nan, 0).astype(int)
 
-# -- Estimate CORUM activity mean
-c_proteomics_mean = DataFrame({c: proteomics.ix[corum[c]].mean() for c in corum}).T
-c_proteomics_mean.to_csv('./tables/protein_complexes_proteomics_mean_activities.csv')
-print c_proteomics_mean.shape
+c_proteomics_lm = DataFrame()
+for s in proteomics:
+    y = proteomics[s].dropna()
+
+    x = c_matrix.ix[y.index].replace(np.nan, 0).astype(int)
+    x = x.loc[:, x.sum() > 1]
+
+    lm = sm.OLS(y, sm.add_constant(x, has_constant='add')).fit_regularized(L1_wt=0, alpha=.001)
+    print lm.summary()
+
+    res = concat({'beta': lm.params, 'pval': lm.pvalues}, axis=1).drop('const')
+    res['sample'] = s
+    print res.sort('pval')
+
+    c_proteomics_lm = c_proteomics_lm.append(res.reset_index())
+
+c_proteomics_lm.to_csv('./tables/protein_complexes_proteomics_mean_activities.csv')
+print 'c_proteomics_lm', c_proteomics_lm.shape

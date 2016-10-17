@@ -66,6 +66,7 @@ venn2(associations.values(), set_labels=associations.keys(), set_colors=[palette
 venn2_circles(associations.values(), linestyle='solid', color='white')
 
 plt.savefig('./reports/regressions_associations_venn.pdf', bbox_inches='tight')
+plt.savefig('./reports/regressions_associations_venn.png', bbox_inches='tight', dpi=300)
 plt.close('all')
 print '[INFO] Done'
 
