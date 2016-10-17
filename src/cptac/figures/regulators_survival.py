@@ -39,11 +39,21 @@ corum_n = get_complexes_name()
 samples = set(c_activities).intersection(clinical.index)
 print 'samples', len(samples)
 
+# Tumor suppressor
+tms = read_csv('./tables/Cancer5000.oncodriveROLE.0.3-0.7.txt', sep='\t').append(read_csv('./tables/HCD.oncodriveROLE.0.3-0.7.txt', sep='\t'))
 
-# # -- Filter
-# c_activities = c_activities.ix[:, samples]
-# c_activities = c_activities[c_activities.count(1) >= 20]
-# print 'c_activities', c_activities.shape
+cgenes = {
+    'suppressor': set(tms[tms['oncodriveROLE'] == 'Loss of function']['SYM']),
+    'oncogene': set(tms[tms['oncodriveROLE'] == 'Activating']['SYM'])
+}
+
+cgenes_complexes = {
+    'suppressor': {c for c in corum if len(corum[c].intersection(cgenes['suppressor'])) > 0},
+    'oncogene': {c for c in corum if len(corum[c].intersection(cgenes['oncogene'])) > 0}
+}
+cgenes_complexes['suppressor'] = cgenes_complexes['suppressor'].difference(cgenes_complexes['oncogene'])
+cgenes_complexes['oncogene'] = cgenes_complexes['oncogene'].difference(cgenes_complexes['suppressor'])
+print 'cgenes_complexes', len(cgenes_complexes)
 
 
 # -- Import regression results
@@ -61,12 +71,13 @@ print len(associations)
 
 
 # -- Logrank test
-# px = 368
+# px = 5450
 surv = {}
 for px in c_activities.index:
     df = c_activities.ix[px, samples].dropna()
 
-    if len(set(it.permutations(corum[px], 2)).intersection(associations)) > 0:
+    # if len(set(it.permutations(corum[px], 2)).intersection(associations)) > 0:
+    if len(corum[px].intersection(cgenes['suppressor'])) > 0 or len(corum[px].intersection(cgenes['oncogene'])) > 0:
         samples_up = set(df[df > (df.mean() + df.std())].index)
         samples_dw = set(df[df < (df.mean() - df.std())].index)
         samples_bg = set(df.index).difference(samples_up.union(samples_dw))
@@ -75,13 +86,14 @@ for px in c_activities.index:
         # samples_dw = set(df[df < 0].index)
         # samples_bg = set(samples).difference(samples_up.union(samples_dw))
 
-        logrank = logrank_test(
-            clinical.ix[samples_up, 'time'], clinical.ix[samples_dw, 'time'],
-            clinical.ix[samples_up, 'status'], clinical.ix[samples_dw, 'status']
-        )
-        print logrank
+        if len(samples_up) > 10 and len(samples_dw) > 10:
+            logrank = logrank_test(
+                clinical.ix[samples_up, 'time'], clinical.ix[samples_dw, 'time'],
+                clinical.ix[samples_up, 'status'], clinical.ix[samples_dw, 'status']
+            )
+            print logrank
 
-        surv[px] = {'pval': logrank.p_value, 't': logrank.test_statistic, 'name': corum_n[px]}
+            surv[px] = {'pval': logrank.p_value, 't': logrank.test_statistic, 'name': corum_n[px]}
 
 surv = DataFrame(surv).T
 surv['fdr'] = multipletests(surv['pval'], method='fdr_bh')[1]
