@@ -8,6 +8,7 @@ from cptac.utils import gkn
 from pymist.enrichment.gsea import gsea
 from cptac import wd, palette_cnv_number
 from lifelines import CoxPHFitter
+from sklearn.decomposition.pca import PCA
 from lifelines import KaplanMeierFitter
 from lifelines.utils import concordance_index
 from lifelines.statistics import logrank_test
@@ -42,17 +43,40 @@ print 'samples', 'proteins', len(samples), len(proteins)
 
 
 # -- Proteins correlations
-p_correlation = read_csv('./tables/proteins_correlations.csv', index_col=0)
-p_correlation['diff'] = p_correlation['CNV_Transcriptomics'] - p_correlation['CNV_Proteomics']
-print p_correlation.sort('diff').tail()
-
-
-# --
 cgenes = read_csv('./tables/Cancer5000.oncodriveROLE.0.3-0.7.txt', sep='\t').append(read_csv('./tables/HCD.oncodriveROLE.0.3-0.7.txt', sep='\t'))
 cgenes = {
     'suppressor': set(cgenes[cgenes['oncodriveROLE'] == 'Loss of function']['SYM']),
     'oncogene': set(cgenes[cgenes['oncodriveROLE'] == 'Activating']['SYM'])
 }
+
+p_correlation = read_csv('./tables/proteins_correlations.csv', index_col=0)
+p_correlation['diff'] = p_correlation['CNV_Transcriptomics'] - p_correlation['CNV_Proteomics']
+p_correlation['type'] = ['suppressor' if i in cgenes['suppressor'] else ('oncogene' if i in cgenes['oncogene'] else 'other') for i in p_correlation.index]
+print p_correlation.sort('diff').tail()
+
+
+# -- Regulatory interactions
+ppairs_trans = read_csv('./tables/ppairs_transcriptomics_regulation_all.csv')
+ppairs_trans = {(px, py) for px, py in ppairs_trans[ppairs_trans['fdr'] < .05][['px', 'py']].values}
+print len(ppairs_trans)
+
+ppairs_cnv = read_csv('./tables/ppairs_cnv_regulation_all.csv')
+ppairs_cnv = ppairs_cnv[ppairs_cnv['fdr'] < .05]
+ppairs_cnv = ppairs_cnv[[(px, py) in ppairs_trans for px, py in ppairs_cnv[['px', 'py']].values]]
+print ppairs_cnv.sort('fdr')
+
+associations = {(px, py) for px, py in ppairs_cnv[['px', 'py']].values}
+print len(associations)
+
+
+tms = DataFrame({px: transcriptomics.ix[cgenes['suppressor'], samples].dropna(how='all').T.corrwith(proteomics.ix[px, samples]) for px in set(ppairs_cnv['px']) if px in proteins})
+tms = tms.unstack().reset_index()
+tms.columns = ['px', 'suppressor', 'corr']
+tms = tms[tms['px'] != tms['suppressor']]
+print tms.sort('corr')
+
+tms = DataFrame({g: transcriptomics.drop(cgenes['suppressor'], errors='ignore')[list(samples)].T.corrwith(proteomics.ix[g, samples]) for g in cgenes['suppressor'] if g in proteins})
+
 
 
 # --
@@ -69,9 +93,3 @@ df_transcriptomics = concat([transcriptomics.ix[a_proteins, samples].T, clinical
 
 cf_transcriptomics = CoxPHFitter(normalize=False).fit(df_transcriptomics, 'time', event_col='status')
 print cf_transcriptomics.print_summary()
-
-
-df_cnv = concat([cnv.ix[a_proteins, samples].T, clinical.ix[samples, ['status', 'time']]], axis=1)
-
-cf_cnv = CoxPHFitter(normalize=False).fit(df_cnv, 'time', event_col='status')
-print cf_cnv.print_summary()
