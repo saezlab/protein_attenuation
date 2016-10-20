@@ -19,7 +19,7 @@ from statsmodels.stats.multitest import multipletests
 from sklearn.linear_model import LinearRegression
 from statsmodels.duration.hazard_regression import PHReg
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
-from pymist.utils.corumdb import get_complexes_name, get_complexes_dict
+from pymist.utils.corumdb import get_complexes_name, get_complexes_dict, get_complexes_pairs
 from pandas import DataFrame, Series, read_csv, pivot_table, concat
 
 
@@ -45,9 +45,38 @@ uniprot = read_uniprot_genename()
 
 corum_n = get_complexes_name()
 
+# dict
 corum = {k: {uniprot[p][0] for p in v if p in uniprot}.intersection(proteins) for k, v in get_complexes_dict().items()}
 corum = {k: corum[k] for k in corum if 1 < len(corum[k])}
 print 'corum', len(corum)
+
+# pairs
+corum_pairs = get_complexes_pairs()
+corum_pairs = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in corum_pairs for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot}
+print 'corum', len(corum_pairs)
+
+
+# -- Tumour suppressors and oncogenes
+interactions = {(px, py) for px, py in read_csv('./tables/network-112015_symbol.txt', sep='\t').dropna()[['V4', 'V5']].values}
+print 'interactions', len(interactions)
+
+cgenes = read_csv('./tables/Cancer5000.oncodriveROLE.0.3-0.7.txt', sep='\t').append(read_csv('./tables/HCD.oncodriveROLE.0.3-0.7.txt', sep='\t'))
+cgenes = {
+    'suppressor': set(cgenes[cgenes['oncodriveROLE'] == 'Loss of function']['SYM']),
+    'oncogene': set(cgenes[cgenes['oncodriveROLE'] == 'Activating']['SYM'])
+}
+
+cgenes_omnipath = {
+    'suppressor': {(px, py) for px, py in interactions if px in cgenes['suppressor']},
+    'oncogene': {(px, py) for px, py in interactions if px in cgenes['oncogene']}
+}
+print 'cgenes_omnipath', len(cgenes_omnipath['suppressor']), len(cgenes_omnipath['oncogene'])
+
+cgenes_corum = {
+    'suppressor': {(px, py) for px, py in corum_pairs if px in cgenes['suppressor'] and (px, py) in cgenes_omnipath['suppressor']},
+    'oncogene': {(px, py) for px, py in corum_pairs if px in cgenes['oncogene'] and (px, py) in cgenes_omnipath['suppressor']}
+}
+print 'cgenes_corum', len(cgenes_corum['suppressor']), len(cgenes_corum['oncogene'])
 
 
 # -- Simplify corum complexes sets
@@ -102,9 +131,13 @@ print 'corum_s', len(corum_s)
 
 
 # -- Estimate complex activity
+# ts_complex = {px for px, py in cgenes_corum['suppressor']}
+ts_complex = {c: corum_s[c] for c in corum_s if len(corum_s[c].intersection(cgenes['suppressor'])) > 0}
+
+
 def ztest_complex(s, c, df):
-    x1 = [df[s][k] for k in df[s] if k in corum_s[c]]
-    x2 = [df[s][k] for k in df[s] if k not in corum_s[c]]
+    x1 = [df[s][k] for k in df[s] if k in ts_complex[c]]
+    x2 = [df[s][k] for k in df[s] if k not in ts_complex[c]]
 
     if len(x1) > 1:
         stat = CompareMeans(DescrStatsW(x1), DescrStatsW(x2))
@@ -121,7 +154,7 @@ def ztest_complex(s, c, df):
 
         return res
 
-c_activity = [ztest_complex(s, c, proteomics_dict) for s in samples for c in corum_s]
+c_activity = [ztest_complex(s, c, proteomics_dict) for s in samples for c in ts_complex]
 c_activity = DataFrame([i for i in c_activity if i])
 c_activity['fdr'] = multipletests(c_activity['pval'],  method='fdr_bh')[1]
 print c_activity.sort('fdr')
@@ -131,22 +164,22 @@ c_activity_matrix = pivot_table(c_activity, index='complex', columns='sample', v
 print 'c_activity_matrix', c_activity_matrix.shape
 
 
-# -- Regulatory interactions
-ppairs_trans = read_csv('./tables/ppairs_transcriptomics_regulation_all.csv')
-ppairs_trans = {(px, py) for px, py in ppairs_trans[ppairs_trans['fdr'] < .05][['px', 'py']].values}
-print len(ppairs_trans)
-
-ppairs_cnv = read_csv('./tables/ppairs_cnv_regulation_all.csv')
-ppairs_cnv = ppairs_cnv[ppairs_cnv['fdr'] < .05]
-ppairs_cnv = ppairs_cnv[[(px, py) in ppairs_trans for px, py in ppairs_cnv[['px', 'py']].values]]
-print ppairs_cnv.sort('fdr')
-
-associations = {(px, py) for px, py in ppairs_cnv[['px', 'py']].values}
-print len(associations)
+# # -- Regulatory interactions
+# ppairs_trans = read_csv('./tables/ppairs_transcriptomics_regulation_all.csv')
+# ppairs_trans = {(px, py) for px, py in ppairs_trans[ppairs_trans['fdr'] < .05][['px', 'py']].values}
+# print len(ppairs_trans)
+#
+# ppairs_cnv = read_csv('./tables/ppairs_cnv_regulation_all.csv')
+# ppairs_cnv = ppairs_cnv[ppairs_cnv['fdr'] < .05]
+# ppairs_cnv = ppairs_cnv[[(px, py) in ppairs_trans for px, py in ppairs_cnv[['px', 'py']].values]]
+# print ppairs_cnv.sort('fdr')
+#
+# associations = {(px, py) for px, py in ppairs_cnv[['px', 'py']].values}
+# print len(associations)
 
 
 # -- Logrank test
-# px = '368'
+# px = '2470'
 surv = {}
 for px in c_activity_matrix.index:
     df = c_activity_matrix.ix[px, samples].dropna()

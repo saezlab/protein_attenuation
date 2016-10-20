@@ -36,6 +36,58 @@ proteomics = read_csv('./data/cptac_proteomics_corrected_normalised.csv', index_
 print 'proteomics', proteomics.shape
 
 
+# -- Tumour suppressors and oncogenes
+cgenes = read_csv('./tables/Cancer5000.oncodriveROLE.0.3-0.7.txt', sep='\t').append(read_csv('./tables/HCD.oncodriveROLE.0.3-0.7.txt', sep='\t'))
+cgenes = {
+    'suppressor': set(cgenes[cgenes['oncodriveROLE'] == 'Loss of function']['SYM']),
+    'oncogene': set(cgenes[cgenes['oncodriveROLE'] == 'Activating']['SYM'])
+}
+print 'cgenes', len(cgenes)
+
+
+# -- Protein correlations
+p_correlations = read_csv('./tables/proteins_correlations.csv', index_col=0)
+print 'p_correlations', len(p_correlations)
+
+
+# -- Plot scatter of correlations
+ax_min = np.min([p_correlations['CNV_Transcriptomics'].min() * 1.10, p_correlations['Transcriptomics_Proteomics'].min() * 1.10])
+ax_max = np.min([p_correlations['CNV_Transcriptomics'].max() * 1.10, p_correlations['Transcriptomics_Proteomics'].max() * 1.10])
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
+g = sns.jointplot(
+    'CNV_Transcriptomics', 'CNV_Proteomics', p_correlations, 'scatter', color='#808080', xlim=[ax_min, ax_max], ylim=[ax_min, ax_max],
+    space=0, s=15, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.3
+)
+g.plot_marginals(sns.kdeplot, shade=True, color='#595959', lw=.3)
+
+g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
+g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
+g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
+
+g.x = p_correlations['CNV_Transcriptomics']
+g.y = p_correlations['CNV_Proteomics']
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette('#595959', as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+
+g.x = p_correlations[[i in cgenes['suppressor'] for i in p_correlations.index]]['CNV_Transcriptomics']
+g.y = p_correlations[[i in cgenes['suppressor'] for i in p_correlations.index]]['CNV_Proteomics']
+g.plot_joint(sns.regplot, fit_reg=False, color=palette_cnv_number[-2])
+g.plot_marginals(sns.kdeplot, color=palette_cnv_number[-2], shade=True, legend=False)
+
+g.x = p_correlations[[i in cgenes['oncogene'] for i in p_correlations.index]]['CNV_Transcriptomics']
+g.y = p_correlations[[i in cgenes['oncogene'] for i in p_correlations.index]]['CNV_Proteomics']
+g.plot_joint(sns.regplot, fit_reg=False, color=palette_cnv_number[2])
+g.plot_marginals(sns.kdeplot, color=palette_cnv_number[2], shade=True, legend=False)
+
+plt.gcf().set_size_inches(3, 3)
+
+g.set_axis_labels('CNV ~ Transcriptomics', 'CNV ~ Proteomics')
+plt.savefig('./reports/correlation_difference_lmplot_corr_cancer_genes.pdf', bbox_inches='tight')
+plt.savefig('./reports/correlation_difference_lmplot_corr_cancer_genes.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Plot done'
+
+
 # -- Protein complexes interactions
 uniprot = read_uniprot_genename()
 

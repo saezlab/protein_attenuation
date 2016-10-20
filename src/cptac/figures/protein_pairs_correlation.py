@@ -84,6 +84,28 @@ kegg = import_kegg()
 kegg = {(s, t) for p1, p2 in kegg for s, t in [(p1, p2), (p2, p1)]}
 print 'kegg', len(kegg)
 
+# Tumour suppressors and oncogenes
+interactions = {(px, py) for px, py in read_csv('./tables/network-112015_symbol.txt', sep='\t').dropna()[['V4', 'V5']].values}
+print 'interactions', len(interactions)
+
+cgenes = read_csv('./tables/Cancer5000.oncodriveROLE.0.3-0.7.txt', sep='\t').append(read_csv('./tables/HCD.oncodriveROLE.0.3-0.7.txt', sep='\t'))
+cgenes = {
+    'suppressor': set(cgenes[cgenes['oncodriveROLE'] == 'Loss of function']['SYM']),
+    'oncogene': set(cgenes[cgenes['oncodriveROLE'] == 'Activating']['SYM'])
+}
+
+cgenes_omnipath = {
+    'suppressor': {(px, py) for px, py in interactions if px in cgenes['suppressor']},
+    'oncogene': {(px, py) for px, py in interactions if px in cgenes['oncogene']}
+}
+print 'cgenes_omnipath', len(cgenes_omnipath['suppressor']), len(cgenes_omnipath['oncogene'])
+
+cgenes_corum = {
+    'suppressor': {(px, py) for px, py in corum if px in cgenes['suppressor'] and (px, py) in cgenes_omnipath['suppressor']},
+    'oncogene': {(px, py) for px, py in corum if px in cgenes['oncogene'] and (px, py) in cgenes_omnipath['suppressor']}
+}
+print 'cgenes_corum', len(cgenes_corum['suppressor']), len(cgenes_corum['oncogene'])
+
 
 # -- Plot: Boxplots
 labels = {
@@ -173,7 +195,9 @@ dsets = {
     # 'STRING_action_low': string_action['low'].items(),
     # 'BioGRID_action': biogrid_action.items(),
     # 'OmniPath': omnipath_action.items(),
-    'paths': [('Complex', corum), ('Functional', string['highest']), ('Signalling', signor), ('Metabolism', kegg)],
+    # 'paths': [('Complex', corum), ('Functional', string['highest']), ('Signalling', signor), ('Metabolism', kegg)],
+    # 'cgenes': [('Oncogene', cgenes['oncogene']), ('Tumour suppressor', cgenes['suppressor'])]
+    'cgenes_corum': [('Tumour suppressor', cgenes_corum['suppressor'])]
 }
 
 labels = {
@@ -210,8 +234,8 @@ for f in dsets:
     # g.despine(left=True)
     g.set_ylabels('AUC')
     plt.ylim(0, 1)
-    plt.gcf().set_size_inches(3, 3)
-    # plt.savefig('./reports/proteins_correlation_roc_%s_barplot.pdf' % f, bbox_inches='tight')
+    plt.gcf().set_size_inches(3, 4)
+    plt.savefig('./reports/proteins_correlation_roc_%s_barplot.pdf' % f, bbox_inches='tight')
     plt.savefig('./reports/proteins_correlation_roc_%s_barplot.png' % f, bbox_inches='tight', dpi=300)
     plt.close('all')
     print '[INFO] Plot done'
@@ -251,7 +275,7 @@ for f in dsets:
         pos += 1
 
     plt.gcf().set_size_inches(3 * len(dsets[f]), 3)
+    plt.savefig('./reports/proteins_correlation_roc_%s.pdf' % f, bbox_inches='tight')
     plt.savefig('./reports/proteins_correlation_roc_%s.png' % f, bbox_inches='tight', dpi=300)
-    # plt.savefig('./reports/proteins_correlation_roc_%s.pdf' % f, bbox_inches='tight')
     plt.close('all')
     print '[INFO] Plot done'
