@@ -36,15 +36,6 @@ proteomics = read_csv('./data/cptac_proteomics_corrected_normalised.csv', index_
 print 'proteomics', proteomics.shape
 
 
-# -- Tumour suppressors and oncogenes
-cgenes = read_csv('./tables/Cancer5000.oncodriveROLE.0.3-0.7.txt', sep='\t').append(read_csv('./tables/HCD.oncodriveROLE.0.3-0.7.txt', sep='\t'))
-cgenes = {
-    'suppressor': set(cgenes[cgenes['oncodriveROLE'] == 'Loss of function']['SYM']),
-    'oncogene': set(cgenes[cgenes['oncodriveROLE'] == 'Activating']['SYM'])
-}
-print 'cgenes', len(cgenes)
-
-
 # -- Protein complexes interactions
 uniprot = read_uniprot_genename()
 
@@ -74,6 +65,22 @@ def protein_residual(g):
     return y_
 residuals = DataFrame({g: protein_residual(g) for g in set(transcriptomics.index).intersection(proteomics.index)}).T
 print 'residuals', residuals.shape
+
+
+# -- Tumour suppressors and oncogenes
+cgenes = read_csv('./tables/Cancer5000.oncodriveROLE.0.3-0.7.txt', sep='\t').append(read_csv('./tables/HCD.oncodriveROLE.0.3-0.7.txt', sep='\t'))
+cgenes = {
+    'suppressor': set(cgenes[cgenes['oncodriveROLE'] == 'Loss of function']['SYM']),
+    'oncogene': set(cgenes[cgenes['oncodriveROLE'] == 'Activating']['SYM'])
+}
+print 'cgenes', len(cgenes)
+
+# interactions = {(px, py) for px, py in read_csv('./tables/network-112015_symbol.txt', sep='\t').dropna()[['V4', 'V5']].values if px in cgenes['suppressor'] or px in cgenes['oncogene']}
+interactions = {(px, py) for px, py in read_csv('./tables/network-112015_symbol.txt', sep='\t').dropna()[['V4', 'V5']].values if px in cgenes['suppressor']}
+print 'interactions', len(interactions)
+
+sources, targets = {px for px, py in interactions}, {py for px, py in interactions}
+print 'sources', 'targets', len(sources), len(targets)
 
 
 # -- Regressions: Py Residuals ~ Px CNV
@@ -110,7 +117,7 @@ def regressions(px, py):
 
         return res
 
-ppairs = [regressions(px, py) for px, py in corum if px in cgenes['suppressor'] or px in cgenes['oncogene']]
+ppairs = [regressions(px, py) for px in sources for py in targets]
 ppairs = DataFrame([i for i in ppairs if i])
 ppairs['fdr'] = multipletests(ppairs['f_pval'], method='fdr_bh')[1]
 ppairs['type'] = ['suppressor' if i in cgenes['suppressor'] else 'oncogene' for i in ppairs['px']]

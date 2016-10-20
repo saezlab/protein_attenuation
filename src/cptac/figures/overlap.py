@@ -49,13 +49,14 @@ print overlap.shape
 plot_df = DataFrame([{'Tumour': t, 'Data': d, 'Counts': overlap[overlap['Tumour'] == t][d].sum()} for t in set(samplesheet) for d in ['Transcriptomics', 'CNV', 'Clinical', 'Overlap', 'Proteomics']])
 
 hue_order = ['Proteomics', 'CNV', 'Transcriptomics', 'Clinical', 'Overlap']
-sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'in', 'ytick.direction': 'in'})
-g = sns.factorplot(x='Tumour', y='Counts', hue='Data', data=plot_df, kind='bar', palette=palette, ci=None, hue_order=hue_order, legend_out=False)
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.factorplot(x='Tumour', y='Counts', hue='Data', data=plot_df, kind='bar', palette=palette, ci=None, hue_order=hue_order, legend_out=False, alpha=.975)
 g.despine()
 g.add_legend(title='', label_order=hue_order)
 g.set_ylabels('Number of samples')
-plt.gcf().set_size_inches(2, 2)
+plt.gcf().set_size_inches(3, 3)
 plt.savefig('./reports/overlap_samples.pdf', bbox_inches='tight')
+plt.savefig('./reports/overlap_samples.png', bbox_inches='tight', dpi=300)
 plt.close('all')
 print '[INFO] Done'
 
