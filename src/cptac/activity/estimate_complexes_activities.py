@@ -1,113 +1,115 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
+import pydot
+import igraph
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import statsmodels.api as sm
-from scipy.stats.stats import mannwhitneyu
-from statsmodels.stats.multitest import multipletests
+import itertools as it
+from cptac.utils import jaccard
 from statsmodels.stats.weightstats import CompareMeans, DescrStatsW
-from pandas import DataFrame, Series, read_csv, concat
+from statsmodels.stats.multitest import multipletests
+from pandas import DataFrame, Series, read_csv
 from pymist.utils.corumdb import get_complexes_name, get_complexes_dict
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
 
-# -- Import data-sets
+# -- Imports
 # Proteomics
 proteomics = read_csv('./data/cptac_proteomics_corrected_normalised.csv', index_col=0)
+proteomics_dict = {s: proteomics[s].dropna().to_dict() for s in proteomics}
 print 'proteomics', proteomics.shape
-
-# Transcriptomics
-transcriptomics = read_csv('./data/tcga_rnaseq_corrected_normalised.csv', index_col=0)
-print 'transcriptomics', transcriptomics.shape
 
 
 # -- Overlap
-proteins, samples = set(proteomics.index).intersection(transcriptomics.index), set(proteomics).intersection(transcriptomics)
-proteomics, transcriptomics = proteomics.ix[proteins, samples], transcriptomics.ix[proteins, samples]
-print 'proteins', 'samples', len(proteins), len(samples)
+samples = set(proteomics)
+proteins = set(proteomics.index)
+print 'samples', len(samples)
 
-# dicts
-proteomics_dict = {s: proteomics[s].dropna().to_dict() for s in proteomics}
 
-# -- Complexes proteins
-uniprot = read_uniprot_genename()
+# -- Protein complexes
+uniprot, corum_n = read_uniprot_genename(), get_complexes_name()
+
+# dict
 corum = {k: {uniprot[p][0] for p in v if p in uniprot}.intersection(proteins) for k, v in get_complexes_dict().items()}
-corum = {k: corum[k] for k in corum if len(corum[k]) > 1}
-corum_n = get_complexes_name()
+corum = {k: corum[k] for k in corum if 1 < len(corum[k])}
 print 'corum', len(corum)
 
 
-# -- Estimate activity: s, c, df = 'TCGA-AG-A020', 2174, proteomics_dict
-# z-test
-def ztest_complex(s, c, df):
-    x1 = [df[s][k] for k in df[s] if k in corum[c]]
-    x2 = [df[s][k] for k in df[s] if k not in corum[c]]
+# -- Simplify corum complexes sets
+corum_jacc = DataFrame([{'c1': c1, 'c2': c2, 'j': jaccard(corum[c1], corum[c2])} for c1, c2 in it.product(corum.keys(), corum.keys())])
+print corum_jacc.sort('j').tail()
 
-    if len(x1) > 1:
-        stat = CompareMeans(DescrStatsW(x1), DescrStatsW(x2))
+# Build network
+network_i = igraph.Graph(directed=False)
 
-        z_larger, p_larger = stat.ztest_ind(alternative='larger')
-        z_smaller, p_smaller = stat.ztest_ind(alternative='smaller')
+# Network lists
+edges = [(str(px), str(py)) for px, py in corum_jacc.loc[corum_jacc['j'] >= 1., ['c1', 'c2']].values]
+vertices = list({p for px, py in edges for p in (px, py)})
 
-        z, p = z_larger, p_larger if p_larger < p_smaller else p_smaller
+# Add nodes
+network_i.add_vertices(vertices)
+print network_i.summary()
 
-        res = {
-            'sample': s, 'complex': c, 'name': corum_n[c],
-            'z': z, 'pval': p, 'mean': np.mean(x1), 'targets': len(x1)
-        }
+# Add edges
+network_i.add_edges(edges)
+print network_i.summary()
 
-        return res
+# Simplify
+network_i.simplify(loops=False)
+print network_i.summary()
 
-c_proteomics = [ztest_complex(s, c, proteomics_dict) for s in proteomics for c in corum]
-c_proteomics = DataFrame([i for i in c_proteomics if i])
-c_proteomics['fdr'] = multipletests(c_proteomics['pval'],  method='fdr_bh')[1]
-c_proteomics.to_csv('./tables/protein_complexes_proteomics_activities.csv')
-print c_proteomics.sort('fdr')
+# Print
+graph = pydot.Dot(graph_type='graph')
+
+graph.set_graph_defaults(packMode='clust', pack='true', dpi='300')
+graph.set_node_defaults(fontcolor='white', penwidth='5', fillcolor='#CCCCCC', width='1', height='1', fontsize='20', fontname='sans-serif')
+graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee', penwidth='2.')
+
+for e in network_i.es:
+    if e.source != e.target:
+        source = pydot.Node(network_i.vs[e.source]['name'], style='filled', shape='ellipse', penwidth='0')
+        target = pydot.Node(network_i.vs[e.target]['name'], style='filled', shape='ellipse', penwidth='0')
+
+        graph.add_node(source)
+        graph.add_node(target)
+
+        edge = pydot.Edge(source, target)
+        graph.add_edge(edge)
+
+graph.write_png('./reports/corum_jaccard_network.png')
+graph.write_pdf('./reports/corum_jaccard_network.pdf')
+
+# Connected components
+components = [network_i.vs[c]['name'] for c in network_i.components()]
+
+# Simplify corum
+corum_s = {':'.join(c): {p for i in c for p in corum[int(i)]} for c in components}
+print 'corum_s', len(corum_s)
 
 
-# mannwhitneyu
-def mannwhitneyu_complex(s, c, df):
-    x1 = [df[s][k] for k in df[s] if k in corum[c]]
-    x2 = [df[s][k] for k in df[s] if k not in corum[c]]
+# -- Estimate complex activity
+c_activity = []
+for s in samples:
+    for c in corum_s:
+        x1 = [proteomics_dict[s][k] for k in proteomics_dict[s] if k in corum_s[c]]
+        x2 = [proteomics_dict[s][k] for k in proteomics_dict[s] if k not in corum_s[c]]
 
-    if len(x1) > 1:
-        u_smaller, p_smaller = mannwhitneyu(x1, x2, alternative='less')
-        u_larger, p_larger = mannwhitneyu(x1, x2, alternative='greater')
+        if len(x1) > 1:
+            stat = CompareMeans(DescrStatsW(x1), DescrStatsW(x2))
 
-        u, p = u_larger, p_larger if p_larger < p_smaller else p_smaller
+            z_larger, p_larger = stat.ztest_ind(alternative='larger')
+            z_smaller, p_smaller = stat.ztest_ind(alternative='smaller')
 
-        res = {
-            'sample': s, 'complex': c, 'name': corum_n[c],
-            'u': u, 'pval': p, 'mean': np.mean(x1), 'targets': len(x1)
-        }
+            z, p = z_larger, p_larger if p_larger < p_smaller else p_smaller
 
-        return res
-c_proteomics = [mannwhitneyu_complex(s, c, proteomics_dict) for s in proteomics for c in corum]
-c_proteomics = DataFrame([i for i in c_proteomics if i])
-c_proteomics['fdr'] = multipletests(c_proteomics['pval'],  method='fdr_bh')[1]
-c_proteomics.to_csv('./tables/protein_complexes_proteomics_mannwhitneyu_activities.csv')
-print c_proteomics.sort('fdr')
+            res = {
+                'sample': s, 'complex': c, 'name': corum_n[int(c)] if ':' not in c else c,
+                'z': z, 'pval': p, 'mean': np.mean(x1), 'targets': len(x1)
+            }
 
-# # lm
-# c_matrix = DataFrame({k: {p: 1 for p in corum[k]} for k in corum}).replace(np.nan, 0).astype(int)
-#
-# c_proteomics_lm = DataFrame()
-# for s in proteomics:
-#     y = proteomics[s].dropna()
-#
-#     x = c_matrix.ix[y.index].replace(np.nan, 0).astype(int)
-#     x = x.loc[:, x.sum() > 1]
-#
-#     lm = sm.OLS(y, sm.add_constant(x, has_constant='add')).fit_regularized(L1_wt=0, alpha=.001)
-#     print lm.summary()
-#
-#     res = concat({'beta': lm.params, 'pval': lm.pvalues}, axis=1).drop('const')
-#     res['sample'] = s
-#     print res.sort('pval')
-#
-#     c_proteomics_lm = c_proteomics_lm.append(res.reset_index())
-#
-# c_proteomics_lm.to_csv('./tables/protein_complexes_proteomics_mean_activities.csv')
-# print 'c_proteomics_lm', c_proteomics_lm.shape
+            c_activity.append(res)
+
+c_activity = DataFrame(c_activity)
+c_activity['fdr'] = multipletests(c_activity['pval'],  method='fdr_bh')[1]
+c_activity.to_csv('./tables/protein_complexes_proteomics_activities.csv', index=False)
+print c_activity.sort('fdr')
