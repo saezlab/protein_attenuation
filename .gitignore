@@ -70,3 +70,5 @@ GSM1536837_01_27_15_TCGA_20.Illumina.tumor_Rsubread_FPKM.txt
 figures/*
 tables/PN-ontology_MB_082016.xlsx
 PN-ontology_MB_082016.csv
+Achilles_QC_v2.4.3.rnai.Gs.txt
+CCLE_copynumber_byGene_2013-12-03.txt
