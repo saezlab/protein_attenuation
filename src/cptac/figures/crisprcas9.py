@@ -42,62 +42,9 @@ px, py = set(ppairs_cnv['px']), set(ppairs_cnv['py'])
 print len(px), len(py)
 
 
-# --
-plot_df = crispr.unstack().reset_index()
-plot_df.columns = ['cell_line', 'gene', 'score']
-plot_df['diff'] = [cor_diff[i.split('_')[0]] if i.split('_')[0] in cor_diff else np.nan for i in plot_df['gene']]
-plot_df['diff_b'] = ['not attenuated' if i < .1 else ('attenuated' if i > .5 else 'all') for i in plot_df['diff']]
-plot_df['type'] = ['px' if i.split('_')[0] in px else ('py' if i.split('_')[0] in py else 'all') for i in plot_df['gene']]
-plot_df['tissue'] = ['_'.join(i.split('_')[1:]).lower() for i in plot_df['cell_line']]
-
 #
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.factorplot(x='score', y='type', data=plot_df, col='tissue', col_wrap=5, kind='box', fliersize=2, linewidth=0.3, size=2, orient='h', sharex=False)
-g.map(plt.axvline, x=0, ls='--', lw=0.3, c='black', alpha=.5)
-g.despine()
-plt.savefig('./reports/crispr_regulators_boxplot.pdf', bbox_inches='tight')
-plt.savefig('./reports/crispr_regulators_boxplot.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Done'
+c = Series(dict(zip(*(np.unique([i.split('_')[0] for i in crispr.index], return_counts=True))))).sort_values()
 
-#
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.factorplot(x='score', y='diff_b', data=plot_df.dropna(), col='tissue', col_wrap=5, kind='box', fliersize=2, linewidth=0.3, size=2, orient='h', sharex=False)
-g.map(plt.axvline, x=0, ls='--', lw=0.3, c='black', alpha=.5)
-g.despine()
-plt.savefig('./reports/crispr_attenuated_boxplot.pdf', bbox_inches='tight')
-plt.savefig('./reports/crispr_attenuated_boxplot.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Done'
+crispr.index = [i.split('_')[0] for i in crispr.index]
 
-
-# --
-px_cor = {}
-samples = set(crispr).intersection(cnv)
-
-for g in px:
-    x = crispr.ix[[i for i in crispr.index if g in i.split('_')], samples]
-    y = cnv.ix[g, samples]
-
-    px_cor[g] = x.T.corrwith(y).mean()
-
-px_cor = Series(px_cor).dropna()
-
-
-py_cor = {}
-samples = set(crispr).intersection(cnv)
-
-for g in py:
-    x = crispr.ix[[i for i in crispr.index if g in i.split('_')], samples]
-    y = cnv.ix[g, samples]
-
-    py_cor[g] = x.T.corrwith(y).mean()
-
-py_cor = Series(py_cor).dropna()
-
-#
-df = crispr.unstack().reset_index()
-df['cnv'] = [cnv.ix[g.split('_')[0], c] if g.split('_')[0] in cnv.index else np.nan for c, g in df[['level_0', 'Name']].values]
-df.columns = ['cell_line', 'gene', 'score', 'cnv']
-
-plt.scatter(df['score'], df['cnv'])
+{g: crispr.ix[g].T.corr().ix[0].values[1:] for g in c[c > 1].index}

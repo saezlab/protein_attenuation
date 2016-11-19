@@ -65,7 +65,7 @@ print '[INFO] Done'
 plot_df = []
 for s in set(proteomics).intersection(transcriptomics):
     jt = jaccard(set(transcriptomics.index), set(proteomics[s].dropna().index))
-    jp = jaccard(set(proteomics.index), set(proteomics[s].dropna().index))
+    jp = jaccard(set(proteomics[s].dropna().index), set(transcriptomics[s].index))
 
     res = {'Sample': s, 'Tumour': samplesheet[s], 'Transcript': jt, 'Protein': jp}
 
@@ -89,3 +89,5 @@ plt.gcf().set_size_inches(1.5, 3)
 plt.savefig('./reports/overlap_proteins.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
+
+print '%.1f%%' % (plot_df[plot_df['Tumour'] == 'BRCA']['Transcript'].mean() * 100)
