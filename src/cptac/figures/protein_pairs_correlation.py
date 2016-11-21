@@ -30,7 +30,7 @@ print 'samples', 'proteins', len(samples), len(proteins)
 p_corr = proteomics.ix[proteins, samples].T.corr(method='pearson')
 p_corr.values[np.tril_indices(p_corr.shape[0], 0)] = np.nan
 p_corr = p_corr.unstack().dropna()
-print p_corr
+print p_corr.shape
 
 t_corr = transcriptomics.ix[proteins, samples].T.corr(method='pearson')
 t_corr.values[np.tril_indices(t_corr.shape[0], 0)] = np.nan
@@ -136,7 +136,7 @@ plt.ylabel('')
 g.set_yticklabels([labels[i.get_text()] for i in g.get_yticklabels()])
 plt.gcf().set_size_inches(4, .5 * len(set(plot_df['Interaction'])))
 plt.savefig('./reports/proteins_correlation_boxplot_all.png', bbox_inches='tight', dpi=300)
-# plt.savefig('./reports/proteins_correlation_boxplot_all.pdf', bbox_inches='tight')
+plt.savefig('./reports/proteins_correlation_boxplot_all.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
 
@@ -195,9 +195,9 @@ dsets = {
     # 'STRING_action_low': string_action['low'].items(),
     # 'BioGRID_action': biogrid_action.items(),
     # 'OmniPath': omnipath_action.items(),
-    # 'paths': [('Complex', corum), ('Functional', string['highest']), ('Signalling', signor), ('Metabolism', kegg)],
+    'paths': [('Complex', corum), ('Functional', string['highest']), ('Signalling', signor), ('Metabolism', kegg)],
     # 'cgenes': [('Oncogene', cgenes['oncogene']), ('Tumour suppressor', cgenes['suppressor'])]
-    'cgenes_corum': [('Tumour suppressor', cgenes_corum['suppressor'])]
+    # 'cgenes_corum': [('Tumour suppressor', cgenes_corum['suppressor'])]
 }
 
 labels = {

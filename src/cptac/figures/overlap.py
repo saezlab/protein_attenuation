@@ -35,22 +35,22 @@ print 'clinical', clinical.shape
 overlap = DataFrame({
     'Proteomics': {s: int(s in proteomics) for s in proteomics},
     'Transcriptomics': {s: int(s in transcriptomics) for s in proteomics},
-    'CNV': {s: int(s in cnv) for s in proteomics},
+    'Copy-number variation': {s: int(s in cnv) for s in proteomics},
     'Clinical': {s: int(s in clinical['patient.bcr_patient_barcode'].values) for s in proteomics},
     'Tumour': {s: samplesheet[s] for s in proteomics}
 })
 
-overlap['Overlap'] = (overlap[['Transcriptomics', 'CNV', 'Clinical', 'Proteomics']].sum(1) == 4).astype(int)
+overlap['Overlap'] = (overlap[['Transcriptomics', 'Copy-number variation', 'Clinical', 'Proteomics']].sum(1) == 4).astype(int)
 overlap.to_csv('./tables/overlap_table.csv')
 print overlap.shape
 
 
 # -- Samples count
-plot_df = DataFrame([{'Tumour': t, 'Data': d, 'Counts': overlap[overlap['Tumour'] == t][d].sum()} for t in set(samplesheet) for d in ['Transcriptomics', 'CNV', 'Clinical', 'Overlap', 'Proteomics']])
+plot_df = DataFrame([{'Tumour': t, 'Data': d, 'Counts': overlap[overlap['Tumour'] == t][d].sum()} for t in set(samplesheet) for d in ['Transcriptomics', 'Copy-number variation', 'Clinical', 'Overlap', 'Proteomics']])
 
-hue_order = ['Proteomics', 'CNV', 'Transcriptomics', 'Clinical', 'Overlap']
+hue_order = ['Copy-number variation', 'Transcriptomics', 'Proteomics', 'Clinical', 'Overlap']
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.factorplot(x='Tumour', y='Counts', hue='Data', data=plot_df, kind='bar', palette=palette, ci=None, hue_order=hue_order, legend_out=False, alpha=.975)
+g = sns.factorplot(x='Tumour', y='Counts', hue='Data', data=plot_df, kind='bar', palette=palette, ci=None, hue_order=hue_order, legend_out=False, lw=.3)
 g.despine()
 g.add_legend(title='', label_order=hue_order)
 g.set_ylabels('Number of samples')
@@ -84,7 +84,7 @@ for x, t in zip(*([0, 1, 2], order)):
 plt.axhline(0.5, ls='--', lw=0.3, c='black', alpha=.5)
 plt.ylim(0, .7)
 sns.despine(trim=True)
-plt.ylabel('Measured transcript coverage')
+plt.ylabel('Proteomic coverage of the expressed transcriptome\n(Jaccard index)')
 plt.gcf().set_size_inches(1.5, 3)
 plt.savefig('./reports/overlap_proteins.pdf', bbox_inches='tight')
 plt.close('all')

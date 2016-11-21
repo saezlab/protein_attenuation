@@ -54,10 +54,11 @@ print 'p_corr', p_corr.shape
 
 
 # -- Protein correlation heatmap
-cmap = sns.diverging_palette(h_neg=hex_to_husl('#00B4FE')[0], h_pos=hex_to_husl('#FE4A00')[0], as_cmap=True, center='light', sep=10, l=50)
+cmap = sns.diverging_palette(220, 20, sep=20, as_cmap=True)
 
-sns.set(style='white', font_scale=.75)
-sns.clustermap(p_corr, figsize=(5, 5), cmap=cmap, center=0, vmax=1, vmin=-1, xticklabels=False, yticklabels=False)
+sns.set(style='white', font_scale=1.)
+g = sns.clustermap(p_corr, figsize=(5, 5), cmap=cmap, center=0, vmax=1, vmin=-1, xticklabels=False, yticklabels=False)
+
 plt.suptitle('Protein pairwise correlation')
 plt.savefig('./reports/protein_clustering_heatmap.png', bbox_inches='tight', dpi=300)
 plt.close('all')
@@ -65,14 +66,22 @@ print '[INFO] Done'
 
 #
 sns.set(style='white', font_scale=1.)
-cmap = sns.diverging_palette(h_neg=hex_to_husl('#00B4FE')[0], h_pos=hex_to_husl('#FE4A00')[0], as_cmap=True, center='light', sep=10, l=50)
+cmap = sns.diverging_palette(220, 20, sep=20, as_cmap=True)
 
-for c in [387, 3544]:
+for c in [387, 162]:
     plot_df = p_corr.ix[corum_dict[c], corum_dict[c]]
 
-    sns.clustermap(plot_df, figsize=(5, 5), cmap=cmap, center=0, vmax=1, vmin=-1, annot=True, fmt='.2f')
+    g = sns.clustermap(plot_df, figsize=(6, 6), cmap=cmap, center=0, vmax=1, vmin=-1, annot=True, fmt='.2f')
+
+    for l in g.ax_row_dendrogram.lines:
+        l.set_linewidth(.3)
+
+    for l in g.ax_col_dendrogram.lines:
+        l.set_linewidth(.3)
+
     plt.suptitle(corum_n[c])
     plt.savefig('./reports/protein_clustering_heatmap_%d.png' % c, bbox_inches='tight', dpi=300)
+    plt.savefig('./reports/protein_clustering_heatmap_%d.pdf' % c, bbox_inches='tight')
     plt.close('all')
 print '[INFO] Done'
 

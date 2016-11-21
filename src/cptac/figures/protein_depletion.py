@@ -101,7 +101,7 @@ g = sns.jointplot(
     'CNV_Transcriptomics', 'CNV_Proteomics', res, 'scatter', color='#808080', xlim=[ax_min, ax_max], ylim=[ax_min, ax_max],
     space=0, s=15, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.3
 )
-g.plot_marginals(sns.kdeplot, shade=True, color='#595959', lw=.3)
+g.plot_marginals(sns.kdeplot, shade=True, color='#99A3A4', lw=.3)
 
 g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
@@ -109,12 +109,12 @@ g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
 
 g.x = res['CNV_Transcriptomics']
 g.y = res['CNV_Proteomics']
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette('#595959', as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette('#99A3A4', as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
 
 plt.gcf().set_size_inches(3, 3)
 
-g.set_axis_labels('CNV ~ Transcriptomics', 'CNV ~ Proteomics')
-plt.savefig('./reports/correlation_difference_lmplot_corr.png', bbox_inches='tight', dpi=300)
+g.set_axis_labels('Copy-number ~ Transcriptomics\n(Pearson)', 'Copy-number ~ Proteomics\n(Pearson)')
+plt.savefig('./reports/correlation_difference_lmplot_corr.png', bbox_inches='tight', dpi=600)
 plt.close('all')
 print '[INFO] Plot done'
 
@@ -134,7 +134,7 @@ plot_df = df_enrichment[(df_enrichment['length'] > 5) & (df_enrichment['type'] !
 plot_df['fdr'] = multipletests(plot_df['pvalue'], method='fdr_bh')[1]
 plot_df = plot_df[plot_df['fdr'].abs() < .05].sort('escore')
 plot_df['signature'] = [i.replace('_', ' ').lower() for i in plot_df['signature']]
-plot_df = concat([plot_df.head(30), plot_df.tail(30)])
+plot_df = concat([plot_df.head(20), plot_df.tail(20)])
 print plot_df.sort('fdr')
 
 pal = dict(zip(*(set(plot_df['type']), sns.color_palette('Set1', n_colors=4).as_hex())))
@@ -145,9 +145,10 @@ plt.axvline(0, ls='-', lw=0.3, c='black', alpha=.5)
 sns.despine(trim=True)
 plt.xlabel('Enrichment score (GSEA)')
 plt.ylabel('')
-plt.title('Enrichment for regulation differences\n(CNV~Transcriptomics - CNV~Proteomics)')
-plt.gcf().set_size_inches(2, 14)
+plt.title('Copy-number correlation attenuation enrichment\n(Copy-number~Transcriptomics - Copy-number~Proteomics)')
+plt.gcf().set_size_inches(2, 10)
 plt.savefig('./reports/protein_correlation_difference_enrichment.png', bbox_inches='tight', dpi=300)
+plt.savefig('./reports/protein_correlation_difference_enrichment.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'
 
@@ -158,21 +159,20 @@ sigs = {
     'sulfation': ptms['sulfation']
 }
 
-[gsea(dataset, sigs[k], 1, './reports/protein_correlation_difference_enrichment_gsea_%s.png' % k, plot_title=k.replace('_', ' ').lower(), y2_label='Correlation difference\n(centered)') for k in sigs]
+[gsea(dataset, sigs[k], 1000, './reports/protein_correlation_difference_enrichment_gsea_%s.png' % k, plot_title=k.replace('_', ' ').lower(), y2_label='Correlation difference\n(centered)') for k in sigs]
 
 # Boxplot
 plot_df = df_enrichment[(df_enrichment['length'] > 5) & (df_enrichment['type'] != 'MF')].copy()
 plot_df['escore'] = gkn(plot_df['escore'])
-plot_df['type'] = ['complex' if 'COMPLEX' in i or 'SUBUNIT' in i else 'other' for i in plot_df['signature']]
+plot_df['type'] = ['Complex/subunit' if 'COMPLEX' in i or 'SUBUNIT' in i else 'Other' for i in plot_df['signature']]
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(plot_df)
-g = g.map_dataframe(sns.stripplot, 'escore', 'type', orient='h', size=4, jitter=.2, alpha=.2, linewidth=.1, edgecolor='white', color='#808080')
-g = g.map_dataframe(sns.boxplot, 'escore', 'type', orient='h', linewidth=.3, sym='', color='#CCCCCC')
+g = sns.FacetGrid(plot_df, size=1, aspect=2)
+g = g.map_dataframe(sns.stripplot, 'escore', 'type', orient='h', size=4, jitter=.2, alpha=.2, linewidth=.1, edgecolor='white', color='#99A3A4')
+g = g.map_dataframe(sns.boxplot, 'escore', 'type', orient='h', linewidth=.3, sym='', color='#99A3A4', notch=True)
 g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
-g.set_axis_labels('Enrichment score')
+g.set_axis_labels('Normalised GSEA enrichment score')
 g.despine(trim=True)
-plt.gcf().set_size_inches(2, 1)
 plt.savefig('./reports/protein_correlation_difference_enrichment_boxplot.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/protein_correlation_difference_enrichment_boxplot.pdf', bbox_inches='tight')
 plt.close('all')

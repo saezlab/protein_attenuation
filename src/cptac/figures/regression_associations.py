@@ -55,10 +55,10 @@ print 'dup_proteins', len(dup_proteins)
 
 
 # -- Venn: overlap between transcriptomics and CNV
-sns.set(style='white', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
+sns.set(style='white', font_scale=1., rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 
 associations = {
-    'CNV': {(px, py) for px, py, fdr in ppairs_cnv[['px', 'py', 'fdr']].values if fdr < .05},
+    'Copy-number variation': {(px, py) for px, py, fdr in ppairs_cnv[['px', 'py', 'fdr']].values if fdr < .05},
     'Transcriptomics': {(px, py) for px, py, fdr in ppairs_trans[['px', 'py', 'fdr']].values if fdr < .05}
 }
 
@@ -71,7 +71,39 @@ plt.close('all')
 print '[INFO] Done'
 
 
-# -- Volcano
+# -- Volcano: Transcriptomics
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
+
+plot_df = ppairs_trans.copy()
+
+plt.scatter(
+    x=plot_df['beta'], y=-np.log10(plot_df['fdr']),
+    s=25, c=[palette['Transcriptomics'] if f < .05 else sns.light_palette(palette['Transcriptomics']).as_hex()[1] for f in plot_df['fdr']],
+    linewidths=[.5 if (px, py) in associations['Transcriptomics'] else 0 for px, py in plot_df[['px', 'py']].values],
+    alpha=.7, edgecolor=[palette['Copy-number variation'] if (px, py) in associations['Copy-number variation'] else '#FFFFFF' for px, py in plot_df[['px', 'py']].values]
+)
+
+for fdr, beta, px, py in plot_df[['fdr', 'beta', 'px', 'py']].values:
+    if fdr < .05 and px in px_highlight:
+        plt.text(beta, -np.log10(fdr), '%s ~ %s' % (px, py), fontsize=6)
+
+plt.axhline(-np.log10(0.01), c='#99A3A4', ls='--', lw=.5, alpha=.7)
+plt.axhline(-np.log10(0.05), c='#99A3A4', ls='--', lw=.5, alpha=.7)
+plt.axvline(0, c='#99A3A4', ls='-', lw=.3, alpha=.7)
+
+plt.ylim(0)
+
+sns.despine()
+plt.ylabel('Adj. p-value (-log10)')
+plt.xlabel('Beta')
+plt.gcf().set_size_inches(4.5, 7)
+plt.savefig('./reports/regressions_associations_volcano_transcriptomics.png', bbox_inches='tight', dpi=600)
+# plt.savefig('./reports/regressions_associations_volcano.pdf', bbox_inches='tight')
+plt.close('all')
+print '[INFO] Done'
+
+
+# -- Volcano: Transcriptomics
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 
 plot_df = ppairs_cnv.copy()
@@ -79,7 +111,7 @@ plot_df = ppairs_cnv.copy()
 
 plt.scatter(
     x=plot_df['beta'], y=-np.log10(plot_df['fdr']),
-    s=25, c=[palette['CNV'] if f < .05 else sns.light_palette(palette['CNV']).as_hex()[1] for f in plot_df['fdr']],
+    s=25, c=[palette['Copy-number variation'] if f < .05 else sns.light_palette(palette['Copy-number variation']).as_hex()[1] for f in plot_df['fdr']],
     linewidths=[.5 if (px, py) in associations['Transcriptomics'] else 0 for px, py in plot_df[['px', 'py']].values],
     alpha=.7, edgecolor=[palette['Transcriptomics'] if (px, py) in associations['Transcriptomics'] else '#FFFFFF' for px, py in plot_df[['px', 'py']].values]
 )
@@ -88,20 +120,52 @@ for fdr, beta, px, py in plot_df[['fdr', 'beta', 'px', 'py']].values:
     if fdr < .05 and px in px_highlight:
         plt.text(beta, -np.log10(fdr), '%s ~ %s' % (px, py), fontsize=6)
 
-plt.axhline(-np.log10(0.01), c=palette['Overlap'], ls='--', lw=.5, alpha=.7)
-plt.axhline(-np.log10(0.05), c=palette['Overlap'], ls='--', lw=.5, alpha=.7)
-plt.axvline(0, c=palette['Overlap'], ls='-', lw=.3, alpha=.7)
+plt.axhline(-np.log10(0.01), c='#99A3A4', ls='--', lw=.5, alpha=.7)
+plt.axhline(-np.log10(0.05), c='#99A3A4', ls='--', lw=.5, alpha=.7)
+plt.axvline(0, c='#99A3A4', ls='-', lw=.3, alpha=.7)
 
 plt.ylim(0)
 
 sns.despine()
-plt.xlabel('-log10(p)')
-plt.ylabel('beta')
+plt.ylabel('Adj. p-value (-log10)')
+plt.xlabel('Beta')
 plt.gcf().set_size_inches(4.5, 7)
-plt.savefig('./reports/regressions_associations_volcano.png', bbox_inches='tight', dpi=300)
+plt.savefig('./reports/regressions_associations_volcano.png', bbox_inches='tight', dpi=600)
 # plt.savefig('./reports/regressions_associations_volcano.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
+
+
+# --
+plot_df = DataFrame([
+    ('Copy-number variation', 'Positive', ppairs_cnv[(ppairs_cnv['fdr'] < .05) & (ppairs_cnv['beta'] > 0)].shape[0]),
+    ('Copy-number variation', 'Negative', ppairs_cnv[(ppairs_cnv['fdr'] < .05) & (ppairs_cnv['beta'] < 0)].shape[0]),
+    ('Transcriptomics', 'Positive', ppairs_trans[(ppairs_trans['fdr'] < .05) & (ppairs_trans['beta'] > 0)].shape[0]),
+    ('Transcriptomics', 'Negative', ppairs_trans[(ppairs_trans['fdr'] < .05) & (ppairs_trans['beta'] < 0)].shape[0])
+])
+plot_df.columns = ['Data', 'Type', 'Counts']
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.factorplot(x='Type', y='Counts', data=plot_df, row='Data', sharey=False, kind='bar', ci=None, legend_out=False, lw=.3, color='#99A3A4', aspect=1, size=2)
+g.despine()
+g.set_ylabels('Count')
+g.set_titles('{row_name}')
+plt.gcf().set_size_inches(1.5, 4)
+plt.savefig('./reports/regressions_associations_count.pdf', bbox_inches='tight')
+plt.savefig('./reports/regressions_associations_count.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Done'
+
+
+# -- Export regulations table
+reg_table = ppairs_cnv[ppairs_cnv['fdr'] < .05].copy()
+reg_table = reg_table[[(px, py) in associations['Transcriptomics'] for px, py in reg_table[['px', 'py']].values]]
+
+reg_table_counts = Series(dict(zip(*(np.unique(reg_table['px'], return_counts=True)))))
+reg_table['counts'] = [1. / reg_table_counts.ix[px] for px in reg_table['px']]
+
+reg_table.sort(['counts', 'f_pval']).drop('counts', axis=1)[['px', 'py', 'beta', 'fdr']].to_csv('./tables/complex_regulators.txt', index=False)
+print '[INFO] Export done'
 
 
 # -- Create network
@@ -122,7 +186,7 @@ print network_i.summary()
 # Draw network
 graph = pydot.Dot(graph_type='digraph')
 
-graph.set_graph_defaults(resolution='300', ratio='compress', page='600')
+graph.set_graph_defaults(packMode='clust', pack='true')
 graph.set_node_defaults(fontcolor='white', penwidth='5', fillcolor='#CCCCCC', width='1', height='1', fontsize='20', fontname='sans-serif')
 graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee', penwidth='2.')
 
@@ -135,7 +199,7 @@ for i in edges.index:
         source_id, target_id = network_i.vs[[edge.source, edge.target]]['name']
 
         source = pydot.Node(source_id, style='filled', shape='ellipse', penwidth='0')
-        source.set_fillcolor(palette['CNV'])
+        source.set_fillcolor(palette['Copy-number variation'])
 
         target = pydot.Node(target_id, style='filled', shape='ellipse', penwidth='0')
         target.set_fillcolor(palette['Proteomics'])
@@ -147,6 +211,7 @@ for i in edges.index:
         graph.add_edge(edge)
 
 graph.write_png('./reports/regressions_associations_network.png')
+graph.write_pdf('./reports/regressions_associations_network.pdf')
 print '[INFO] Network PDF exported'
 
 
@@ -200,6 +265,6 @@ for px, py in plot_df.sort('cor', ascending=False)[['px', 'py']].values:
 
 plt.gcf().set_size_inches(6, 3 * len(plot_df))
 plt.savefig('./reports/regressions_associations_scatter.png', bbox_inches='tight', dpi=300)
-# plt.savefig('./reports/regressions_associations_scatter.pdf', bbox_inches='tight')
+plt.savefig('./reports/regressions_associations_scatter.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'
