@@ -4,7 +4,7 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from pandas import read_csv, Series, DataFrame
+from pandas import read_csv, Series, DataFrame, pivot_table
 from pymist.utils.map_peptide_sequence import read_uniprot_genename, read_fasta
 from pymist.utils.corumdb import get_complexes_pairs, get_complexes_dict, get_complexes_name
 
@@ -56,16 +56,18 @@ interactions = structure.groupby(['PROTEIN_name', 'PARTNER_name']).first().reset
 interactions_counts = Series(dict(zip(*(np.unique(interactions['PROTEIN_name'], return_counts=True)))))
 
 structure_df = DataFrame({p: {'length': protein_len.ix[p], 'interface': interfaces_counts.ix[p], 'interactions': interactions_counts.ix[p]} for p in set(structure['PROTEIN_name'])}).T
-structure_df['percentage'] = structure_df['interface'].astype(float) / structure_df['length'] * 100
 structure_df['type'] = ['Px' if i in px else ('Py' if i in py else ('Complex' if i in corum_proteins else 'Other')) for i in structure_df.index]
 
 # Plot
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.factorplot(x='percentage', y='type', data=structure_df, kind='box', linewidth=.3, color='#99A3A4', notch=True, aspect=2, size=1, order=['Other', 'Complex', 'Py', 'Px'], orient='h', fliersize=2)
-g.despine()
-g.set_xlabels('Percentage of residues in interfaces')
+g = sns.FacetGrid(structure_df, size=1, aspect=2)
+g = g.map_dataframe(sns.stripplot, x='interface', y='type', orient='h', size=2, jitter=.2, alpha=.35, linewidth=.1, edgecolor='white', color='#99A3A4')
+g = g.map_dataframe(sns.boxplot, x='interface', y='type', orient='h', linewidth=.3, sym='', color='#99A3A4', notch=True)
+g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
+g.set_axis_labels('Number of residues on interfaces')
+g.set_titles('{row_name}')
+g.despine(trim=True)
 g.set_ylabels('')
-plt.gcf().set_size_inches(3, 1.5)
 plt.savefig('./reports/structure_interfaces_boxplot.pdf', bbox_inches='tight')
 plt.savefig('./reports/structure_interfaces_boxplot.png', bbox_inches='tight', dpi=300)
 plt.close('all')
@@ -73,12 +75,46 @@ print '[INFO] Done'
 
 # Plot
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.factorplot(x='interactions', y='type', data=structure_df, kind='box', linewidth=.3, color='#99A3A4', notch=True, aspect=2, size=1, order=['Other', 'Complex', 'Py', 'Px'], orient='h', fliersize=2)
-g.despine()
-g.set_xlabels('Number of interacting proteins with interfaces')
+g = sns.FacetGrid(structure_df, size=1, aspect=2)
+g = g.map_dataframe(sns.stripplot, x='interactions', y='type', orient='h', size=2, jitter=.2, alpha=.35, linewidth=.1, edgecolor='white', color='#99A3A4')
+g = g.map_dataframe(sns.boxplot, x='interactions', y='type', orient='h', linewidth=.3, sym='', color='#99A3A4', notch=True)
+g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
+g.set_axis_labels('Number interacting proteins')
+g.set_titles('{row_name}')
+g.despine(trim=True)
 g.set_ylabels('')
-plt.gcf().set_size_inches(3, 1.5)
 plt.savefig('./reports/structure_interactions_boxplot.pdf', bbox_inches='tight')
 plt.savefig('./reports/structure_interactions_boxplot.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Done'
+
+
+# --
+plot_df = structure.groupby(['PROTEIN_name', 'POS'])['AA'].agg(lambda x: set(x)).reset_index()
+plot_df = plot_df[[len(i) == 1 for i in plot_df['AA']]]
+plot_df['AA'] = [list(i)[0] for i in plot_df['AA']]
+
+plot_df = plot_df.groupby(['PROTEIN_name', 'AA']).count().reset_index()
+plot_df = pivot_table(plot_df, index='PROTEIN_name', columns='AA', values='POS', fill_value=0)
+plot_df = plot_df.astype(float).divide(plot_df.sum(1), axis=0)
+
+plot_df = plot_df.unstack().reset_index()
+plot_df.columns = ['aa', 'gene', 'freq']
+plot_df['type'] = ['Px' if i in px else ('Py' if i in py else ('Complex' if i in corum_proteins else 'Other')) for i in plot_df['gene']]
+
+order = Series({aa: plot_df[(plot_df['aa'] == aa) & (plot_df['type'] == 'Px')]['freq'].mean() - plot_df[(plot_df['aa'] == aa) & (plot_df['type'] == 'Py')]['freq'].mean() for aa in set(plot_df['aa'])}).sort_values()
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.FacetGrid(plot_df[[i in ['Px', 'Py'] for i in plot_df['type']]], size=4, aspect=1, legend_out=True)
+# g = g.map_dataframe(sns.stripplot, x='interactions', y='type', orient='h', size=2, jitter=.2, alpha=.35, linewidth=.1, edgecolor='white', color='#99A3A4')
+g = g.map_dataframe(sns.boxplot, x='freq', y='aa', hue='type', orient='h', linewidth=.3, fliersize=2, notch=True, order=order.index)
+g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
+g.set_axis_labels('Amino acid frequency in the protein interfaces')
+g.set_titles('{row_name}')
+g.despine(trim=True)
+g.add_legend()
+g.set_ylabels('')
+plt.savefig('./reports/structure_aa_freq_boxplot.pdf', bbox_inches='tight')
+plt.savefig('./reports/structure_aa_freq_boxplot.png', bbox_inches='tight', dpi=300)
 plt.close('all')
 print '[INFO] Done'
