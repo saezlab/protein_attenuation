@@ -37,7 +37,7 @@ def log_likelihood(y_true, y_pred):
     ssr = np.power(y_true - y_pred, 2).sum()
     var = ssr / n
 
-    l = (1 / (np.sqrt(2 * np.pi * var))) ** n * np.exp(-(np.power(y_true - y_pred, 2) / (2 * var)).sum())
+    l = np.longfloat(1 / (np.sqrt(2 * np.pi * var))) ** n * np.exp(-(np.power(y_true - y_pred, 2) / (2 * var)).sum())
     ln_l = np.log(l)
 
     return ln_l

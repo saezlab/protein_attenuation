@@ -1,0 +1,266 @@
+Identifier,Name,Synonyms,Action,Stage,Putative_target,Pathway
+1,Erlotinib,NA,targeted,clinically approved,EGFR,EGFR signaling
+3,Rapamycin,"Rapamune, AY-22989,Sirolimus,WY-090217",targeted,clinically approved,MTOR,TOR signaling
+5,Sunitinib,Sutent,targeted,clinically approved,"PDGFRA, PDGFRB, KDR, KIT, FLT3",RTK signaling
+6,PHA-665752,,targeted,experimental,MET,RTK signaling
+9,MG-132,zLLL,targeted,experimental,Proteasome,other
+11,Paclitaxel,"Taxol, BMS-181339-01",cytotoxic,clinically approved,Microtubules,cytoskeleton
+17,Cyclopamine,11-deoxojervine,targeted,experimental,SMO,other
+29,AZ628,,targeted,experimental,BRAF,ERK MAPK signaling
+30,Sorafenib,"BAY-439006, Nexavar",targeted,clinically approved,"PDGFRA, PDGFRB, KDR, KIT, FLT3",RTK signaling
+32,VX-680,"MK-045,MK-0457,VX-68",targeted,in clinical development,"AURKA, AURKB, AURKC, FLT3, ABL1, JAK2",mitosis
+34,Imatinib,"Gleevec,STI-571",targeted,clinically approved,"ABL, KIT, PDGFR",ABL signaling
+35,NVP-TAE684,TAE684,targeted,experimental,ALK,RTK signaling
+37,Crizotinib,"Xalkori,PF2341066",targeted,in clinical development,"MET, ALK",RTK signaling
+38,AZD-0530,"AZD-0530,KIN001-045",targeted,in clinical development,"SRC, ABL1",ABL signaling
+41,S-Trityl-L-cysteine,NSC 83265,targeted,experimental,KIF11,mitosis
+45,Z-LLNle-CHO,Z-L-Norleucine-CHO,targeted,experimental,g-secretase,other
+51,Dasatinib,"Sprycel, KIN001-005",targeted,clinically approved,"ABL, SRC, KIT, PDGFR",ABL signaling
+52,GNF-2,,targeted,experimental,ABL [T315I],ABL signaling
+53,CGP-60474,KIN001-019,targeted,experimental,"CDK1,CDK2,CDK5,CDK7,CDK9",cell cycle
+54,CGP-082996,"CINK4,KIN001-021",targeted,experimental,CDK4,cell cycle
+55,A-770041,KIN001-111,targeted,experimental,SRC family,other
+56,WH-4-023,KIN001-112,targeted,experimental,"SRC family, ABL",ABL signaling
+59,WZ-1-84,KIN001-123,targeted,experimental,BMX,other
+60,BI-2536,"NPK33-1-98-1, KIN001-124",targeted,in clinical development,"PLK1, PLK2, PLK3",mitosis
+62,BMS-536924,KIN001-126,targeted,experimental,IGF1R,IGFR signaling
+63,BMS-509744,KIN001-127,targeted,experimental,ITK,other
+64,CMK,KIN001-128,targeted,experimental,RSK,ERK MAPK signaling
+71,Pyrimethamine,Daraprim,cytotoxic,clinically approved,Dihydrofolate reductase (DHFR),DNA replication
+83,JW-7-52-1,,targeted,experimental,MTOR,TOR signaling
+86,A-443654,KIN001-139,targeted,experimental,"AKT1, AKT2, AKT3",PI3K signaling
+87,GW843682X,KIN001-134,targeted,experimental,PLK1,mitosis
+88,MS-275,,targeted,in clinical development,HDAC,chromain  histone acetylation
+89,Parthenolide,,targeted,in clinical development,NFKB1,other
+91,KIN001-135,,targeted,experimental,IKKE,other
+94,TGX221,,targeted,experimental,PI3Kbeta,PI3K signaling
+104,Bortezomib,"Velcade, LDP-341,PS-341",targeted,clinically approved,Proteasome,other
+106,XMD8-85,,targeted,experimental,MAP2K5 (ERK5),other
+110,Roscovitine,Seliciclib,targeted,in clinical development,CDKs,cell cycle
+111,Salubrinal,,targeted,experimental,GADD34-PP1C ,other
+119,Lapatinib,"Tykerb, Tyverb",targeted,clinically approved,"ERBB2, EGFR",EGFR signaling
+127,GSK269962A,KIN001-155,targeted,experimental,"ROCK1, ROCK2",cytoskeleton
+133,Doxorubicin,"Adriamycin, Doxil,Rubex",cytotoxic,clinically approved,DNA intercalating,DNA replication
+134,Etoposide,Etophophos,cytotoxic,clinically approved,TOP2,DNA replication
+135,Gemcitabine,"Gemzar, LY-188011",cytotoxic,clinically approved,DNA replication,DNA replication
+136,Mitomycin C,"Mytozytrex,NSC-26980",cytotoxic,clinically approved,DNA crosslinker,DNA replication
+140,Vinorelbine,Navelbine,cytotoxic,clinically approved,Microtubules,cytoskeleton
+147,NSC-87877,,targeted,experimental,"PTPN6 (SHP-1), PTPN11 (SHP-2)",other
+150,Bicalutamide,"Casodex, ICI-176334",targeted,clinically approved,ANDR (androgen receptor),other
+151,QS11,,targeted,experimental,ARFGAP,other
+152,CP466722,,targeted,experimental,ATM,Genome integrity
+153,Midostaurin,PKC 412,targeted,in clinical development,KIT,RTK signaling
+154,CHIR-99021,CT 99021,targeted,experimental,GSK3B,WNT signaling
+155,AP-24534,"Ponatinib, KIN001-192",targeted,in clinical development,ABL,ABL signaling
+156,AZD6482,KIN001-193,targeted,in clinical development,PI3Kbeta,PI3K signaling
+157,JNK-9L,KIN001-204,targeted,experimental,JNK,JNK and p38 signaling
+158,PF-562271,KIN001-205,targeted,experimental,FAK,cytoskeleton
+159,HG-6-64-1,KIN001-206,targeted,experimental,"BRAFV600E, TAK, MAP4K5",ERK MAPK signaling
+163,JQ1,,targeted,experimental,BRD4,chromatin  other
+164,JQ12,,targeted,experimental,HDAC,chromain  histone acetylation
+165,DMOG,Dimethyloxalylglcine,targeted,experimental,Prolyl-4-Hydroxylase,other
+166,FTI-277,,targeted,experimental,Farnesyl transferase (FNTA),other
+167,OSU-03012,AR-12,targeted,experimental,PDPK1 (PDK1),PI3K signaling
+170,Shikonin,,not defined,in clinical development,unknown,other
+171,AKT inhibitor VIII,,targeted,in clinical development,"AKT1, AKT2, AKT3",PI3K signaling
+172,Embelin,,targeted,in clinical development,XIAP,apoptosis regulation
+173,FH535,,not defined,experimental,unknown ,other
+175,PAC-1,,targeted,in clinical development,CASP3 agonist,apoptosis regulation
+176,IPA-3,,targeted,experimental,"PAK1, PAK2, PAK3",cytoskeleton
+177,GSK-650394,,targeted,experimental,SGK3,other
+178,BAY 61-3606,,targeted,experimental,SYK,other
+179,5-Fluorouracil,5-FU,cytotoxic,clinically approved,DNA antimetabolite,DNA replication
+180,Thapsigargin,,targeted,experimental,sarco-endoplasmic reticulum Ca2+-ATPases,other
+182,Obatoclax Mesylate,GX15-070,targeted,in clinical development,"BCL2, BCL2L1, MCL1",apoptosis regulation
+184,BMS-754807,,targeted,in clinical development,IGF1R,IGFR signaling
+185,OSI-906,"Lisitinib, OSI-906",targeted,in clinical development,IGF1R,IGFR signaling
+186,Bexarotene,"Targretin, LG-100069,LGD-1069",targeted,clinically approved,Retinioic acid X family agonist,other
+190,Bleomycin,,cytotoxic,clinically approved,DNA damage,DNA replication
+192,LFM-A13,DDE-28,targeted,experimental,BTK,other
+193,GW-2580,,targeted,experimental,CSF1R (cFMS),RTK signaling
+194,AUY922,"VER-52296,NVP-AUY922",targeted,in clinical development,HSP90,other
+196,Phenformin,,targeted,experimental,AAPK1 (AMPK) agonist,metabolism
+197,Bryostatin 1,NSC 339555,targeted,in clinical development,PRKC,other
+199,Pazopanib,"Votrient, GW786034",targeted,in clinical development,"VEGFR, PDGFRA, PDGFRB, KIT",RTK signaling
+200,LAQ824,"Dacinostat, NVP-LAQ824",targeted,in clinical development,HDAC,chromain  histone acetylation
+201,Epothilone B,"GNF-PF-193, EPO906, Patupilone",cytotoxic,in clinical development,Microtubules,cytoskeleton
+202,GSK-1904529A,,targeted,experimental,IGF1R,IGFR signaling
+203,BMS-345541,,targeted,experimental,IKBKB,other
+204,Tipifarnib,"Zarnestra,IND58359,R115777",targeted,in clinical development,Farnesyl-transferase (FNTA),other
+205,BMS-708163,Avagacestat,targeted,in clinical development,g-secretase,other
+206,Ruxolitinib,"Jakafi, INCB-18424",targeted,clinically approved,"JAK1, JAK2, TYK2",other
+207,AS601245,,targeted,experimental,JNK ,JNK and p38 signaling
+208,SB-715992,SB-715992,targeted,in clinical development,KIF11,mitosis
+211,TL-2-105,,targeted,experimental,CRAF,ERK MAPK signaling
+219,AT-7519,,targeted,in clinical development,CDK9,cell cycle
+221,TAK-715,KIN001-201,targeted,in clinical development,p38a,JNK and p38 signaling
+222,BX-912,KIN001-175,targeted,experimental,PDPK1 (PDK1),PI3K signaling
+223,ZSTK474,KIN001-167,targeted,in clinical development,PI3K,PI3K signaling
+224,AS605240,KIN001-173,targeted,experimental,PI3Kgamma,PI3K signaling
+225,Genentech Cpd 10,,targeted,experimental,"AURKA, AURKB",mitosis
+226,GSK1070916,,targeted,in clinical development,AURKB,mitosis
+228,KIN001-102,,targeted,experimental,AKT1,PI3K signaling
+229,LY317615,Enzastaurin,targeted,in clinical development,PRKCB (PKCbeta),other
+230,GSK429286A,,targeted,experimental,ROCK2,cytoskeleton
+231,FMK,KIN001-242,targeted,experimental,RSK,ERK MAPK signaling
+235,QL-XII-47,,targeted,experimental,"BTK, BMX",other
+238,CAL-101,,targeted,clinically approved,PI3Kdelta,PI3K signaling
+245,UNC0638,,targeted,experimental,"G9a(EHMT2), GLP(EHMT1)",chromatin  histone methylation
+249,XL-184,"Cometriq, Cabozantinib",targeted,clinically approved,"VEGFR, MET, RET, KIT, FLT1, FLT3, FLT4, Tie2,AXL",RTK signaling
+252,WZ3105,,targeted,experimental,"CLK2, CNSK1E, FLT3, ULK1",other
+253,XMD14-99,,targeted,experimental,"EPHB3, CAMK1",RTK signaling
+254,AC220,Quizartinib,targeted,in clinical development,FLT3,RTK signaling
+255,CP724714,,targeted,in clinical development,ERBB2,EGFR signaling
+256,JW-7-24-1,,targeted,experimental,LCK,other
+257,NPK76-II-72-1,,targeted,experimental,PLK3,mitosis
+258,STF-62247,,not defined,experimental,stimulates autophagy,other
+260,NG-25,,targeted,experimental,MAP3K7 (TAK1),other
+261,TL-1-85,,targeted,experimental,MAP3K7 (TAK1),other
+262,VX-11e,,targeted,experimental,ERK,ERK MAPK signaling
+263,FR-180204,,targeted,experimental,ERK,ERK MAPK signaling
+265,Tubastatin A,,targeted,experimental,HDAC6,chromain  histone acetylation
+266,Zibotentan,ZD4054,targeted,in clinical development,Endothelin A Receptor,other
+268,YM155,Sepantronium bromide,targeted,in clinical development,BIRC5 (Survivin),apoptosis regulation
+269,NSC-207895,XI-006,targeted,experimental,MDM4,p53 pathway
+271,VNLG/124,,targeted,experimental,"HDAC, RAR ",chromain  histone acetylation
+272,AR-42,HDAC-42,targeted,in clinical development,HDAC,chromain  histone acetylation
+273,CUDC-101,,targeted,in clinical development,"HDAC, EGFR",chromain  histone acetylation
+274,Belinostat,PXD101,targeted,clinically approved,HDAC,chromain  histone acetylation
+275,I-BET-762,GSK525762A,targeted,experimental,"BRD2, BRD3, BRD4",chromatin  other
+276,CAY10603,,targeted,experimental,HDAC6,chromain  histone acetylation
+277,ABT-869,Linifanib,targeted,in clinical development,VEGFR and PDGFR family,RTK signaling
+279,BIX02189,,targeted,experimental,MAP2K5 (MEK5),other
+281,CH5424802,,targeted,in clinical development,ALK,RTK signaling
+282,EKB-569,Pelitinib,targeted,in clinical development,EGFR,EGFR signaling
+283,GSK2126458,EX-8678,targeted,in clinical development,"PI3K, MTOR",PI3K signaling
+286,KIN001-236,,targeted,experimental,TIE2,other
+287,KIN001-244,,targeted,experimental,PDPK1 (PDK1),PI3K signaling
+288,KIN001-055,"WHI-P97, AC1L1GQE",targeted,experimental,"JAK3, MNK1",other
+290,KIN001-260,Bayer IKKb inhibitor,targeted,experimental,IKK,other
+291,KIN001-266,,targeted,experimental,MAP3K8 (COT),other
+292,Masitinib,AB1010,targeted,clinically approved,KIT,RTK signaling
+293,MP470,,targeted,in clinical development,PDGFR,RTK signaling
+294,MPS-1-IN-1,,targeted,experimental,MPS1,mitosis
+295,NVP-BHG712,,targeted,experimental,EPHB4,RTK signaling
+298,OSI-930,,targeted,in clinical development,"KIT, VEGFR, PDGFR",RTK signaling
+299,OSI-027,A-1065,targeted,in clinical development,MTORC1/2,TOR signaling
+300,CX-5461,,targeted,experimental,RNA Pol I,other
+301,PHA-793887,,targeted,experimental,CDK-pan,cell cycle
+302,PI-103,,targeted,experimental,"PI3Ka, PRKDC (DNAPK)",PI3K signaling
+303,PIK-93,,targeted,experimental,"PI4K, PI3K",PI3K signaling
+304,SB52334,,targeted,experimental,ALK5,RTK signaling
+305,TPCA-1,,targeted,experimental,IKK,other
+306,TG101348,,targeted,in clinical development,JAK2,other
+308,XL-880,"Foretinib, GSK1363089",targeted,in clinical development,MET,RTK signaling
+309,Y-39983,,targeted,experimental,ROCK,cytoskeleton
+310,YM201636,,targeted,experimental,FYV1,other
+312,AV-951,Tivozanib,targeted,in clinical development,VEGFR,RTK signaling
+326,GSK690693,,targeted,experimental,AKT,PI3K signaling
+328,SNX-2112,,targeted,experimental,HSP90,other
+329,QL-XI-92,,targeted,experimental,DDR1,RTK signaling
+330,XMD13-2,,targeted,experimental,RIPK,other
+331,QL-X-138,,targeted,experimental,"MNK2, PRKDC (DNAPK), MTOR, BTK, JAK3",other
+332,XMD15-27,,targeted,experimental,"CAMK2B, CLK2, DYRK1A, MAST1, STK39",other
+333,T0901317,,targeted,experimental,LXR,other
+341,EX-527,,targeted,experimental,SIRT1,other
+344,THZ-2-49,,targeted,experimental,CDK9,cell cycle
+345,KIN001-270,,targeted,experimental,CDK9,cell cycle
+346,THZ-2-102-1,,targeted,experimental,CDK7,cell cycle
+1001,AICAR,,targeted,in clinical development,AAPK1 (AMPK) agonist,metabolism
+1003,Camptothecin,"7-Ethyl-10-Hydroxy-Camptothecin,SN-38",cytotoxic,clinically approved,TOP1,DNA replication
+1004,Vinblastine,Vinblastine sulphate,cytotoxic,clinically approved,Microtubules,cytoskeleton
+1005,Cisplatin,"cisplatin, cis-Diammineplatinum(II) dichloride",cytotoxic,clinically approved,DNA crosslinker,DNA replication
+1006,Cytarabine,"Ara-Cytidine,Arabinosyl Cytosine,U-19920",cytotoxic,clinically approved,DNA synthesis,DNA replication
+1007,Docetaxel,RP-56976,cytotoxic,clinically approved,Microtubules,cytoskeleton
+1008,Methotrexate,,cytotoxic,clinically approved,Dihydrofolate reductase (DHFR),DNA replication
+1009,ATRA,"Tretinoin, Vesanoid",targeted,clinically approved,Retinoic acid and retinoid X receptor agonist,other
+1010,Gefitinib,"Iressa, ZD-1839",targeted,clinically approved,EGFR,EGFR signaling
+1011,ABT-263,Navitoclax,targeted,in clinical development,"BCL2, BCL2L1, BCL2L2",apoptosis regulation
+1012,Vorinostat,"Zolinza, SAHA",targeted,clinically approved,"HDAC inhibitor Class I, IIa, IIb, IV",chromain  histone acetylation
+1013,Nilotinib,Tasigna,targeted,clinically approved,ABL,ABL signaling
+1014,RDEA119,,targeted,in clinical development,"MAP2K1 (MEK1), MAP2K2 (MEK2)",ERK MAPK signaling
+1015,CI-1040,"PD-18435,PD-184352",targeted,in clinical development,"MAP2K1 (MEK1), MAP2K2 (MEK2)",ERK MAPK signaling
+1016,Temsirolimus,"Torisel, CCI-779",targeted,clinically approved,MTOR,TOR signaling
+1017,Olaparib,"Lynparza, KU0059436, AZD-2281",targeted,in clinical development,"PARP1, PARP2",Genome integrity
+1018,ABT-888,Veliparib,targeted,in clinical development,"PARP1, PARP2",Genome integrity
+1019,Bosutinib,"Bosulif, SKI-606",targeted,clinically approved,"SRC, ABL, TEC",ABL signaling
+1020,Lenalidomide,Revlimid,targeted,clinically approved,TNFA,other
+1021,Axitinib,AG-013736,targeted,in clinical development,"PDGFR, KIT, VEGFR",RTK signaling
+1022,AZD7762,,targeted,in clinical development,"CHEK1, CHEK2",Genome integrity
+1023,GW 441756,,targeted,experimental,NTRK1,RTK signaling
+1024,CEP-701,Lestaurtinib,targeted,in clinical development,"FLT3, JAK2, NTRK1, RET",RTK signaling
+1025,SB 216763,,targeted,experimental,"GSK3A, GSK3B",WNT signaling
+1026,17-AAG,"Telatinib, tanespimycin",targeted,in clinical development,HSP90,other
+1028,VX-702,,targeted,in clinical development,p38,JNK and p38 signaling
+1029,AMG-706,Motesanib Diphosphate,targeted,in clinical development,"VEGFR, RET, c-KIT, PDGFR",RTK signaling
+1030,KU-55933,,targeted,experimental,ATM,Genome integrity
+1031,Elesclomol,,targeted,in clinical development,HSP70,other
+1032,Afatinib,"Gilotrif, BIBW2992, Tovok",targeted,clinically approved,"ERBB2, EGFR",EGFR signaling
+1033,Vismodegib,Erivedge,targeted,in clinical development,SMO,other
+1036,PLX4720,"vemurafenib analog, Zelboraf (derivative)",targeted,clinically approved,BRAF,ERK MAPK signaling
+1037,BX-795,,targeted,in clinical development,"TBK1, PDPK1, IKK, AURKB, AURKC",other
+1038,NU-7441,KU-57788,targeted,experimental,PRKDC (DNAPK),Genome integrity
+1039,SL 0101-1,,targeted,experimental,"RSK, AURKB, PIM3",ERK MAPK signaling
+1042,BIRB 0796,Doramapimod,targeted,experimental,"p38, JNK2",JNK and p38 signaling
+1043,JNK Inhibitor VIII,,targeted,experimental,JNK,JNK and p38 signaling
+1046,681640,,targeted,experimental,"WEE1, CHEK1",cell cycle
+1047,Nutlin-3a,,targeted,in clinical development,MDM2,p53 pathway
+1049,PD-173074,,targeted,experimental,"FGFR1, FGFR3",RTK signaling
+1050,ZM-447439,,targeted,experimental,AURKB,mitosis
+1052,RO-3306,,targeted,experimental,CDK1,cell cycle
+1053,MK-2206,,targeted,in clinical development,"AKT1, AKT2",PI3K signaling
+1054,PD-0332991,Palbociclib Isethionate,targeted,in clinical development,"CDK4, CDK6",cell cycle
+1057,NVP-BEZ235,BEZ235,targeted,in clinical development,PI3K (Class 1) and MTORC1/2,PI3K signaling
+1058,GDC0941,,targeted,in clinical development,PI3K (class 1),PI3K signaling
+1059,AZD8055,pp242,targeted,in clinical development,MTORC1/2,TOR signaling
+1060,PD-0325901,,targeted,in clinical development,"MAP2K1 (MEK1), MAP2K2 (MEK2)",ERK MAPK signaling
+1061,SB590885,,targeted,experimental,BRAF,ERK MAPK signaling
+1062,AZD6244,selumetinib,targeted,in clinical development,"MAP2K1 (MEK1), MAP2K2 (MEK2)",ERK MAPK signaling
+1066,AZD6482,WO2009093972,targeted,in clinical development,PI3Kbeta,PI3K signaling
+1067,CCT007093,,targeted,experimental,PPM1D,other
+1069,EHT 1864,,targeted,experimental,Rac GTPases,cytoskeleton
+1072,BMS-708163,Avagacestat,targeted,in clinical development,g-secretase,other
+1091,BMS-536924,,targeted,experimental,IGF1R,IGFR signaling
+1114,Cetuximab,Erbitux,targeted,clinically approved,EGFR,EGFR signaling
+1129,PF-4708671,,targeted,experimental,RPS6KB1 (p70S6KA),TOR signaling
+1133,JNJ-26854165,Serdemetan,targeted,in clinical development,MDM2,p53 pathway
+1142,HG-5-113-01,,targeted,in clinical development,"LOK, LTK, TRCB, ABL(T315I)",ABL signaling
+1143,HG-5-88-01,,targeted,experimental,"EGFR, ADCK4",EGFR signaling
+1149,TW 37,,targeted,experimental,"BCL2, BCL2L1",apoptosis regulation
+1158,XMD11-85h,,targeted,experimental,"BRSK2, FLT4, MARK4, PRKCD, RET, SPRK1",other
+1161,ZG-10,,targeted,experimental,IRAK1,other
+1164,XMD8-92,,targeted,experimental,MAP2K5 (ERK5),other
+1166,QL-VIII-58,,targeted,experimental,"MTOR, ATR",TOR signaling
+1170,CCT018159,,targeted,experimental,HSP90,other
+1175,AG-014699,PF-01367338,targeted,experimental,"PARP1, PARP2",Genome integrity
+1192,GSK269962A,KIN001-155,targeted,experimental,"ROCK1, ROCK2",cytoskeleton
+1194,SB-505124,,targeted,experimental,TGFR1 (ALK5),other
+1199,Tamoxifen,,targeted,clinically approved,ER,other
+1203,QL-XII-61,,targeted,experimental,BTK,other
+1218,JQ1,,targeted,experimental,"BRD2, BRD3, BRD4",chromatin  other
+1219,PFI-1,,targeted,experimental,"BRD2, BRD3, BRD4",chromatin  other
+1230,IOX2,,targeted,experimental,EGLN1,other
+1236,UNC0638,,targeted,experimental,"G9a(EHMT2), GLP(EHMT1)",chromatin  histone methylation
+1239,YK 4-279,,targeted,experimental,RNA helicase A,other
+1241,CHIR-99021,CT 99021,targeted,experimental,GSK3B,WNT signaling
+1242,(5Z)-7-Oxozeaenol,,targeted,experimental,MAP3K7 (TAK1),other
+1243,piperlongumine,,not defined,experimental,Increases ROS levels,other
+1248,FK866,APO866,targeted,experimental,NAMPT,metabolism
+1259,BMN-673,Talazoparib,targeted,experimental,PARP1,Genome integrity
+1261,rTRAIL,,targeted,experimental,"TR10A (DR4),  TR10B (DR5)",apoptosis regulation
+1262,UNC1215,,targeted,experimental,LMBL3,other
+1264,SGC0946,,targeted,experimental,Q8TEK3 (DOT1L),chromatin  histone methylation
+1268,XAV 939,NVP-XAV939,targeted,experimental,TNKS1 (tankyrase-1),WNT signaling
+1371,PLX4720 (rescreen),"Vemurafenib analog, Zelboraf (derivative)",targeted,experimental,BRAF,ERK MAPK signaling
+1372,Trametinib,"Mekinist, GSK1120212",targeted,clinically approved,"MAP2K1 (MEK1), MAP2K2 (MEK2)",ERK MAPK signaling
+1373,Dabrafenib,"Tafinlar, GSK2118436",targeted,clinically approved,BRAF,ERK MAPK signaling
+1375,Temozolomide,Temodar,cytotoxic,clinically approved,DNA akylating agent,DNA replication
+1377,Afatinib (rescreen),"Gilotrif, BIBW2992, Tovok",targeted,clinically approved,"ERBB2, EGFR",EGFR signaling
+1378,Bleomycin (50 uM),,cytotoxic,clinically approved,DNA damage,DNA replication
+1494,SN-38,7-ethyl-10-hydroxy-camptothecin,cytotoxic,experimental,TOP1,DNA replication
+1495,Olaparib,"Lynparza, KU0059436, AZD-2281",targeted,clinically approved,"PARP1, PARP2",Genome integrity
+1498,AZD6244,selumetinib,targeted,in clinical development,"MAP2K1 (MEK1), MAP2K2 (MEK2)",ERK MAPK signaling
+1502,Bicalutamide,"Casodex, ICI-176334",targeted,clinically approved,ANDR (androgen receptor),other
+1526,RDEA119 (rescreen),,targeted,experimental,"MAP2K1 (MEK1), MAP2K2 (MEK2)",ERK MAPK signaling
+1527,GDC0941 (rescreen),,targeted,in clinical development,PI3K,PI3K signaling
+1529,MLN4924,Pevonedistat,targeted,in clinical development,NEDD8-activating enzyme,other
