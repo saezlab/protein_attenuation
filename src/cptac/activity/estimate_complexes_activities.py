@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
+import pickle
 import pydot
 import igraph
 import numpy as np
@@ -85,6 +86,9 @@ components = [network_i.vs[c]['name'] for c in network_i.components()]
 # Simplify corum
 corum_s = {':'.join(c): {p for i in c for p in corum[int(i)]} for c in components}
 print 'corum_s', len(corum_s)
+
+with open('./tables/corum_dict_non_redundant.pickle', 'wb') as handle:
+    pickle.dump(corum_s, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 # -- Estimate complex activity
