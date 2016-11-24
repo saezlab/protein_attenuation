@@ -8,7 +8,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from cptac.slapenrich import slapenrich
 from scipy.stats import chi2
-from scipy.stats.stats import pearsonr, spearmanr
+from scipy.stats.stats import pearsonr, spearmanr, ttest_ind
 from sklearn.linear_model import LinearRegression
 from statsmodels.stats.multitest import multipletests
 from sklearn.metrics.ranking import roc_auc_score
@@ -16,11 +16,6 @@ from cptac.utils import log_likelihood, f_statistic, r_squared, randomise_matrix
 from pymist.utils.corumdb import get_complexes_dict, get_complexes_name
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 from pandas import read_csv, pivot_table, concat, Series, DataFrame
-
-
-# -- Protein attenuation
-p_cor = read_csv('./tables/proteins_correlations.csv', index_col=0)
-p_att = p_cor['CNV_Transcriptomics'] - p_cor['CNV_Proteomics']
 
 
 # -- CORUM
@@ -32,21 +27,6 @@ corum_n = get_complexes_name()
 
 corum_proteins = {p for k in corum_dict for p in corum_dict[k]}
 print 'corum', len(corum_proteins)
-
-
-# -- Regulatory interactions
-ppairs_trans = read_csv('./tables/ppairs_transcriptomics_regulation_all.csv')
-ppairs_trans = {(px, py) for px, py in ppairs_trans[ppairs_trans['fdr'] < .05][['px', 'py']].values}
-print len(ppairs_trans)
-
-ppairs_cnv = read_csv('./tables/ppairs_cnv_regulation_all.csv')
-ppairs_cnv = ppairs_cnv[ppairs_cnv['fdr'] < .05]
-ppairs_cnv = ppairs_cnv[[(px, py) in ppairs_trans for px, py in ppairs_cnv[['px', 'py']].values]]
-print ppairs_cnv.sort('fdr')
-
-px, py = set(ppairs_cnv['px']), set(ppairs_cnv['py'])
-print len(px), len(py)
-
 
 # -- Import data
 # Samplesheets
@@ -69,31 +49,57 @@ cnv = cnv.dropna()
 cnv = pivot_table(cnv, index='gene', columns='SAMPLE_NAME', values='value', fill_value=0)
 print cnv
 
+# # Gene expression
+# trans = read_csv('./data/sanger_gene_experssion_rma.tsv', sep='\t')
+# trans['value'] = [1 if i == 'over' else (-1 if i == 'under' else 0) for i in trans['REGULATION']]
+# trans = trans[[i in corum_proteins for i in trans['GENE_NAME']]]
+#
+# # trans = trans.groupby(['SAMPLE_NAME', 'GENE_NAME'])['value'].agg(lambda x: np.nan if len(set(x)) > 1 else list(x)[0])
+# # trans = trans.reset_index()
+# # trans = trans.dropna()
+# # trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='value', fill_value=0)
+# # print trans
+#
+# trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_SCORE', fill_value=np.nan, aggfunc=np.mean)
+# print trans
+#
+#
+# # --
+# genes, samples = set(cnv.index).intersection(trans.index), set(cnv).intersection(trans)
+# c_p_attenuated = cnv.ix[genes, samples].T.corrwith(trans.ix[genes, samples].T).dropna()
+# print c_p_attenuated.sort_values()
+
 
 # --
-mutation_m = cnv.copy()
+mutation_m = cnv.replace(-1, 0).copy()
+mutation_m = mutation_m.loc[:, mutation_m.sum() > 0]
+
 background = set(mutation_m.index)
 
-pathways = {
-    'attenuated': set(p_att[p_att > p_att.quantile(.85)].index).intersection(corum_proteins).intersection(background)
-}
+res, pp = slapenrich(mutation_m, corum_dict, background)
+res['name'] = [corum_n[int(i.split(':')[0])] for i in res.index]
+print res[res['fdr'] < .05].sort('fdr')
 
-res, pp = slapenrich(mutation_m, pathways, background)
-print res
+print Series(dict(zip(*(np.unique([p for i in res[res['fdr'] < .05].index for p in corum_dict[i]], return_counts=True))))).sort_values()
 
-burden = pp['attenuated'].replace(0, np.nan).dropna()
+# --
+t_enrich = read_csv('./tables/slapenrich_tumours.csv', index_col=0)
+t_enrich = t_enrich[t_enrich['fdr'] < .01]
+
+burden = (pp[t_enrich.index] < .05).sum(1).astype(float) / len(t_enrich.index)
 print burden.sort_values()
-
 
 # --
 # drugs = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
-drugs = ['Bortezomib']
+drugs = ['Bortezomib', 'MG-132']
+# drugs = list(drug.index)
 
 plot_df = DataFrame([{'drug': d, 'cell': c, 'auc': drug.ix[d, c], 'cnv': burden[c]} for d in drugs for c in burden.index if c in drug.columns]).dropna()
-plot_df['burden'] = ['High' if i < .05 else 'Low' for i in plot_df['cnv']]
-plot_df['counts'] = [cnv.ix[corum_proteins, i].sum() for i in plot_df['cell']]
+plot_df['burden'] = ['High' if i > .9 else ('Low' if i < .1 else 'ND') for i in plot_df['cnv']]
 print plot_df.sort('auc')
 
+t, pval = ttest_ind(plot_df[plot_df['burden'] == 'Low']['auc'], plot_df[plot_df['burden'] == 'High']['auc'])
+print 'T-test: %.2f, %.2e' % (t, pval)
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
 g = sns.FacetGrid(plot_df, size=3, aspect=1, legend_out=False)
@@ -117,3 +123,4 @@ plt.savefig('./reports/drug_response_proteasome.pdf', bbox_inches='tight')
 plt.savefig('./reports/drug_response_proteasome.png', bbox_inches='tight', dpi=300)
 plt.close('all')
 print '[INFO] Done'
+

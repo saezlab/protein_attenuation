@@ -1,17 +1,36 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
+import os
+import pickle
 import pydot
 import igraph
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from igraph import plot
+from pymist.enrichment.gsea import gsea
+from statsmodels.stats.multitest import multipletests
+from cptac.slapenrich import slapenrich
+from cptac.utils import read_gmt
 from cptac import palette, palette_cnv_number, default_color
 from matplotlib.gridspec import GridSpec
 from scipy.stats.stats import pearsonr
 from matplotlib_venn import venn2, venn2_circles
 from pandas import DataFrame, Series, read_csv, concat
+from pymist.utils.corumdb import get_complexes_dict, get_complexes_name
+from pymist.utils.map_peptide_sequence import read_uniprot_genename
+
+
+# -- CORUM
+uniprot = read_uniprot_genename()
+with open('./tables/corum_dict_non_redundant.pickle', 'rb') as handle:
+    corum_dict = pickle.load(handle)
+
+corum_n = get_complexes_name()
+
+corum_proteins = {p for k in corum_dict for p in corum_dict[k]}
+print 'corum', len(corum_proteins)
+
 
 # -- Import data-sets
 # CNV
@@ -268,3 +287,89 @@ plt.savefig('./reports/regressions_associations_scatter.png', bbox_inches='tight
 plt.savefig('./reports/regressions_associations_scatter.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'
+
+
+# -- Px and Py attenuation scores histograms
+types = DataFrame([{'Px': px, 'Py': py} for px, py in associations['Copy-number variation'].intersection(associations['Transcriptomics'])])
+
+plot_df = read_csv('./tables/proteins_correlations.csv', index_col=0)
+plot_df = DataFrame(plot_df['CNV_Transcriptomics'] - plot_df['CNV_Proteomics'])
+plot_df['type'] = ['Px' if i in set(types['Px']) else ('Py' if i in set(types['Py']) else 'Other') for i in plot_df.index]
+plot_df.columns = ['diff', 'type']
+
+pal = {'Px': '#2980B9', 'Py': '#E74C3C', 'Other': '#99A3A4'}
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+for t in ['Px', 'Py', 'Other']:
+    sns.distplot(plot_df.ix[plot_df['type'] == t, 'diff'], hist=False, kde_kws={'shade': True}, label=t, color=pal[t])
+
+plt.axvline(0, ls='-', lw=0.3, c='black', alpha=.5)
+sns.despine(trim=True)
+plt.xlabel('Copy-number correlation attenuation')
+plt.ylabel('Density')
+plt.gcf().set_size_inches(3, 2)
+plt.savefig('./reports/protein_attenuation_histogram.pdf', bbox_inches='tight')
+plt.savefig('./reports/protein_attenuation_histogram.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Done'
+
+
+# --
+cors = []
+# s = 'TCGA-24-1430'
+for s in samples:
+    df = DataFrame({
+        'cnv': cnv[s], 'trans': transcriptomics[s], 'prot': proteomics[s]
+    }).dropna().corr()
+
+    cors.append({'sample': s, 'cnv_tran': df.ix['cnv', 'trans'], 'cnv_prot': df.ix['cnv', 'prot']})
+cors = DataFrame(cors).dropna().set_index('sample')
+cors['diff'] = cors['cnv_tran'] - cors['cnv_prot']
+print cors.sort('diff')
+
+# Plot
+ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
+g = sns.jointplot(
+    'cnv_tran', 'cnv_prot', cors, 'scatter', color='#808080', xlim=[ax_min, ax_max], ylim=[ax_min, ax_max],
+    space=0, s=15, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.3
+)
+g.plot_marginals(sns.kdeplot, shade=True, color='#99A3A4', lw=.3)
+
+g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
+g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
+g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
+
+g.x = cors['cnv_tran']
+g.y = cors['cnv_prot']
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette('#99A3A4', as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+
+plt.gcf().set_size_inches(3, 3)
+
+g.set_axis_labels('Copy-number ~ Transcriptomics\n(Pearson)', 'Copy-number ~ Proteomics\n(Pearson)')
+plt.savefig('./reports/samples_correlation_difference_lmplot_corr.png', bbox_inches='tight', dpi=600)
+plt.close('all')
+print '[INFO] Plot done'
+
+#
+m_matrix = (cnv.loc[:, set(cors[cors['diff'] > cors['diff'].quantile(.85)].index)] > 1).astype(int)
+m_matrix = m_matrix.loc[:, m_matrix.sum() > 0]
+print m_matrix.shape
+
+res, pp = slapenrich(m_matrix, corum_dict, set(cnv.index))
+res['name'] = [corum_n[int(i.split(':')[0])] for i in res.index]
+res.sort('fdr').to_csv('./tables/slapenrich_tumours.csv')
+print res[res['fdr'] < .05].sort('fdr')
+
+print Series(dict(zip(*(np.unique([p for i in res[res['fdr'] < .05].index for p in corum_dict[i]], return_counts=True))))).sort_values()
+
+#
+p_attenuation_cor = []
+for p in transcriptomics.index:
+    df = concat([cors['diff'], transcriptomics.ix[p]], axis=1).dropna()
+    p_attenuation_cor.append({'gene': p, 'cor': df.corr().ix[0, 1]})
+
+p_attenuation_cor = DataFrame(p_attenuation_cor).set_index('gene')
+p_attenuation_cor.to_csv('./tables/samples_attenuated_gene_signature.csv')
+print p_attenuation_cor.sort('cor')

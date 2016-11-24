@@ -94,7 +94,7 @@ print res
 
 
 # -- Plot scatter of correlations
-ax_min, ax_max = np.min([res['CNV_Transcriptomics'].min() * 1.10, res['CNV_Proteomics'].min() * 1.10]), np.min([res['CNV_Transcriptomics'].max() * 1.10, res['CNV_Proteomics'].max() * 1.10])
+ax_min, ax_max = np.min([res['CNV_Transcriptomics'].min() * 1.10, res['CNV_Proteomics'].min() * 1.10]), np.max([res['CNV_Transcriptomics'].max() * 1.10, res['CNV_Proteomics'].max() * 1.10])
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
 g = sns.jointplot(
