@@ -49,53 +49,35 @@ cnv = cnv.dropna()
 cnv = pivot_table(cnv, index='gene', columns='SAMPLE_NAME', values='value', fill_value=0)
 print cnv
 
-# # Gene expression
-# trans = read_csv('./data/sanger_gene_experssion_rma.tsv', sep='\t')
-# trans['value'] = [1 if i == 'over' else (-1 if i == 'under' else 0) for i in trans['REGULATION']]
-# trans = trans[[i in corum_proteins for i in trans['GENE_NAME']]]
-#
+# Gene expression
+trans = read_csv('./data/sanger_gene_experssion_rma.tsv', sep='\t')
+trans['value'] = [1 if i == 'over' else (-1 if i == 'under' else 0) for i in trans['REGULATION']]
+
 # # trans = trans.groupby(['SAMPLE_NAME', 'GENE_NAME'])['value'].agg(lambda x: np.nan if len(set(x)) > 1 else list(x)[0])
 # # trans = trans.reset_index()
 # # trans = trans.dropna()
 # # trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='value', fill_value=0)
 # # print trans
-#
-# trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_SCORE', fill_value=np.nan, aggfunc=np.mean)
-# print trans
-#
-#
-# # --
-# genes, samples = set(cnv.index).intersection(trans.index), set(cnv).intersection(trans)
-# c_p_attenuated = cnv.ix[genes, samples].T.corrwith(trans.ix[genes, samples].T).dropna()
-# print c_p_attenuated.sort_values()
 
+trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_SCORE', fill_value=np.nan, aggfunc=np.mean)
+print trans
 
 # --
-mutation_m = cnv.replace(-1, 0).copy()
-mutation_m = mutation_m.loc[:, mutation_m.sum() > 0]
+sig = read_csv('./tables/samples_attenuated_gene_signature.csv', index_col=0)
+sig = sig[sig['fdr'] < .05]['m_diff']
 
-background = set(mutation_m.index)
-
-res, pp = slapenrich(mutation_m, corum_dict, background)
-res['name'] = [corum_n[int(i.split(':')[0])] for i in res.index]
-print res[res['fdr'] < .05].sort('fdr')
-
-print Series(dict(zip(*(np.unique([p for i in res[res['fdr'] < .05].index for p in corum_dict[i]], return_counts=True))))).sort_values()
-
-# --
-t_enrich = read_csv('./tables/slapenrich_tumours.csv', index_col=0)
-t_enrich = t_enrich[t_enrich['fdr'] < .01]
-
-burden = (pp[t_enrich.index] < .05).sum(1).astype(float) / len(t_enrich.index)
+burden = trans.ix[sig.index].corrwith(sig).sort_values()
+burden.name = 'burden'
 print burden.sort_values()
+
 
 # --
 # drugs = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
-drugs = ['Bortezomib', 'MG-132']
+drugs = ['Bortezomib', 'MG-132', ]
 # drugs = list(drug.index)
 
 plot_df = DataFrame([{'drug': d, 'cell': c, 'auc': drug.ix[d, c], 'cnv': burden[c]} for d in drugs for c in burden.index if c in drug.columns]).dropna()
-plot_df['burden'] = ['High' if i > .9 else ('Low' if i < .1 else 'ND') for i in plot_df['cnv']]
+plot_df['burden'] = ['High' if i > .1 else ('Low' if i < -.1 else 'ND') for i in plot_df['cnv']]
 print plot_df.sort('auc')
 
 t, pval = ttest_ind(plot_df[plot_df['burden'] == 'Low']['auc'], plot_df[plot_df['burden'] == 'High']['auc'])
@@ -124,3 +106,69 @@ plt.savefig('./reports/drug_response_proteasome.png', bbox_inches='tight', dpi=3
 plt.close('all')
 print '[INFO] Done'
 
+# #--
+# tissue = samplesheet['TCGA'].str.get_dummies()
+#
+#
+# # d = 'CP466722'
+# def regressions(d):
+#     df = concat([drug.ix[d], tissue, burden], axis=1).dropna()
+#
+#     if df.shape[0] > 0:
+#         # -- 1st model
+#         # Fit model
+#         lm = LinearRegression().fit(df.drop([d, 'burden'], axis=1), df[d])
+#
+#         # Predict
+#         y_true, y_pred = df[d].copy(), Series(dict(zip(*(df.index, lm.predict(df.drop([d, 'burden'], axis=1))))))
+#
+#         # Log likelihood
+#         l_lm = log_likelihood(y_true, y_pred)
+#
+#         # F-statistic
+#         f, f_pval = f_statistic(y_true, y_pred, len(y_true), df.drop([d, 'burden'], axis=1).shape[1])
+#
+#         # R-squared
+#         r = r_squared(y_true, y_pred)
+#
+#         res_1 = {
+#             'drug': d, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm, 'beta': lm.coef_[0]
+#         }
+#         print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e, ll: %.2f' % (d, res_1['rsquared'], res_1['f'], res_1['f_pval'], res_1['ll'])
+#
+#         # -- 2nd model
+#         lm = LinearRegression().fit(df.drop([d], axis=1), df[d])
+#
+#         # Predict
+#         y_true, y_pred = df[d].copy(), Series(dict(zip(*(df.index, lm.predict(df.drop([d], axis=1))))))
+#
+#         # Log likelihood
+#         l_lm = log_likelihood(y_true, y_pred)
+#
+#         # F-statistic
+#         f, f_pval = f_statistic(y_true, y_pred, len(y_true), df.drop([d], axis=1).shape[1])
+#
+#         # R-squared
+#         r = r_squared(y_true, y_pred)
+#
+#         res_2 = {
+#             'drug': d, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm, 'beta': lm.coef_[0]
+#         }
+#         print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e, ll: %.2f' % (d, res_2['rsquared'], res_2['f'], res_2['f_pval'], res_2['ll'])
+#
+#         # -- Likelihood ratio test
+#         lr = 2 * (res_2['ll'] - res_1['ll'])
+#         p_val = chi2.pdf(np.float(lr), 1)
+#
+#         res = {'drug': d, 'lr': lr, 'pval': p_val, 'rsquared': r, 'f': f, 'f_pval': f_pval}
+#         print res
+#
+#         return res
+#
+# ppairs = [regressions(d) for d in drug.index]
+# ppairs = DataFrame([i for i in ppairs if i])
+# ppairs['fdr'] = multipletests(ppairs['pval'], method='fdr_bh')[1]
+# ppairs['targets'] = [';'.join(d_targets.ix[i]) if i in d_targets.index else 'NaN' for i in ppairs['drug']]
+# # ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
+# print ppairs[ppairs['fdr'] < .05].sort('fdr')
+#
