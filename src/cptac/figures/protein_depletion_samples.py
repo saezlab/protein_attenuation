@@ -138,7 +138,7 @@ plt.close('all')
 print '[INFO] Plot done'
 
 
-# --
+# -- Samples attenuation GMM
 gmm = GaussianMixture(n_components=2).fit(cors[['diff']])
 
 s_type = Series(dict(zip(*(cors[['diff']].index, gmm.predict(cors[['diff']])))))
@@ -146,24 +146,8 @@ cors['cluster'] = [s_type[i] for i in cors.index]
 
 clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
 
+# Scatter plot
 pal = {clusters.argmin(): '#2980B9', clusters.argmax(): '#E74C3C'}
-
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-for t in [clusters.argmax(), clusters.argmin()]:
-    sns.distplot(cors.ix[cors['cluster'] == t, 'diff'], hist=False, kde_kws={'shade': True, 'linewidth': .3}, label=t, color=pal[t])
-
-plt.axvline(0, ls='-', lw=0.3, c='black', alpha=.5)
-sns.despine(trim=True)
-plt.xlabel('Copy-number correlation attenuation')
-plt.ylabel('Density')
-plt.gcf().set_size_inches(3, 2)
-plt.savefig('./reports/samples_attenuation_gmm_histograms.pdf', bbox_inches='tight')
-plt.savefig('./reports/samples_attenuation_gmm_histograms.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Done'
-
-
-# -- Correlations scatter plot
 ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
@@ -191,7 +175,7 @@ g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
 cax = g.fig.add_axes([.98, .4, .01, .2])
 cax.axis('off')
 handles = [mlines.Line2D([], [], color=pal[s], linestyle='-', markersize=15, label='Not attenuated' if s else 'Attenuated') for s in pal]
-cax.legend(loc='center left', bbox_to_anchor=(1, 0.5), handles=handles)
+cax.legend(loc='center left', bbox_to_anchor=(1, 0.5), handles=handles, title='Samples')
 
 plt.gcf().set_size_inches(3, 3)
 
@@ -202,8 +186,8 @@ plt.close('all')
 print '[INFO] Plot done'
 
 
-# --
-m_matrix = (cnv.loc[:,cors[cors['cluster'] == clusters.argmax()].index] > 1).astype(int)
+# -- Slapenrich complexes amplifications
+m_matrix = (cnv.loc[:, cors[cors['cluster'] == clusters.argmax()].index] > 1).astype(int)
 m_matrix = m_matrix.loc[:, m_matrix.sum() > 0]
 print m_matrix.shape
 
@@ -216,14 +200,14 @@ print Series(dict(zip(*(np.unique([p for i in res[res['fdr'] < .05].index for p 
 
 
 # --
-# p = 'ABCA3'
-s_attenuated = cors[cors['cluster'] == clusters.argmax()].index
-s_not_attenuated = cors[cors['cluster'] == clusters.argmin()].index
+# p = 'HUWE1'
+attenuated = set(cors[cors['cluster'] == clusters.argmax()].index)
+not_attenuated = set(cors[(cors['cluster'] == clusters.argmin()) & ((cors['cnv_tran'] > .2) | (cors['cnv_prot'] > .2))].index)
 
 diff_exp = []
 for p in transcriptomics.index:
-    t, pval = ttest_ind(transcriptomics.ix[p, s_attenuated], transcriptomics.ix[p, s_not_attenuated])
-    m_diff = transcriptomics.ix[p, s_attenuated].mean() - transcriptomics.ix[p, s_not_attenuated].mean()
+    t, pval = ttest_ind(transcriptomics.ix[p, attenuated], transcriptomics.ix[p, not_attenuated], equal_var=False)
+    m_diff = transcriptomics.ix[p, attenuated].mean() - transcriptomics.ix[p, not_attenuated].mean()
 
     res = {'gene': p, 'm_diff': m_diff, 't': t, 'pval': pval}
     diff_exp.append(res)

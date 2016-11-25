@@ -63,8 +63,7 @@ trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_S
 print trans
 
 # --
-sig = read_csv('./tables/samples_attenuated_gene_signature.csv', index_col=0)
-sig = sig[sig['fdr'] < .05]['m_diff']
+sig = read_csv('./tables/samples_attenuated_gene_signature.csv', index_col=0)['cor']
 
 burden = trans.ix[sig.index].corrwith(sig).sort_values()
 burden.name = 'burden'
@@ -72,8 +71,8 @@ print burden.sort_values()
 
 
 # --
-# drugs = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
-drugs = ['Bortezomib', 'MG-132', ]
+drugs = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
+# drugs = ['Bortezomib', 'MG-132', ]
 # drugs = list(drug.index)
 
 plot_df = DataFrame([{'drug': d, 'cell': c, 'auc': drug.ix[d, c], 'cnv': burden[c]} for d in drugs for c in burden.index if c in drug.columns]).dropna()
