@@ -6,6 +6,7 @@ import numpy as np
 import statsmodels.api as sm
 import seaborn as sns
 import matplotlib.pyplot as plt
+from cptac import palette
 from cptac.slapenrich import slapenrich
 from scipy.stats import chi2
 from scipy.stats.stats import pearsonr, spearmanr, ttest_ind
@@ -51,16 +52,9 @@ print cnv
 
 # Gene expression
 trans = read_csv('./data/sanger_gene_experssion_rma.tsv', sep='\t')
-trans['value'] = [1 if i == 'over' else (-1 if i == 'under' else 0) for i in trans['REGULATION']]
-
-# # trans = trans.groupby(['SAMPLE_NAME', 'GENE_NAME'])['value'].agg(lambda x: np.nan if len(set(x)) > 1 else list(x)[0])
-# # trans = trans.reset_index()
-# # trans = trans.dropna()
-# # trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='value', fill_value=0)
-# # print trans
-
 trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_SCORE', fill_value=np.nan, aggfunc=np.mean)
 print trans
+
 
 # --
 sig = read_csv('./tables/samples_attenuated_gene_signature.csv', index_col=0)['cor']
@@ -71,103 +65,70 @@ print burden.sort_values()
 
 
 # --
-drugs = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
-# drugs = ['Bortezomib', 'MG-132', ]
-# drugs = list(drug.index)
+# d = 'CP466722'
+def regressions(d):
+    df = concat([drug.ix[d], burden], axis=1).dropna()
 
-plot_df = DataFrame([{'drug': d, 'cell': c, 'auc': drug.ix[d, c], 'cnv': burden[c]} for d in drugs for c in burden.index if c in drug.columns]).dropna()
-plot_df['burden'] = ['High' if i > .1 else ('Low' if i < -.1 else 'ND') for i in plot_df['cnv']]
-print plot_df.sort('auc')
+    # Correlation
+    cor, pval = pearsonr(df['burden'], df[d])
 
-t, pval = ttest_ind(plot_df[plot_df['burden'] == 'Low']['auc'], plot_df[plot_df['burden'] == 'High']['auc'])
-print 'T-test: %.2f, %.2e' % (t, pval)
+    # Fit model
+    lm = LinearRegression().fit(df[['burden']], df[d])
 
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(plot_df, size=3, aspect=1, legend_out=False)
-g = g.map_dataframe(sns.stripplot, x='burden', y='auc', orient='v', split=True, size=2, jitter=.2, alpha=.6, linewidth=.1, edgecolor='white')
-g = g.map_dataframe(sns.boxplot, x='burden', y='auc', orient='v', linewidth=.3, sym='', notch=True)
-g.despine(trim=True)
-g.set_axis_labels('Copy-number burden', 'Drug response (AUC)')
-plt.gcf().set_size_inches(3, 3)
-plt.savefig('./reports/drug_response_proteasome_boxplot.pdf', bbox_inches='tight')
-plt.savefig('./reports/drug_response_proteasome_boxplot.png', bbox_inches='tight', dpi=300)
+    # Predict
+    y_true, y_pred = df[d].copy(), Series(dict(zip(*(df.index, lm.predict(df[['burden']])))))
+
+    # Log likelihood
+    l_lm = log_likelihood(y_true, y_pred)
+
+    # F-statistic
+    f, f_pval = f_statistic(y_true, y_pred, len(y_true), df[['burden']].shape[1])
+
+    # R-squared
+    r = r_squared(y_true, y_pred)
+
+    res = {
+        'drug': d, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm, 'beta': lm.coef_[0], 'pearson': cor, 'pearson_pval': pval
+    }
+    print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e, ll: %.2f' % (d, res['rsquared'], res['f'], res['f_pval'], res['ll'])
+
+    return res
+
+ppairs = DataFrame([regressions(d) for d in drug.index])
+ppairs['fdr'] = multipletests(ppairs['f_pval'], method='fdr_bh')[1]
+ppairs['pearson_fdr'] = multipletests(ppairs['pearson_pval'], method='fdr_bh')[1]
+ppairs['targets'] = [';'.join(d_targets.ix[i]) if i in d_targets.index else 'NaN' for i in ppairs['drug']]
+ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
+print ppairs[ppairs['fdr'] < .05].sort('pearson', ascending=False)
+
+ds = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
+print ppairs[[i in ds for i in ppairs['drug']]]
+
+# Plot
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
+
+plot_df = ppairs.copy()
+
+plt.scatter(
+    x=plot_df['beta'], y=-np.log10(plot_df['fdr']), s=25, linewidths=.3, alpha=.7,
+    c=[palette['Overlap'] if f < .05 else sns.light_palette(palette['Overlap']).as_hex()[1] for f in plot_df['fdr']]
+)
+
+for fdr, beta, d in plot_df[['fdr', 'beta', 'drug']].values:
+    if fdr < .05 and d in ds:
+        plt.text(beta, -np.log10(fdr), '%s' % d, fontsize=6)
+
+plt.axhline(-np.log10(0.01), c='#99A3A4', ls='--', lw=.5, alpha=.7)
+plt.axhline(-np.log10(0.05), c='#99A3A4', ls='--', lw=.5, alpha=.7)
+plt.axvline(0, c='#99A3A4', ls='-', lw=.3, alpha=.7)
+
+plt.ylim(0)
+
+sns.despine()
+plt.ylabel('Adj. p-value (-log10)')
+plt.xlabel('Beta')
+plt.gcf().set_size_inches(4.5, 7)
+plt.savefig('./reports/drug_response_associations_volcano.png', bbox_inches='tight', dpi=600)
+# plt.savefig('./reports/drug_response_associations_volcano.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
-
-
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.jointplot(x='auc', y='cnv', data=plot_df, space=0)
-g.set_axis_labels('Drug response (AUC)', 'Copy-number burden')
-sns.despine(trim=True)
-plt.gcf().set_size_inches(3, 3)
-plt.savefig('./reports/drug_response_proteasome.pdf', bbox_inches='tight')
-plt.savefig('./reports/drug_response_proteasome.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Done'
-
-# #--
-# tissue = samplesheet['TCGA'].str.get_dummies()
-#
-#
-# # d = 'CP466722'
-# def regressions(d):
-#     df = concat([drug.ix[d], tissue, burden], axis=1).dropna()
-#
-#     if df.shape[0] > 0:
-#         # -- 1st model
-#         # Fit model
-#         lm = LinearRegression().fit(df.drop([d, 'burden'], axis=1), df[d])
-#
-#         # Predict
-#         y_true, y_pred = df[d].copy(), Series(dict(zip(*(df.index, lm.predict(df.drop([d, 'burden'], axis=1))))))
-#
-#         # Log likelihood
-#         l_lm = log_likelihood(y_true, y_pred)
-#
-#         # F-statistic
-#         f, f_pval = f_statistic(y_true, y_pred, len(y_true), df.drop([d, 'burden'], axis=1).shape[1])
-#
-#         # R-squared
-#         r = r_squared(y_true, y_pred)
-#
-#         res_1 = {
-#             'drug': d, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm, 'beta': lm.coef_[0]
-#         }
-#         print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e, ll: %.2f' % (d, res_1['rsquared'], res_1['f'], res_1['f_pval'], res_1['ll'])
-#
-#         # -- 2nd model
-#         lm = LinearRegression().fit(df.drop([d], axis=1), df[d])
-#
-#         # Predict
-#         y_true, y_pred = df[d].copy(), Series(dict(zip(*(df.index, lm.predict(df.drop([d], axis=1))))))
-#
-#         # Log likelihood
-#         l_lm = log_likelihood(y_true, y_pred)
-#
-#         # F-statistic
-#         f, f_pval = f_statistic(y_true, y_pred, len(y_true), df.drop([d], axis=1).shape[1])
-#
-#         # R-squared
-#         r = r_squared(y_true, y_pred)
-#
-#         res_2 = {
-#             'drug': d, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm, 'beta': lm.coef_[0]
-#         }
-#         print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e, ll: %.2f' % (d, res_2['rsquared'], res_2['f'], res_2['f_pval'], res_2['ll'])
-#
-#         # -- Likelihood ratio test
-#         lr = 2 * (res_2['ll'] - res_1['ll'])
-#         p_val = chi2.pdf(np.float(lr), 1)
-#
-#         res = {'drug': d, 'lr': lr, 'pval': p_val, 'rsquared': r, 'f': f, 'f_pval': f_pval}
-#         print res
-#
-#         return res
-#
-# ppairs = [regressions(d) for d in drug.index]
-# ppairs = DataFrame([i for i in ppairs if i])
-# ppairs['fdr'] = multipletests(ppairs['pval'], method='fdr_bh')[1]
-# ppairs['targets'] = [';'.join(d_targets.ix[i]) if i in d_targets.index else 'NaN' for i in ppairs['drug']]
-# # ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
-# print ppairs[ppairs['fdr'] < .05].sort('fdr')
-#

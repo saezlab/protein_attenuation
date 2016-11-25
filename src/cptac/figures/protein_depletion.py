@@ -6,9 +6,11 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
 from statsmodels.stats.multitest import multipletests
 from cptac import palette, palette_dbs
 from cptac.utils import read_gmt, gkn
+from sklearn.mixture import GaussianMixture
 from sklearn.linear_model import LinearRegression
 from scipy.stats.stats import ttest_ind
 from pandas import read_csv, DataFrame, Series, concat
@@ -75,42 +77,60 @@ print 'ptms', len(ptms)
 
 
 # -- Correlations
-res = {}
+cors = {}
 for g in genes:
     df = DataFrame({'CNV': cnv.ix[g, samples], 'Transcriptomics': transcriptomics.ix[g, samples], 'Proteomics': proteomics.ix[g, samples]}).dropna().corr()
 
-    res[g] = {
-        'CNV_Transcriptomics': df.ix['CNV', 'Transcriptomics'],
-        'CNV_Proteomics': df.ix['CNV', 'Proteomics'],
-        'Transcriptomics_Proteomics': df.ix['Transcriptomics', 'Proteomics']
+    cors[g] = {
+        'cnv_tran': df.ix['CNV', 'Transcriptomics'],
+        'cnv_prot': df.ix['CNV', 'Proteomics']
     }
 
-    print g
-
-res = DataFrame(res).T
-res.to_csv('./tables/proteins_correlations.csv')
-# res = read_csv('./tables/proteins_correlations.csv', index_col=0)
-print res
+cors = DataFrame(cors).T
+cors['diff'] = cors['cnv_tran'] - cors['cnv_prot']
+print cors
 
 
-# -- Plot scatter of correlations
-ax_min, ax_max = np.min([res['CNV_Transcriptomics'].min() * 1.10, res['CNV_Proteomics'].min() * 1.10]), np.max([res['CNV_Transcriptomics'].max() * 1.10, res['CNV_Proteomics'].max() * 1.10])
+# -- Attenuation GMM
+gmm = GaussianMixture(n_components=2).fit(cors[['diff']])
+
+s_type = Series(dict(zip(*(cors[['diff']].index, gmm.predict(cors[['diff']])))))
+clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
+
+cors['cluster'] = [s_type[i] for i in cors.index]
+cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/proteins_correlations.csv')
+# cors = read_csv('./tables/proteins_correlations.csv', index_col=0)
+print cors.sort(['cluster', 'diff'], ascending=False)
+
+
+# Plot scatter of correlations
+pal = {clusters.argmin(): '#2980B9', clusters.argmax(): '#E74C3C'}
+ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
 g = sns.jointplot(
-    'CNV_Transcriptomics', 'CNV_Proteomics', res, 'scatter', color='#808080', xlim=[ax_min, ax_max], ylim=[ax_min, ax_max],
-    space=0, s=15, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.3
+    'cnv_tran', 'cnv_prot', cors, 'scatter', color='#808080', xlim=[ax_min, ax_max], ylim=[ax_min, ax_max],
+    space=0, s=5, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.1
 )
-g.plot_marginals(sns.kdeplot, shade=True, color='#99A3A4', lw=.3)
+
+g.x = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_tran']
+g.y = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_prot']
+g.plot_joint(sns.regplot, color=pal[clusters.argmax()], fit_reg=False, scatter_kws={'s': 5, 'alpha': .5})
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmax()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+g.plot_marginals(sns.kdeplot, color=pal[clusters.argmax()], shade=True, legend=False)
+
+g.x = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_tran']
+g.y = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_prot']
+g.plot_joint(sns.regplot, color=pal[clusters.argmin()], fit_reg=False, scatter_kws={'s': 5, 'alpha': .5})
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmin()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+g.plot_marginals(sns.kdeplot, color=pal[clusters.argmin()], shade=True, legend=False)
 
 g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
 
-g.x = res['CNV_Transcriptomics']
-g.y = res['CNV_Proteomics']
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette('#99A3A4', as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
-
+handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label='Not attenuated' if s else 'Attenuated') for s in pal]
+plt.legend(loc='top left', handles=handles, title='Samples')
 plt.gcf().set_size_inches(3, 3)
 
 g.set_axis_labels('Copy-number ~ Transcriptomics\n(Pearson)', 'Copy-number ~ Proteomics\n(Pearson)')
@@ -120,7 +140,7 @@ print '[INFO] Plot done'
 
 
 # -- Enrichment
-dataset = gkn(res['CNV_Transcriptomics'] - res['CNV_Proteomics']).to_dict()
+dataset = gkn(cors['cnv_tran'] - cors['cnv_prot']).to_dict()
 signatures = {'PTM': ptms, 'BP': msigdb_go_bp, 'CC': msigdb_go_cc}
 
 df_enrichment = [(t, sig, len(db[sig].intersection(dataset)), gsea(dataset, db[sig], 1000)) for t, db in signatures.items() for sig in db]

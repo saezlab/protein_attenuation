@@ -8,6 +8,7 @@ import igraph
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 from pymist.enrichment.gsea import gsea
 from sklearn.mixture.gaussian_mixture import GaussianMixture
@@ -55,7 +56,6 @@ print 'samples', len(samples)
 
 # -- Sample attenutaion score
 cors = []
-# s = 'TCGA-24-1430'
 for s in samples:
     df = DataFrame({
         'cnv': cnv[s], 'trans': transcriptomics[s], 'prot': proteomics[s]
@@ -64,9 +64,19 @@ for s in samples:
     cors.append({'sample': s, 'cnv_tran': df.ix['cnv', 'trans'], 'cnv_prot': df.ix['cnv', 'prot']})
 cors = DataFrame(cors).dropna().set_index('sample')
 cors['diff'] = cors['cnv_tran'] - cors['cnv_prot']
-cors.to_csv('./tables/samples_correlations.csv')
-# cors = read_csv('./tables/samples_correlations.csv', index_col=0)
 print cors.sort('diff')
+
+
+# -- GMM attenuation
+gmm = GaussianMixture(n_components=2).fit(cors[['diff']])
+
+s_type = Series(dict(zip(*(cors[['diff']].index, gmm.predict(cors[['diff']])))))
+clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
+
+cors['cluster'] = [s_type[i] for i in cors.index]
+cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/samples_correlations.csv')
+# cors = read_csv('./tables/samples_correlations.csv', index_col=0)
+print cors.sort(['cluster', 'diff'], ascending=False)
 
 
 # -- Correlations scatter plot
@@ -138,15 +148,7 @@ plt.close('all')
 print '[INFO] Plot done'
 
 
-# -- Samples attenuation GMM
-gmm = GaussianMixture(n_components=2).fit(cors[['diff']])
-
-s_type = Series(dict(zip(*(cors[['diff']].index, gmm.predict(cors[['diff']])))))
-cors['cluster'] = [s_type[i] for i in cors.index]
-
-clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
-
-# Scatter plot
+# -- Samples attenuation GMM Scatter plot
 pal = {clusters.argmin(): '#2980B9', clusters.argmax(): '#E74C3C'}
 ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
 
@@ -172,10 +174,8 @@ g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
 
-cax = g.fig.add_axes([.98, .4, .01, .2])
-cax.axis('off')
-handles = [mlines.Line2D([], [], color=pal[s], linestyle='-', markersize=15, label='Not attenuated' if s else 'Attenuated') for s in pal]
-cax.legend(loc='center left', bbox_to_anchor=(1, 0.5), handles=handles, title='Samples')
+handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label='Not attenuated' if s else 'Attenuated') for s in pal]
+plt.legend(loc='top left', handles=handles, title='Samples')
 
 plt.gcf().set_size_inches(3, 3)
 
@@ -199,25 +199,7 @@ print res[res['fdr'] < .05].sort('fdr')
 print Series(dict(zip(*(np.unique([p for i in res[res['fdr'] < .05].index for p in corum_dict[i]], return_counts=True))))).sort_values()
 
 
-# --
-# p = 'HUWE1'
-attenuated = set(cors[cors['cluster'] == clusters.argmax()].index)
-not_attenuated = set(cors[(cors['cluster'] == clusters.argmin()) & ((cors['cnv_tran'] > .2) | (cors['cnv_prot'] > .2))].index)
-
-diff_exp = []
-for p in transcriptomics.index:
-    t, pval = ttest_ind(transcriptomics.ix[p, attenuated], transcriptomics.ix[p, not_attenuated], equal_var=False)
-    m_diff = transcriptomics.ix[p, attenuated].mean() - transcriptomics.ix[p, not_attenuated].mean()
-
-    res = {'gene': p, 'm_diff': m_diff, 't': t, 'pval': pval}
-    diff_exp.append(res)
-diff_exp = DataFrame(diff_exp).set_index('gene')
-diff_exp['fdr'] = multipletests(diff_exp['pval'], method='fdr_bh')[1]
-diff_exp.to_csv('./tables/samples_attenuated_gene_signature.csv')
-print diff_exp[diff_exp['fdr'] < .05].sort('m_diff')
-
-
-# --
+# -- Samples attenuation gene signature
 p_attenuation_cor = []
 for p in transcriptomics.index:
     df = concat([cors['diff'], transcriptomics.ix[p]], axis=1).dropna()
