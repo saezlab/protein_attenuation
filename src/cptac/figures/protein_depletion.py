@@ -99,6 +99,7 @@ clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
 
 cors['cluster'] = [s_type[i] for i in cors.index]
 cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/proteins_correlations.csv')
+cors.to_csv('./tables/proteins_correlations.csv')
 # cors = read_csv('./tables/proteins_correlations.csv', index_col=0)
 print cors.sort(['cluster', 'diff'], ascending=False)
 

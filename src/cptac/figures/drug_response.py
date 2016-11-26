@@ -74,8 +74,6 @@ print burden.sort_values()
 # --
 # d = 'CP466722'
 def regressions(d):
-    for tissue in
-
     df = concat([drug.ix[d], burden], axis=1).dropna()
 
     # Correlation
@@ -112,15 +110,11 @@ ppairs['attenuation'] = [('Attenuated (> %.1f)' % (np.floor((cors.ix[i, 'diff'].
 ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
 print ppairs.sort('fdr')
 
-ds = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159', 'Nutlin-3a', 'JNJ-26854165']
-print ppairs[[i in ds for i in ppairs['drug']]]
-
-
 # -- Plot
+# Volcano
 hue_order = ['Not attenuated', 'Attenuated (> 0.2)', 'Attenuated (> 0.3)', 'Attenuated (> 0.4)', 'Attenuated (> 0.5)']
 pal = dict(zip(*(hue_order, ['#99A3A4'] + sns.light_palette('#E74C3C', 5).as_hex()[1:])))
 
-# Volcano
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 plt.scatter(
     x=ppairs['beta'], y=-np.log10(ppairs['fdr']), s=25, alpha=.7,
@@ -130,7 +124,7 @@ plt.scatter(
 )
 
 for fdr, beta, d in ppairs[['fdr', 'beta', 'drug']].values:
-    if fdr < .05 and d in ds:
+    if fdr < .05 and d in ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159', 'Nutlin-3a', 'JNJ-26854165']:
         plt.text(beta, -np.log10(fdr), '%s' % d, fontsize=6)
 
 plt.axhline(-np.log10(0.01), c='#99A3A4', ls='--', lw=.5, alpha=.7)
@@ -149,21 +143,28 @@ plt.close('all')
 print '[INFO] Done'
 
 # Boxplot
+ds = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
+
+plot_df = ppairs.copy()
+plot_df['attenuation'] = ['Proteasome/Chaperone' if i in ds else a for i, a in plot_df[['drug', 'attenuation']].values]
+
 t, pval = ttest_ind(
-    ppairs.loc[ppairs['attenuation'] == 'Not attenuated', 'beta'],
-    ppairs.loc[ppairs['attenuation'] != 'Not attenuated', 'beta'],
+    ppairs.loc[plot_df['attenuation'] == 'Not attenuated', 'beta'],
+    ppairs.loc[plot_df['attenuation'] != 'Not attenuated', 'beta'],
     equal_var=False)
 print 't: %.2f, p-val: %.2e' % (t, pval)
 
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(ppairs, size=3.5, aspect=1, legend_out=False)
-g = g.map_dataframe(sns.stripplot, x='attenuation', y='beta', orient='v', split=True, size=2, jitter=.2, alpha=.6, linewidth=.1, edgecolor='white', order=hue_order, palette=pal)
-g = g.map_dataframe(sns.boxplot, x='attenuation', y='beta', orient='v', linewidth=.3, sym='', order=hue_order, palette=pal)
-g = g.map(plt.axhline, y=0, ls='-', lw=0.1, c='black', alpha=.5)
+hue_order = ['Not attenuated', 'Attenuated (> 0.2)', 'Attenuated (> 0.3)', 'Attenuated (> 0.4)', 'Attenuated (> 0.5)', 'Proteasome/Chaperone']
+pal = dict(zip(*(hue_order, ['#99A3A4'] + sns.light_palette('#E74C3C', 6).as_hex()[1:])))
 
-g.set_axis_labels('', 'beta')
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.FacetGrid(plot_df, size=1.5, aspect=2.5, legend_out=False)
+g = g.map_dataframe(sns.stripplot, y='attenuation', x='beta', orient='h', split=True, size=2, jitter=.2, alpha=.6, linewidth=.1, edgecolor='white', order=hue_order, palette=pal)
+g = g.map_dataframe(sns.boxplot, y='attenuation', x='beta', orient='h', linewidth=.3, sym='', order=hue_order, palette=pal)
+g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
+
+g.set_axis_labels('Drug response association (beta)', '')
 g.despine(trim=True)
-plt.suptitle('Proteasome inhibition')
 plt.savefig('./reports/drug_response_associations_attenuation_boxplot.pdf', bbox_inches='tight')
 plt.savefig('./reports/drug_response_associations_attenuation_boxplot.png', bbox_inches='tight', dpi=300)
 plt.close('all')
