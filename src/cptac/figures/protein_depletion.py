@@ -99,13 +99,12 @@ clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
 
 cors['cluster'] = [s_type[i] for i in cors.index]
 cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/proteins_correlations.csv')
-cors.to_csv('./tables/proteins_correlations.csv')
 # cors = read_csv('./tables/proteins_correlations.csv', index_col=0)
 print cors.sort(['cluster', 'diff'], ascending=False)
 
 
 # Plot scatter of correlations
-pal = {clusters.argmin(): '#2980B9', clusters.argmax(): '#E74C3C'}
+pal = {clusters.argmin(): palette['Clinical'], clusters.argmax(): palette['Transcriptomics']}
 ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
@@ -130,8 +129,8 @@ g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
 
-handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label='Not attenuated' if s else 'Attenuated') for s in pal]
-plt.legend(loc='top left', handles=handles, title='Samples')
+handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label='Attenuated' if s else 'Not attenuated') for s in [1, 0]]
+plt.legend(loc='top left', handles=handles, title='Protein')
 plt.gcf().set_size_inches(3, 3)
 
 g.set_axis_labels('Copy-number ~ Transcriptomics\n(Pearson)', 'Copy-number ~ Proteomics\n(Pearson)')
@@ -187,10 +186,12 @@ plot_df = df_enrichment[(df_enrichment['length'] > 5) & (df_enrichment['type'] !
 plot_df['escore'] = gkn(plot_df['escore'])
 plot_df['type'] = ['Complex/subunit' if 'COMPLEX' in i or 'SUBUNIT' in i else 'Other' for i in plot_df['signature']]
 
+pal = {'Complex/subunit': palette['Transcriptomics'], 'Other': palette['Clinical']}
+
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
 g = sns.FacetGrid(plot_df, size=1, aspect=2)
-g = g.map_dataframe(sns.stripplot, 'escore', 'type', orient='h', size=4, jitter=.2, alpha=.2, linewidth=.1, edgecolor='white', color='#99A3A4')
-g = g.map_dataframe(sns.boxplot, 'escore', 'type', orient='h', linewidth=.3, sym='', color='#99A3A4', notch=True)
+g = g.map_dataframe(sns.stripplot, 'escore', 'type', orient='h', size=4, jitter=.2, alpha=.2, linewidth=.1, edgecolor='white', palette=pal)
+g = g.map_dataframe(sns.boxplot, 'escore', 'type', orient='h', linewidth=.3, sym='', notch=True, palette=pal)
 g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
 g.set_axis_labels('Normalised GSEA enrichment score')
 g.despine(trim=True)

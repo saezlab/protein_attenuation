@@ -1,26 +1,17 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
-import os
 import pickle
-import pydot
-import igraph
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-import matplotlib.lines as mlines
-from pymist.enrichment.gsea import gsea
 from sklearn.mixture.gaussian_mixture import GaussianMixture
-from statsmodels.stats.multitest import multipletests
 from cptac.slapenrich import slapenrich
-from cptac.utils import read_gmt
-from cptac import palette, palette_cnv_number, default_color
+from cptac import palette, palette_cnv_number
 from matplotlib.gridspec import GridSpec
-from scipy.stats.stats import pearsonr, ttest_ind
-from matplotlib_venn import venn2, venn2_circles
 from pandas import DataFrame, Series, read_csv, concat
-from pymist.utils.corumdb import get_complexes_dict, get_complexes_name
+from pymist.utils.corumdb import get_complexes_name
 from pymist.utils.map_peptide_sequence import read_uniprot_genename
 
 
@@ -77,9 +68,8 @@ s_type = Series(dict(zip(*(cors[['diff']].index, gmm.predict(cors[['diff']])))))
 clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
 
 cors['cluster'] = [s_type[i] for i in cors.index]
-cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/samples_correlations.csv')
 cors['type'] = [samplesheet.ix[i] for i in cors.index]
-cors.to_csv('./tables/samples_correlations.csv')
+cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/samples_correlations.csv')
 # cors = read_csv('./tables/samples_correlations.csv', index_col=0)
 print cors.sort(['cluster', 'diff'], ascending=False)
 
@@ -154,7 +144,7 @@ print '[INFO] Plot done'
 
 
 # -- Samples attenuation GMM Scatter plot
-pal = {clusters.argmin(): '#2980B9', clusters.argmax(): '#E74C3C'}
+pal = {clusters.argmin(): palette['Clinical'], clusters.argmax(): palette['Transcriptomics']}
 ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
@@ -205,13 +195,15 @@ print Series(dict(zip(*(np.unique([p for i in res[res['fdr'] < .05].index for p 
 
 # Plot
 plot_df = res[res['fdr'] < .05].copy().sort('logoddratios', ascending=False)
+plot_df['name'] = [i.split(' ')[0] for i in plot_df['name']]
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
 g = sns.factorplot(x='logoddratios', y='name', data=plot_df, kind='bar', ci=None, legend_out=False, lw=.3, orient='h', color=palette['Clinical'])
 g.despine(trim=True)
 plt.xlabel('Log odd ratios')
 plt.ylabel('')
-plt.gcf().set_size_inches(8, 2)
+plt.gcf().set_size_inches(4, 2)
+plt.xticks(np.arange(.0, 1., .2))
 plt.title('Complex amplification enrichment (FDR < 5%)')
 plt.savefig('./reports/samples_correlation_difference_complex.pdf', bbox_inches='tight')
 plt.savefig('./reports/samples_correlation_difference_complex.png', bbox_inches='tight', dpi=300)
@@ -220,16 +212,18 @@ print '[INFO] Done'
 
 # Plot
 plot_df = DataFrame([{'protein': p, 'cnv': m_matrix.ix[p].sum()} for c in res[res['fdr'] < .05].index for p in corum_dict[c]])
-plot_df = plot_df[plot_df['cnv'] != 0]
+plot_df = plot_df[plot_df['cnv'] > 1]
+plot_df['cnv'] = plot_df['cnv'] / m_matrix.shape[1]
 plot_df = plot_df.groupby('protein').first().reset_index().sort('cnv', ascending=False)
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
 g = sns.factorplot(x='cnv', y='protein', data=plot_df, kind='bar', ci=None, legend_out=False, lw=.3, orient='h', color=palette['Clinical'])
 g.despine(trim=True)
-plt.xlabel('Number of amplifications')
+plt.xlabel('Amplification events (%)')
 plt.ylabel('')
-plt.gcf().set_size_inches(2.5, 2.5)
-plt.title('Amplified genes in enriched complexes')
+plt.gcf().set_size_inches(1, 2)
+plt.xticks(np.arange(.0, .3, .1))
+plt.title('Complex amplified genes')
 plt.savefig('./reports/samples_correlation_difference_complex_amplifications.pdf', bbox_inches='tight')
 plt.savefig('./reports/samples_correlation_difference_complex_amplifications.png', bbox_inches='tight', dpi=300)
 plt.close('all')

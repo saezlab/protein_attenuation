@@ -49,13 +49,6 @@ samples = set(transcriptomics).intersection(proteomics)
 print len(proteins), len(samples)
 
 
-# -- Turnover rates
-turnover = read_csv('./files/proteins_turnovers_preprocessed.csv').dropna(subset=['Uniprot IDs human'])
-turnover = DataFrame([{'protein': i, 'p_halflife': r, 't_halflife': t} for p, r, t in turnover[['Uniprot IDs human', 'Protein half-life average [h]', 'mRNA half-life average [h]']].values for i in p.split(';')])
-turnover['protein'] = [uniprot[i][0] for i in turnover['protein']]
-turnover = turnover.groupby('protein').max().dropna()
-
-
 # -- Import gene-sets
 # Uniprot PTMs lists
 ptms = {'_'.join(f[:-4].split('_')[1:]):
@@ -156,49 +149,3 @@ plt.setp(g.ax_heatmap.xaxis.get_majorticklabels(), rotation=90)
 plt.savefig('./reports/protein_pairs_goterms_enrichment.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Plot done'
-
-
-# -- Half-life
-f_halflife = turnover.dropna().copy()
-
-p_lb, p_ub = np.percentile(f_halflife['p_halflife'], 25), np.percentile(f_halflife['p_halflife'], 75)
-t_lb, t_ub = np.percentile(f_halflife['t_halflife'], 25), np.percentile(f_halflife['t_halflife'], 75)
-f_halflife['p_halflife'] = ['Unstable' if i < p_lb else ('Stable' if i > p_ub else np.nan) for i in f_halflife['p_halflife']]
-f_halflife['t_halflife'] = ['Unstable' if i < t_lb else ('Stable' if i > t_ub else np.nan) for i in f_halflife['t_halflife']]
-f_halflife = f_halflife.dropna()
-
-
-plot_df = cor_df[['t_cor', 'p_cor']].unstack().reset_index()
-plot_df.columns = ['cor_type', 'pair', 'cor']
-plot_df = plot_df[[p.split('_')[0] in f_halflife.index and p.split('_')[1] in f_halflife.index for p in plot_df['pair']]]
-plot_df = DataFrame([{
-     'pair': pp, 'c_type': c_type, 'cor': cor, 'l_type': l_type, 'halflife': ' - '.join(f_halflife.ix[pp.split('_'), '%s_halflife' % l_type])}
-for c_type, pp, cor in plot_df[['cor_type', 'pair', 'cor']].values for l_type in ['p', 't']])
-
-plot_df['c_type'] = ['Transcriptomics' if i.startswith('t_') else 'Proteomics' for i in plot_df['c_type']]
-plot_df['l_type'] = ['mRNA' if i == 't' else 'Protein' for i in plot_df['l_type']]
-print plot_df
-
-# Subset dataframe
-plot_df = plot_df[plot_df['l_type'] == 'Protein']
-plot_df = plot_df[[len(set(i.split(' - '))) == 1 for i in plot_df['halflife']]]
-plot_df['halflife'] = [''.join(set(i.split(' - '))) for i in plot_df['halflife']]
-
-# plot_df[(plot_df['halflife'] == 'Unstable') & (plot_df['c_type'] == 'Transcriptomics')]['cor'].mean()
-
-order = ['Stable', 'Unstable']
-sns.set(style='ticks', font_scale=.5, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(plot_df, row='l_type', xlim=[-.5, 1], size=1.5, aspect=.8, legend_out=False)
-g = g.map(plt.axhline, y=0, ls='-', lw=0.3, c='black', alpha=.5)
-# g = g.map_dataframe(sns.violinplot, 'cor', 'halflife', 'c_type', palette=palette, order=order, cut=0, orient='h', inner='box', linewidth=1., notch=True, scale='width')
-g = g.map_dataframe(sns.violinplot, 'halflife', 'cor', 'c_type', palette=palette, order=order, cut=0, orient='v', inner='quartile', linewidth=1., notch=True, scale='width', split=True, alpha=.5)
-# g = g.map_dataframe(sns.stripplot, 'cor', 'halflife', 'c_type', color=palette, order=order, split=True, orient='h', size=1, jitter=.4, alpha=.5, linewidth=0, edgecolor='white')
-g.set_axis_labels('', 'Correlation')
-g.despine(trim=True)
-plt.legend(loc=2)
-g.set_titles(row_template='')
-plt.gcf().set_size_inches(1, 4)
-plt.savefig('./reports/protein_pairs_correlation_halflife_violin.png', bbox_inches='tight', dpi=300)
-plt.savefig('./reports/protein_pairs_correlation_halflife_violin.pdf', bbox_inches='tight')
-plt.close('all')
-print '[INFO] Done'
