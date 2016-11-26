@@ -70,14 +70,14 @@ print '[INFO] Done'
 
 # -- Plot: attenuated proteins
 t, pval = ttest_ind(
-    plot_df.loc[plot_df['attenuation'] == 'Attenuated', 'fc'],
+    plot_df.loc[plot_df['attenuation'] == 'Attenuated (> 0.5)', 'fc'],
     plot_df.loc[plot_df['attenuation'] == 'Not attenuated', 'fc'],
     equal_var=False)
 print 't: %.2f, p-val: %.2e' % (t, pval)
 
 order = ['2hrs', '4hrs', '8hrs']
-hue_order = ['Attenuated (> 0.2)', 'Attenuated (> 0.3)', 'Attenuated (> 0.4)', 'Attenuated (> 0.5)', 'Not attenuated']
-pal = dict(zip(*(hue_order, sns.light_palette('#E74C3C', 5).as_hex()[1:] + ['#99A3A4'])))
+hue_order = ['Not attenuated', 'Attenuated (> 0.2)', 'Attenuated (> 0.3)', 'Attenuated (> 0.4)', 'Attenuated (> 0.5)']
+pal = dict(zip(*(hue_order, ['#99A3A4'] + sns.light_palette('#E74C3C', 5).as_hex()[1:])))
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
 g = sns.FacetGrid(plot_df, size=3.5, aspect=1, legend_out=False)

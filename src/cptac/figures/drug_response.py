@@ -29,15 +29,23 @@ corum_n = get_complexes_name()
 corum_proteins = {p for k in corum_dict for p in corum_dict[k]}
 print 'corum', len(corum_proteins)
 
+
+# -- Attenuated proteins
+cors = read_csv('./tables/proteins_correlations.csv', index_col=0)
+
+
 # -- Import data
 # Samplesheets
 samplesheet = read_csv('./data/sanger_samplesheet.csv', index_col=0).dropna(subset=['TCGA'])
-c_samplesheet = read_csv('./data/sanger_drug_samplesheet.csv')
-d_targets = c_samplesheet.groupby('Name')['Putative_target'].agg(lambda x: set(x))
+tisues = samplesheet['TCGA'].dropna().reset_index().groupby('TCGA').agg(lambda x: set(x)).to_dict()['sample']
+
+d_samplesheet = read_csv('./data/sanger_drug_samplesheet.csv')
+d_targets = d_samplesheet.groupby('Name')['Putative_target'].agg(lambda x: set(x))
 
 # Drug response
 drug = read_csv('./data/sanger_drug_response_auc.csv', index_col=1).drop('cosmic', axis=1).T
 # drug = read_csv('./data/sanger_drug_response_ic50.csv', index_col=1).drop('cosmic', axis=1).T
+drug = drug.loc[:, drug.count() > drug.shape[0] * .75]
 
 # Copy-number
 cnv = read_csv('./data/sanger_copy_number.tsv', sep='\t')
@@ -55,7 +63,6 @@ trans = read_csv('./data/sanger_gene_experssion_rma.tsv', sep='\t')
 trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_SCORE', fill_value=np.nan, aggfunc=np.mean)
 print trans
 
-
 # --
 sig = read_csv('./tables/samples_attenuated_gene_signature.csv', index_col=0)['cor']
 
@@ -67,6 +74,8 @@ print burden.sort_values()
 # --
 # d = 'CP466722'
 def regressions(d):
+    for tissue in
+
     df = concat([drug.ix[d], burden], axis=1).dropna()
 
     # Correlation
@@ -98,23 +107,29 @@ ppairs = DataFrame([regressions(d) for d in drug.index])
 ppairs['fdr'] = multipletests(ppairs['f_pval'], method='fdr_bh')[1]
 ppairs['pearson_fdr'] = multipletests(ppairs['pearson_pval'], method='fdr_bh')[1]
 ppairs['targets'] = [';'.join(d_targets.ix[i]) if i in d_targets.index else 'NaN' for i in ppairs['drug']]
+ppairs['targets'] = [set(i.replace(' ', '').replace('(', ',').replace(')', ',').split(',')) for i in ppairs['targets']]
+ppairs['attenuation'] = [('Attenuated (> %.1f)' % (np.floor((cors.ix[i, 'diff'].max() if cors.ix[i, 'diff'].max() < .5 else .5) * 10) / 10)) if (len(i.intersection(cors.index)) != 0) and (cors.ix[i, 'cluster'].max() == 1) else 'Not attenuated' for i in ppairs['targets']]
 ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
-print ppairs[ppairs['fdr'] < .05].sort('pearson', ascending=False)
+print ppairs.sort('fdr')
 
-ds = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
+ds = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159', 'Nutlin-3a', 'JNJ-26854165']
 print ppairs[[i in ds for i in ppairs['drug']]]
 
-# Plot
+
+# -- Plot
+hue_order = ['Not attenuated', 'Attenuated (> 0.2)', 'Attenuated (> 0.3)', 'Attenuated (> 0.4)', 'Attenuated (> 0.5)']
+pal = dict(zip(*(hue_order, ['#99A3A4'] + sns.light_palette('#E74C3C', 5).as_hex()[1:])))
+
+# Volcano
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-
-plot_df = ppairs.copy()
-
 plt.scatter(
-    x=plot_df['beta'], y=-np.log10(plot_df['fdr']), s=25, linewidths=.3, alpha=.7,
-    c=[palette['Overlap'] if f < .05 else sns.light_palette(palette['Overlap']).as_hex()[1] for f in plot_df['fdr']]
+    x=ppairs['beta'], y=-np.log10(ppairs['fdr']), s=25, alpha=.7,
+    linewidths=[.5 if i < .05 else 0.01 for i in ppairs['fdr']],
+    c=[pal[a] if a != 'Not attenuated' else ('#99A3A4' if f < .05 else sns.light_palette('#99A3A4').as_hex()[1]) for f, a in ppairs[['fdr', 'attenuation']].values],
+    edgecolor=['black' if f < .05 else sns.light_palette('#99A3A4').as_hex()[1] for f in ppairs['fdr']]
 )
 
-for fdr, beta, d in plot_df[['fdr', 'beta', 'drug']].values:
+for fdr, beta, d in ppairs[['fdr', 'beta', 'drug']].values:
     if fdr < .05 and d in ds:
         plt.text(beta, -np.log10(fdr), '%s' % d, fontsize=6)
 
@@ -129,6 +144,46 @@ plt.ylabel('Adj. p-value (-log10)')
 plt.xlabel('Beta')
 plt.gcf().set_size_inches(4.5, 7)
 plt.savefig('./reports/drug_response_associations_volcano.png', bbox_inches='tight', dpi=600)
-# plt.savefig('./reports/drug_response_associations_volcano.pdf', bbox_inches='tight')
+plt.savefig('./reports/drug_response_associations_volcano.pdf', bbox_inches='tight')
+plt.close('all')
+print '[INFO] Done'
+
+# Boxplot
+t, pval = ttest_ind(
+    ppairs.loc[ppairs['attenuation'] == 'Not attenuated', 'beta'],
+    ppairs.loc[ppairs['attenuation'] != 'Not attenuated', 'beta'],
+    equal_var=False)
+print 't: %.2f, p-val: %.2e' % (t, pval)
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.FacetGrid(ppairs, size=3.5, aspect=1, legend_out=False)
+g = g.map_dataframe(sns.stripplot, x='attenuation', y='beta', orient='v', split=True, size=2, jitter=.2, alpha=.6, linewidth=.1, edgecolor='white', order=hue_order, palette=pal)
+g = g.map_dataframe(sns.boxplot, x='attenuation', y='beta', orient='v', linewidth=.3, sym='', order=hue_order, palette=pal)
+g = g.map(plt.axhline, y=0, ls='-', lw=0.1, c='black', alpha=.5)
+
+g.set_axis_labels('', 'beta')
+g.despine(trim=True)
+plt.suptitle('Proteasome inhibition')
+plt.savefig('./reports/drug_response_associations_attenuation_boxplot.pdf', bbox_inches='tight')
+plt.savefig('./reports/drug_response_associations_attenuation_boxplot.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Done'
+
+# Scatter
+d = '(5Z)-7-Oxozeaenol'
+
+df = concat([burden, drug.ix[d]], axis=1).dropna()
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+sns.regplot(x='burden', y=d, data=df, fit_reg=True, scatter=True, truncate=True, line_kws={'linewidth': .3})
+sns.despine()
+plt.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
+plt.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
+# plt.set_xlabel('%s (proteomics)' % px)
+# plt.set_ylabel('%s (proteomics)' % py)
+# plt.set_title('Pearson\'s r: %.2f, p-value: %.2e' % pearsonr(df[px], df[py]))
+# plt.set_ylim(df[py].min() * 1.05, df[py].max() * 1.05)
+plt.savefig('./reports/drug_response_associations_scatter.png', bbox_inches='tight', dpi=600)
+plt.savefig('./reports/drug_response_associations_scatter.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
