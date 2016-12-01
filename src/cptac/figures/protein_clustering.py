@@ -64,20 +64,18 @@ plt.savefig('./reports/protein_clustering_heatmap.png', bbox_inches='tight', dpi
 plt.close('all')
 print '[INFO] Done'
 
-#
-sns.set(style='white', font_scale=1.)
-cmap = sns.diverging_palette(220, 20, sep=20, as_cmap=True)
-
+# --
+sns.set(style='white', font_scale=.75)
 for c in [387, 162]:
     plot_df = p_corr.ix[corum_dict[c], corum_dict[c]]
 
-    g = sns.clustermap(plot_df, figsize=(6, 6), cmap=cmap, center=0, vmax=1, vmin=-1, annot=True, fmt='.2f')
+    mask = np.zeros_like(plot_df)
+    mask[np.triu_indices_from(mask)] = True
 
-    for l in g.ax_row_dendrogram.lines:
-        l.set_linewidth(.3)
+    plt.gcf().set_size_inches(2, 2)
 
-    for l in g.ax_col_dendrogram.lines:
-        l.set_linewidth(.3)
+    # g = sns.clustermap(plot_df, figsize=(6, 6), cmap=cmap, center=0, vmax=1, vmin=-1, annot=True, fmt='.2f')
+    g = sns.heatmap(plot_df, cmap='YlGnBu', center=0, vmax=1, vmin=-1, annot=True, fmt='.2f', square=True, mask=mask, linewidths=.5, annot_kws={'size': 6})
 
     plt.suptitle(corum_n[c])
     plt.savefig('./reports/protein_clustering_heatmap_%d.png' % c, bbox_inches='tight', dpi=300)

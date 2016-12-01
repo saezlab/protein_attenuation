@@ -90,4 +90,4 @@ plt.savefig('./reports/overlap_proteins.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
 
-print '%.1f%%' % (plot_df[plot_df['Tumour'] == 'BRCA']['Transcript'].mean() * 100)
+print '%.1f%%' % (plot_df[plot_df['Tumour'] == 'HGSC']['Transcript'].mean() * 100)

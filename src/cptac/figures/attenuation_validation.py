@@ -5,53 +5,20 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from cptac import wd, default_color, palette_cnv_number, palette
-from cptac.utils import gkn
-from scipy.stats.stats import ttest_ind
+from scipy.stats.stats import ttest_ind, pearsonr
 from matplotlib_venn import venn3, venn3_circles
 from sklearn.linear_model import LinearRegression
-from pandas import DataFrame, Series, read_csv, pivot_table
-from pymist.utils.map_peptide_sequence import read_uniprot_genename
+from pandas import DataFrame, Series, read_csv, pivot_table, concat
 
 
-# -- Uniprot
-uniprot = read_uniprot_genename()
-
-
-# -- Cell lines: proteomics
-proteomics = read_csv('%s/data/brca_cell_lines_proteomics.csv' % wd)
-
-# Drop tumour samples
-proteomics = proteomics[[c for c in proteomics if 'Tumor' not in c]]
-
-# Parse uniprot IDs
-proteomics['Uniprot Entry'] = [i.split('|')[1] for i in proteomics['Uniprot Entry']]
-proteomics = proteomics[[i in uniprot for i in proteomics['Uniprot Entry']]]
-proteomics['Uniprot Entry'] = [uniprot[i][0] for i in proteomics['Uniprot Entry']]
-proteomics = proteomics.groupby('Uniprot Entry').mean()
-
-# Log2
-proteomics = np.log2(proteomics)
-
-# Average replicates
-proteomics.columns = [i.split(' ')[0] for i in proteomics]
-proteomics = DataFrame({c: proteomics[c].mean(1) for c in set(proteomics)})
-
-# Proteins measured in at least 50% of the samples
-proteomics = proteomics[proteomics.count(1) > proteomics.shape[1] * .5]
-
-# Normalise
-proteomics = DataFrame({p: gkn(proteomics.ix[p].dropna()) for p in proteomics.index}).T
-
-# Export
-proteomics.to_csv('./data/brca_cell_lines_proteomics_preprocessed.csv')
-print 'proteomics', proteomics
-
+# -- Cell lines: protoemics
+proteomics = read_csv('./data/brca_cell_lines_proteomics_preprocessed.csv', index_col=0)
+print proteomics.shape
 
 # -- Cell lines: transcriptomics
 transcriptomics = read_csv('./data/sanger_gene_experssion_rma.tsv', sep='\t')
 transcriptomics = pivot_table(transcriptomics, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_SCORE', fill_value=np.nan, aggfunc=np.mean)
-print list(transcriptomics)
-
+print transcriptomics.shape
 
 # -- Cell lines: Copy-number
 cnv = read_csv('./data/sanger_copy_number.tsv', sep='\t')
@@ -79,7 +46,7 @@ t_cors = read_csv('./tables/proteins_correlations.csv', index_col=0)
 p_attenuated = set(t_cors[t_cors['cluster'] == 1].index)
 
 
-# -- Correlations
+# -- Protein attenuation score
 cors = {}
 for g in proteins:
     df = DataFrame({'CNV': cnv.ix[g, samples], 'Transcriptomics': transcriptomics.ix[g, samples], 'Proteomics': proteomics.ix[g, samples]}).dropna().corr()
@@ -115,3 +82,30 @@ plt.savefig('./reports/protein_attenuation_validation_boxplots.png', bbox_inches
 plt.savefig('./reports/protein_attenuation_validation_boxplots.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'
+
+
+# -- Sample attenutaion score
+cors_s = []
+for s in samples:
+    df = DataFrame({'cnv': cnv[s], 'trans': transcriptomics[s], 'prot': proteomics[s]}).dropna().corr()
+
+    cors_s.append({'sample': s, 'cnv_tran': df.ix['cnv', 'trans'], 'cnv_prot': df.ix['cnv', 'prot']})
+
+cors_s = DataFrame(cors_s).dropna().set_index('sample')
+cors_s['diff'] = cors_s['cnv_tran'] - cors_s['cnv_prot']
+print cors_s.sort('diff')
+
+
+tumour_sig = read_csv('./tables/samples_attenuated_gene_signature.csv', index_col=0)['cor']
+cells_sig = {}
+for g in transcriptomics.index:
+    cells_sig[g] = concat([transcriptomics.ix[g], cors_s['diff']], axis=1).corr().ix[1, 0]
+cells_sig = Series(cells_sig)
+print cells_sig
+
+
+burden = concat({
+    'cell_lines': transcriptomics.ix[cells_sig.index].corrwith(cells_sig).sort_values(),
+    'tumours': transcriptomics.ix[tumour_sig.index].corrwith(tumour_sig).sort_values()
+}, axis=1)
+print burden.corr()

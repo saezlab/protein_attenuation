@@ -102,6 +102,8 @@ cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/proteins_correl
 # cors = read_csv('./tables/proteins_correlations.csv', index_col=0)
 print cors.sort(['cluster', 'diff'], ascending=False)
 
+t, pval = ttest_ind(cors['cnv_prot'], cors['cnv_tran'], equal_var=False)
+print t, pval
 
 # Plot scatter of correlations
 pal = {clusters.argmin(): palette['Clinical'], clusters.argmax(): palette['Transcriptomics']}

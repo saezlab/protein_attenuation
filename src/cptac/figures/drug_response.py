@@ -107,7 +107,9 @@ ppairs['pearson_fdr'] = multipletests(ppairs['pearson_pval'], method='fdr_bh')[1
 ppairs['targets'] = [';'.join(d_targets.ix[i]) if i in d_targets.index else 'NaN' for i in ppairs['drug']]
 ppairs['targets'] = [set(i.replace(' ', '').replace('(', ',').replace(')', ',').split(',')) for i in ppairs['targets']]
 ppairs['attenuation'] = [('Attenuated (> %.1f)' % (np.floor((cors.ix[i, 'diff'].max() if cors.ix[i, 'diff'].max() < .5 else .5) * 10) / 10)) if (len(i.intersection(cors.index)) != 0) and (cors.ix[i, 'cluster'].max() == 1) else 'Not attenuated' for i in ppairs['targets']]
+ppairs['Putative_target'] = ['; '.join(d_targets[i.split('.')[0]]) if i in d_targets else 'NaN' for i in ppairs['drug']]
 ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
+# ppairs = read_csv('./tables/drug_response.csv')
 print ppairs.sort('fdr')
 
 # -- Plot

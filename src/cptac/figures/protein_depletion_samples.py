@@ -6,6 +6,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from scipy.stats.stats import pearsonr
 from sklearn.mixture.gaussian_mixture import GaussianMixture
 from cptac.slapenrich import slapenrich
 from cptac import palette, palette_cnv_number
@@ -239,3 +240,16 @@ for p in transcriptomics.index:
 p_attenuation_cor = DataFrame(p_attenuation_cor).set_index('gene')
 p_attenuation_cor.to_csv('./tables/samples_attenuated_gene_signature.csv')
 print p_attenuation_cor.ix[corum_proteins].dropna().sort('cor')
+
+
+# --
+activity_tp53 = Series.from_csv('./files/VIPER_rnaseq_GSVAnorm_TP53.txt', sep='\t')
+activity_tp53 = activity_tp53[[i[13:16] == '01A' for i in activity_tp53.index]]
+activity_tp53.index = [i[:12] for i in activity_tp53.index]
+activity_tp53 = activity_tp53.ix[cors.index]
+activity_tp53 = activity_tp53.drop('TCGA-A6-3810')
+print activity_tp53
+
+df = concat([activity_tp53.ix[cors.index], cors['diff'], cnv.ix['TP53']], axis=1)
+df = df[df[0].abs() > 1]
+print df.corr()
