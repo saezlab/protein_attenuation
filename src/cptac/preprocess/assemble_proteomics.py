@@ -61,6 +61,18 @@ samples_qc = samples_qc[samples_qc['QC Status'] == 'pass']
 
 brca = brca.loc[:, [i in samples_qc.index for i in brca]]
 
+att_s = read_csv('./tables/samples_correlations.csv', index_col=0)
+att_s['cluster'] = np.logical_not(att_s['cluster']).astype(int)
+
+plot_df = brca.corr()
+plot_df.index = ['Normal' if samples_qc.ix[i, 'QC Status'] == 'pass' else 'Degradation' for i in plot_df.index]
+plot_df.columns = ['-' if i[:12] not in att_s.index else ('Attenuated' if att_s.ix[i[:12], 'cluster'] else 'NOT Attenuated') for i in plot_df]
+
+sns.set(font_scale=.5)
+sns.clustermap(plot_df, figsize=(15, 15))
+plt.savefig('./reports/brca_proteasome_degradation.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+
 # Export
 brca.to_csv('%s/data/brca_proteomics_processed.csv' % wd)
 print '[INFO] BRCA proteomics preprocessed exported'

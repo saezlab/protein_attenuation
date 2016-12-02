@@ -11,7 +11,7 @@ from pymist.utils.map_peptide_sequence import read_uniprot_genename
 uniprot = read_uniprot_genename()
 
 # -- Cell lines: proteomics
-proteomics = read_csv('%s/data/brca_cell_lines_proteomics.csv' % wd)
+proteomics = read_csv('./data/brca_cell_lines_proteomics.csv')
 
 # Drop tumour samples
 proteomics = proteomics[[c for c in proteomics if 'Tumor' not in c]]

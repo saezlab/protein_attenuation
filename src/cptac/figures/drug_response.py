@@ -19,17 +19,6 @@ from pymist.utils.map_peptide_sequence import read_uniprot_genename
 from pandas import read_csv, pivot_table, concat, Series, DataFrame
 
 
-# -- CORUM
-uniprot = read_uniprot_genename()
-with open('./tables/corum_dict_non_redundant.pickle', 'rb') as handle:
-    corum_dict = pickle.load(handle)
-
-corum_n = get_complexes_name()
-
-corum_proteins = {p for k in corum_dict for p in corum_dict[k]}
-print 'corum', len(corum_proteins)
-
-
 # -- Attenuated proteins
 cors = read_csv('./tables/proteins_correlations.csv', index_col=0)
 
@@ -47,29 +36,10 @@ drug = read_csv('./data/sanger_drug_response_auc.csv', index_col=1).drop('cosmic
 # drug = read_csv('./data/sanger_drug_response_ic50.csv', index_col=1).drop('cosmic', axis=1).T
 drug = drug.loc[:, drug.count() > drug.shape[0] * .75]
 
-# Copy-number
-cnv = read_csv('./data/sanger_copy_number.tsv', sep='\t')
-cnv['value'] = [1 if i == 'gain' else (-1 if i == 'low' else 0) for i in cnv['MUT_TYPE']]
-cnv['gene'] = [i.split('_')[0] for i in cnv['gene_name']]
-
-cnv = cnv.groupby(['SAMPLE_NAME', 'gene'])['value'].agg(lambda x: np.nan if len(set(x)) > 1 else list(x)[0])
-cnv = cnv.reset_index()
-cnv = cnv.dropna()
-cnv = pivot_table(cnv, index='gene', columns='SAMPLE_NAME', values='value', fill_value=0)
-print cnv
-
-# Gene expression
-trans = read_csv('./data/sanger_gene_experssion_rma.tsv', sep='\t')
-trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_SCORE', fill_value=np.nan, aggfunc=np.mean)
-print trans
-
 # --
-sig = read_csv('./tables/samples_attenuated_gene_signature.csv', index_col=0)['cor']
-
-burden = trans.ix[sig.index].corrwith(sig).sort_values()
+burden = Series.from_csv('./tables/cell_lines_predicted_attenuation_score.csv')
 burden.name = 'burden'
 print burden.sort_values()
-
 
 # --
 # d = 'CP466722'
@@ -108,9 +78,10 @@ ppairs['targets'] = [';'.join(d_targets.ix[i]) if i in d_targets.index else 'NaN
 ppairs['targets'] = [set(i.replace(' ', '').replace('(', ',').replace(')', ',').split(',')) for i in ppairs['targets']]
 ppairs['attenuation'] = [('Attenuated (> %.1f)' % (np.floor((cors.ix[i, 'diff'].max() if cors.ix[i, 'diff'].max() < .5 else .5) * 10) / 10)) if (len(i.intersection(cors.index)) != 0) and (cors.ix[i, 'cluster'].max() == 1) else 'Not attenuated' for i in ppairs['targets']]
 ppairs['Putative_target'] = ['; '.join(d_targets[i.split('.')[0]]) if i in d_targets else 'NaN' for i in ppairs['drug']]
-ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
+# ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
 # ppairs = read_csv('./tables/drug_response.csv')
 print ppairs.sort('fdr')
+
 
 # -- Plot
 # Volcano

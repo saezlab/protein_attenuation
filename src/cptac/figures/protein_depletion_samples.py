@@ -75,6 +75,30 @@ cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/samples_correla
 print cors.sort(['cluster', 'diff'], ascending=False)
 
 
+# --
+plot_df = cors.copy()
+plot_df['cluster'] = ['Not attenuated' if i else 'Attenuated' for i in plot_df['cluster']]
+
+order = ['COREAD', 'HGSC', 'BRCA']
+pal = {'Not attenuated': palette['Clinical'], 'Attenuated': palette['Transcriptomics']}
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
+sns.boxplot(x='diff', y='type', hue='cluster', data=plot_df, palette=pal, linewidth=.5, notch=False, sym='', order=order, orient='h')
+sns.stripplot(x='diff', y='type', hue='cluster', data=plot_df, palette=pal, linewidth=.3, jitter=True, size=2, alpha=.5, order=order, split=True, orient='h')
+plt.axvline(0.0, ls='-', lw=0.3, c='black', alpha=.5)
+sns.despine(trim=True)
+plt.legend(loc=4)
+handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label=s) for s in pal]
+plt.legend(loc='bottom right', handles=handles, title='Samples', bbox_to_anchor=(1, 0.5))
+plt.gcf().set_size_inches(3, 1)
+plt.xlabel('Attenuation score')
+plt.ylabel('')
+plt.savefig('./reports/overlap_proteins.pdf', bbox_inches='tight')
+plt.savefig('./reports/overlap_proteins.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Done'
+
+
 # -- Correlations scatter plot
 ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
 
