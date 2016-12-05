@@ -3,7 +3,7 @@
 WD=./
 
 overlap:
-	python src/protein_attenuation/figures/overlap.py
+	ipython src/protein_attenuation/figures/overlap.py
 
 clean:
 	rm -rf gurobi.log
