@@ -4,11 +4,13 @@
 # Heatmap annotation thanks to Marco Galardini:
 # https://github.com/mgalardini/python_plotting_snippets/blob/master/notebooks/clusters.ipynb
 
+import fastcluster
 import numpy as np
 import seaborn as sns
 import itertools as it
 import matplotlib.pyplot as plt
 import fastcluster as fst
+from scipy.cluster.hierarchy import leaves_list
 import matplotlib.patches as patches
 from scipy.cluster import hierarchy
 from scipy.stats.mstats import mquantiles
@@ -54,10 +56,20 @@ print 'p_corr', p_corr.shape
 
 
 # -- Protein correlation heatmap
-cmap = sns.diverging_palette(220, 20, sep=20, as_cmap=True)
+plot_df = p_corr.copy()
+
+lkg = fastcluster.linkage_vector(plot_df.values, method='median', metric='euclidean')
+order = list(plot_df.index[leaves_list(lkg)])
+
+plot_df = plot_df.ix[order, order]
+
+mask = np.zeros_like(plot_df)
+mask[np.triu_indices_from(mask, k=0)] = True
 
 sns.set(style='white', font_scale=1.)
-g = sns.clustermap(p_corr, figsize=(5, 5), cmap=cmap, center=0, vmax=1, vmin=-1, xticklabels=False, yticklabels=False)
+g = sns.heatmap(plot_df, cmap='YlGnBu', center=0, vmax=1, vmin=-1, square=True, mask=mask, linewidths=.0, cbar=False, xticklabels=False, yticklabels=False)
+
+plt.gcf().set_size_inches(3, 3)
 
 plt.suptitle('Protein pairwise correlation')
 plt.savefig('./reports/protein_clustering_heatmap.png', bbox_inches='tight', dpi=300)
@@ -66,21 +78,35 @@ print '[INFO] Done'
 
 # --
 sns.set(style='white', font_scale=.75)
-for c in [387, 162]:
+for c, s, t in [(387, 6, 'MCM complex'), (162, 5, 'COG complex')]:
     plot_df = p_corr.ix[corum_dict[c], corum_dict[c]]
 
+    lkg = fastcluster.linkage_vector(plot_df.values, method='median', metric='euclidean')
+    order = list(plot_df.index[leaves_list(lkg)])
+
+    plot_df = plot_df.ix[order, order]
+
     mask = np.zeros_like(plot_df)
-    mask[np.triu_indices_from(mask)] = True
+    mask[np.triu_indices_from(mask, k=1)] = True
 
     plt.gcf().set_size_inches(2, 2)
 
     # g = sns.clustermap(plot_df, figsize=(6, 6), cmap=cmap, center=0, vmax=1, vmin=-1, annot=True, fmt='.2f')
-    g = sns.heatmap(plot_df, cmap='YlGnBu', center=0, vmax=1, vmin=-1, annot=True, fmt='.2f', square=True, mask=mask, linewidths=.5, annot_kws={'size': 6})
+    g = sns.heatmap(plot_df, cmap='YlGnBu', center=0, vmax=1, vmin=-1, annot=True, fmt='.2f', square=True, mask=mask, linewidths=.3, annot_kws={'size': s}, cbar=False)
 
-    plt.suptitle(corum_n[c])
+    plt.suptitle(t)
     plt.savefig('./reports/protein_clustering_heatmap_%d.png' % c, bbox_inches='tight', dpi=300)
     plt.savefig('./reports/protein_clustering_heatmap_%d.pdf' % c, bbox_inches='tight')
     plt.close('all')
+print '[INFO] Done'
+
+
+sns.set(style='ticks', font_scale=1., rc={'xtick.direction': 'in', 'ytick.direction': 'in', 'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
+sns.palplot(sns.color_palette('YlGnBu', n_colors=7))
+plt.title('Pearson correlation')
+plt.gcf().set_size_inches(3, .5)
+plt.savefig('./reports/protein_clustering_heatmap_cbar.pdf', bbox_inches='tight')
+plt.close('all')
 print '[INFO] Done'
 
 

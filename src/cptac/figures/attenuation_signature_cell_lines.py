@@ -14,7 +14,6 @@ from statsmodels.stats.multitest import multipletests
 # -- Cell lines: protoemics
 brca_proteomics = read_csv('./data/brca_cell_lines_proteomics_preprocessed.csv', index_col=0)
 hgsc_proteomics = read_csv('./data/hgsc_cell_lines_proteomics_preprocessed.csv', index_col=0)
-nci60_proteomics = read_csv('./data/nci60_cell_lines_proteomics_preprocessed.csv', index_col=0)
 
 
 # -- Cell lines: transcriptomics

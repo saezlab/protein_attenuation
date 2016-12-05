@@ -7,6 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from scipy.stats.stats import pearsonr
+from sklearn.metrics.regression import r2_score
 from sklearn.mixture.gaussian_mixture import GaussianMixture
 from cptac.slapenrich import slapenrich
 from cptac import palette, palette_cnv_number
@@ -25,6 +26,13 @@ corum_n = get_complexes_name()
 
 corum_proteins = {p for k in corum_dict for p in corum_dict[k]}
 print 'corum', len(corum_proteins)
+
+# -- Ploidy
+ploidy = read_csv('./data/ascat_acf_ploidy.tsv', sep='\t')
+ploidy['Sample'] = [s.replace('.', '-') for s in ploidy['Sample']]
+ploidy = ploidy[[s[13:16] == '01A' for s in ploidy['Sample']]]
+ploidy['Sample'] = [s[:12] for s in ploidy['Sample']]
+ploidy = ploidy.groupby('Sample')['Ploidy'].mean()
 
 
 # -- Import data-sets
@@ -70,7 +78,7 @@ clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
 
 cors['cluster'] = [s_type[i] for i in cors.index]
 cors['type'] = [samplesheet.ix[i] for i in cors.index]
-cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/samples_correlations.csv')
+# cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/samples_correlations.csv')
 # cors = read_csv('./tables/samples_correlations.csv', index_col=0)
 print cors.sort(['cluster', 'diff'], ascending=False)
 
