@@ -1,7 +1,26 @@
 # Copyright (C) 2016  Emanuel Goncalves
 
-WD=./
+####	Analysis
+# Samples overlap
+overlap:
+	ipython src/protein_attenuation/overview/overlap.py
 
+
+
+####	Regulatory associations
+# Calculate the protein residuals having regressed-out transcriptomics measurements
+residuals:
+	ipython src/protein_attenuation/regressions/residuals_protein_transcript.py
+
+# Regression associations within protein complexes (using different omics as input feature)
+regressions:
+	ipython src/protein_attenuation/regressions/regressions_cnv.py
+	ipython src/protein_attenuation/regressions/regressions_transcriptomics.py
+	ipython src/protein_attenuation/regressions/regressions_proteomics.py	
+
+
+
+####	Data preprocessing
 # Assemble TCGA and CPTAC data-sets for the overlapping samples. 
 # COREAD (pmid 25043054), HGSC (pmid 27372738), BRCA (pmid 27251275)
 assemble_datasets:
@@ -29,20 +48,16 @@ preprocess_proteomics_celllines:
 preprocess_brca_tumours:
 	ipython src/protein_attenuation/preprocess/preprocess_brca_tumours_qc.py
 
+
+
+####	Miscellaneous
 # Merge highly similar CORUM complexes (overlaping with the measured proteins)
 corum_redundancy:
 	ipython src/protein_attenuation/corum_complexes_redundancy.py
 
-# Calculate the protein residuals having regressed-out transcriptomics measurements
-residuals:
-	ipython src/protein_attenuation/regressions/residuals_protein_transcript.py
 
-# Regression associations within protein complexes (using different omics as input feature)
-regressions:
-	ipython src/protein_attenuation/regressions/regressions_cnv.py
-	ipython src/protein_attenuation/regressions/regressions_transcriptomics.py
-	ipython src/protein_attenuation/regressions/regressions_proteomics.py	
 
+#### General
 clean:
 	rm -rf '*.pyc'
 	rm -rf 'gurobi.log'

@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
-import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from protein_attenuation import palette
 from protein_attenuation.utils import jaccard
 from pandas import DataFrame, Series, read_csv
-from matplotlib_venn import venn3, venn3_circles
 
 
 # -- Imports
@@ -16,19 +14,15 @@ samplesheet = Series.from_csv('./data/samplesheet.csv')
 
 # Proteomics
 proteomics = read_csv('./data/cptac_proteomics.csv', index_col=0)
-print 'proteomics', proteomics.shape
 
 # Transcriptomics
 transcriptomics = read_csv('./data/tcga_rnaseq.csv', index_col=0)
-print 'transcriptomics', transcriptomics.shape
 
 # CNV
 cnv = read_csv('./data/tcga_cnv.csv', index_col=0)
-print 'cnv', cnv.shape
 
 # Clinical data
 clinical = read_csv('./data/tcga_clinical.csv').dropna(subset=['patient.gender', 'patient.days_to_birth'])
-print 'clinical', clinical.shape
 
 
 # -- Overlap table
@@ -42,7 +36,7 @@ overlap = DataFrame({
 
 overlap['Overlap'] = (overlap[['Transcriptomics', 'Copy-number variation', 'Clinical', 'Proteomics']].sum(1) == 4).astype(int)
 overlap.to_csv('./tables/overlap_table.csv')
-print overlap.shape
+print '[INFO] Samples data-sets overlap table: ', './tables/overlap_table.csv'
 
 
 # -- Samples count
@@ -58,7 +52,7 @@ plt.gcf().set_size_inches(3, 3)
 plt.savefig('./reports/overlap_samples.pdf', bbox_inches='tight')
 plt.savefig('./reports/overlap_samples.png', bbox_inches='tight', dpi=300)
 plt.close('all')
-print '[INFO] Done'
+print '[INFO] Samples data-sets overlap: ', './reports/overlap_samples.pdf'
 
 
 # -- Proteins overlap
@@ -87,7 +81,6 @@ sns.despine(trim=True)
 plt.ylabel('Proteomic coverage of the expressed transcriptome\n(Jaccard index)')
 plt.gcf().set_size_inches(1.5, 3)
 plt.savefig('./reports/overlap_proteins.pdf', bbox_inches='tight')
+plt.savefig('./reports/overlap_proteins.png', bbox_inches='tight', dpi=300)
 plt.close('all')
-print '[INFO] Done'
-
-print '%.1f%%' % (plot_df[plot_df['Tumour'] == 'HGSC']['Transcript'].mean() * 100)
+print '[INFO] Proteins coverage: ', './reports/overlap_proteins.pdf'
