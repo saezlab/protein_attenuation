@@ -73,3 +73,6 @@ PN-ontology_MB_082016.csv
 Achilles_QC_v2.4.3.rnai.Gs.txt
 CCLE_copynumber_byGene_2013-12-03.txt
 sanger_gene_experssion_rma.tsv
+data/clinical/*
+tcga_pancan_cna_gistic_thresholded.tsv
+GSE62944_merged_expression_voom.tsv

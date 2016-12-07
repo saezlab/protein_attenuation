@@ -10,74 +10,25 @@ from scipy.stats.stats import ttest_ind
 from pandas import read_csv, DataFrame, pivot_table, Series
 
 # -- Imports
-# Proteomics
-proteomics = read_csv('./data/TCGA_Breast_BI_Proteome_CDAP.r2.itraq.tsv', sep='\t', index_col=0)
+proteomics = read_csv('./data/cptac_brca_qc_all_proteomics_normalised.csv', index_col=0)
+proteomics = proteomics[proteomics.count(1) > (.5 * proteomics.shape[1])]
 
-proteomics = proteomics.drop(['Description', 'Organism', 'Chromosome', 'Locus'], axis=1)
-proteomics = proteomics.drop(['Mean', 'Median', 'StdDev'], axis=0)
+transcriptomics = read_csv('./data/cptac_brca_qc_all_transcriptomics_normalised.csv', index_col=0)
 
-proteomics = proteomics[[c for c in proteomics if c.endswith(' Unshared Log Ratio')]]
-proteomics.columns = [c.split(' ')[0] for c in proteomics]
-
-# Match sample ids
-brca_samplesheet = read_csv('./data/CPTAC_TCGA_BreastCancer_select_clinical_data_r1.csv')
-brca_samplesheet['id'] = ['-'.join(i.split('-')[1:4]) for i in brca_samplesheet['TCGA barcode']]
-brca_samplesheet = brca_samplesheet.set_index('id')
-
-proteomics = proteomics.loc[:, [i in brca_samplesheet.index for i in proteomics]]
-proteomics.columns = [brca_samplesheet.ix[i, 'TCGA barcode'] for i in proteomics]
-
-# # QC status samples
-samples_qc = read_csv('./data/CPTAC_TCGA_BreastCancer_select_clinical_data_r1_QC_status.csv', index_col=2)
-samples_qc.index = [i[:12] for i in samples_qc.index]
-# samples_qc = samples_qc[samples_qc['QC Status'] == 'pass']
-
-proteomics.columns = [i[:12] for i in proteomics]
-proteomics = proteomics.loc[:, [i in samples_qc.index for i in proteomics]]
-print proteomics.shape
+cnv = read_csv('./data/cptac_brca_qc_all_cnv.csv', index_col=0)
 
 
-# Transcriptomics
-# Import TCGA pancancer rna-seq data
-transcriptomics = read_csv('/Users/emanuel/Projects/data/cptac/GSE62944_merged_expression_voom.tsv', sep='\t', index_col=0)
-
-# Consider only primary tumour samples
-transcriptomics = transcriptomics[[i for i in transcriptomics if i[13:16] == '01A']]
-
-# Overlap
-transcriptomics = transcriptomics.loc[:, [i[:12] in set(proteomics) for i in transcriptomics]]
-transcriptomics.columns = [c[:12] for c in transcriptomics]
-
-# Average replicates
-transcriptomics = DataFrame({i: transcriptomics.loc[:, [i]].mean(1) for i in set(transcriptomics)})
-print transcriptomics.shape
-
-
-# CNV
-# Import whole CNV data-set
-cnv = read_csv('/Users/emanuel/Projects/data/cptac/cna_thresholded.tsv', sep='\t')
-
-# Consider only primary tumour samples
-cnv = cnv[[i[13:16] == '01A' for i in cnv['barcode']]]
-
-# Sub-set by proteomics samples
-cnv = cnv[[i[:12] in set(proteomics) for i in cnv['barcode']]]
-
-# Build matrix - duplicated entries on same sample are discarded if gistic values differ
-cnv = cnv.groupby(['barcode', 'hgnc'])['gistic'].agg(lambda x: np.nan if len(set(x)) > 1 else list(x)[0])
-cnv = cnv.reset_index()
-cnv = cnv.dropna()
-cnv = pivot_table(cnv, index='hgnc', columns='barcode', values='gistic', fill_value=0)
-
-# Parse sample ID
-cnv.columns = [i[:12] for i in cnv]
-print cnv.shape
-
-
-# --
+# -- Overlap
 samples = set(proteomics).intersection(transcriptomics).intersection(cnv)
 proteins = set(proteomics.index).intersection(transcriptomics.index).intersection(cnv.index)
+
+proteomics, transcriptomics, cnv = proteomics.ix[proteins, samples], transcriptomics.ix[proteins, samples], cnv.ix[proteins, samples]
 print 'len: ', len(samples)
+
+
+# -- Samplesheet
+samples_qc = read_csv('./data/CPTAC_TCGA_BreastCancer_select_clinical_data_r1_QC_status.csv', index_col=2)
+samples_qc.index = [i[:12] for i in samples_qc.index]
 
 fail_samples = set(samples_qc[samples_qc['QC Status'] == 'fail'].index).intersection(samples)
 pass_samples = set(samples_qc[samples_qc['QC Status'] == 'pass'].index).intersection(samples)
@@ -111,12 +62,12 @@ print cors.sort(['cluster', 'diff'], ascending=False)
 
 pal = {'pass': palette_cnv_number[2], 'fail': palette_cnv_number[-2]}
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(cors, size=1.25, aspect=2.5)
-g = g.map_dataframe(sns.stripplot, 'diff', 'type', orient='h', size=1, jitter=.2, alpha=.4, linewidth=.1, edgecolor='white', palette=pal, split=True)
+g = sns.FacetGrid(cors, size=.75, aspect=2)
+g = g.map_dataframe(sns.stripplot, 'diff', 'type', orient='h', size=2, jitter=.2, alpha=.4, linewidth=.1, edgecolor='white', palette=pal, split=True)
 g = g.map_dataframe(sns.boxplot, 'diff', 'type', orient='h', linewidth=.3, sym='', palette=pal, notch=True)
 g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
 g.set_axis_labels('Attenuation score', 'QC')
-plt.title('BRCA tumours attenuation validation')
+plt.title('BRCA tumours protein degradation')
 g.despine(trim=True)
 plt.savefig('./reports/protein_attenuation_validation_brca_degradation_samples.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/protein_attenuation_validation_brca_degradation_samples.pdf', bbox_inches='tight')
@@ -150,20 +101,18 @@ cors['tumour'] = [
 print cors.sort('diff')
 
 # -- Plot
-t, pval = ttest_ind(cors[cors['tumour'] != 'Not attenuated']['diff'], cors[cors['tumour'] == 'Not attenuated']['diff'])
-print t, pval
+plot_df = cors.copy()
+plot_df['tumour'] = [i if i == 'Not attenuated' else 'Attenuated' for i in plot_df['tumour']]
 
-order = ['Not attenuated', 'Attenuated (> 0.2)', 'Attenuated (> 0.3)', 'Attenuated (> 0.4)', 'Attenuated (> 0.5)']
-
+order = ['Not attenuated', 'Attenuated']
 pal = {'pass': palette_cnv_number[2], 'fail': palette_cnv_number[-2]}
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(cors, size=1.25, aspect=2.5)
-g = g.map_dataframe(sns.stripplot, 'diff', 'tumour', 'type', orient='h', size=1, jitter=.2, alpha=.4, linewidth=.1, edgecolor='white', palette=pal, order=order, split=True)
+g = sns.FacetGrid(plot_df, size=.75, aspect=2)
 g = g.map_dataframe(sns.boxplot, 'diff', 'tumour', 'type', orient='h', linewidth=.3, sym='', palette=pal, order=order, notch=True)
 g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
 g.set_axis_labels('Attenuation score', '')
 g.add_legend(title='Degradation QC')
-plt.title('BRCA tumours protein attenuation validation')
+plt.title('BRCA tumours protein attenuation')
 g.despine(trim=True)
 plt.savefig('./reports/protein_attenuation_validation_brca_degradation_proteins.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/protein_attenuation_validation_brca_degradation_proteins.pdf', bbox_inches='tight')

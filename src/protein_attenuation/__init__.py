@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
-# -- Paths
-wd = '/Users/emanuel/Projects/projects/cptac/'
-data = '/Volumes/EBI BACKUP/CPTAC'
-
 # -- Colors
 default_color = '#808080'
 

@@ -9,6 +9,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from pymist.enrichment.gsea import gsea
+from sklearn.feature_selection.univariate_selection import f_regression
 from statsmodels.stats.multitest import multipletests
 from protein_attenuation.slapenrich import slapenrich
 from protein_attenuation.utils import read_gmt
@@ -202,15 +203,17 @@ edges = DataFrame([{'index': i.index, 'degree': network_i.degree(i.index, mode='
 edges = edges[edges['degree'] != 0]
 edges = edges.sort(['degree', 'fdr'], ascending=False)
 
+nodes_highlight = {'EIF3A', 'EIF3E', 'EIF3H', 'EIF3L', 'EIF3D', 'COG6', 'COG3', 'COG2', 'COG4', 'RPA1', 'RPA2', 'RPA3', 'SMARCA2', 'SMARCA4', 'GTF2E2', 'GTF2E1', 'AP3B1', 'AP3M1'}
+
 for i in edges.index:
     for edge in network_i.es[network_i.incident(i)]:
         source_id, target_id = network_i.vs[[edge.source, edge.target]]['name']
 
         source = pydot.Node(source_id, style='filled', shape='ellipse', penwidth='0')
-        source.set_fillcolor(palette['Copy-number variation'])
+        source.set_fillcolor(palette['Copy-number variation'] if source_id in nodes_highlight else sns.light_palette(palette['Copy-number variation']).as_hex()[1])
 
         target = pydot.Node(target_id, style='filled', shape='ellipse', penwidth='0')
-        target.set_fillcolor(palette['Proteomics'])
+        target.set_fillcolor(palette['Proteomics'] if source_id in nodes_highlight else sns.light_palette(palette['Proteomics']).as_hex()[1])
 
         graph.add_node(source)
         graph.add_node(target)

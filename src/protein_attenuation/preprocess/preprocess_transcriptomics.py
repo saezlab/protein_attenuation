@@ -33,7 +33,6 @@ clinical_age = clinical.groupby('patient.bcr_patient_barcode')['patient.days_to_
 design = samplesheet.ix[samples].str.get_dummies()
 design = concat([design, Series({i: clinical_gender[i] for i in samples}).str.get_dummies()], axis=1)
 design['days_to_birth'] = [clinical_age[i] for i in samples]
-print design
 
 
 # -- PCA
@@ -41,7 +40,6 @@ n_components = 10
 pca = PCA(n_components=n_components).fit(transcriptomics.dropna().T)
 pcs = DataFrame(pca.transform(transcriptomics.dropna().T), index=transcriptomics.columns, columns=['PC%d' % i for i in range(1, n_components + 1)])
 pcs = concat([pcs, design], axis=1)
-print pca.explained_variance_ratio_
 
 # Plot
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
@@ -75,15 +73,13 @@ fig.suptitle('%s samples - PCA before normalisation' % ', '.join(set(samplesheet
 plt.savefig('./reports/transcriptomics_pca_before_correction.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/transcriptomics_pca_before_correction.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] PCA before normalisation'
-
 
 sns.set(style='white', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 sns.clustermap(pcs.corr(), linewidths=.3, cmap=sns.diverging_palette(220, 10, n=20, as_cmap=True), figsize=(5, 5))
 plt.savefig('./reports/transcriptomics_clustermap_before_correction.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/transcriptomics_clustermap_before_correction.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] PCA before normalisation'
+print '[INFO] PCA before normalisation: ', './reports/transcriptomics_pca_before_correction.pdf', './reports/transcriptomics_clustermap_before_correction.pdf'
 
 
 # -- Normalise pancan data-set
@@ -97,7 +93,7 @@ def rm_batch(x, y, covariates=['BRCA', 'COREAD', 'HGSC', 'female', 'male', 'days
 
 transcriptomics = DataFrame({p: rm_batch(design, transcriptomics.ix[p, design.index]) for p in transcriptomics.index}).T
 transcriptomics.to_csv('./data/tcga_rnaseq_corrected.csv')
-print '[INFO] Covariates regressed-out'
+print '[INFO] Transcriptomics exported (covariates regressed-out): ', './data/tcga_rnaseq_corrected.csv'
 
 
 # -- PCA
@@ -105,7 +101,6 @@ n_components = 10
 pca = PCA(n_components=10).fit(transcriptomics.dropna().T)
 pcs = DataFrame(pca.transform(transcriptomics.dropna().T), index=transcriptomics.columns, columns=['PC%d' % i for i in range(1, n_components + 1)])
 pcs = concat([pcs, design], axis=1)
-print pca.explained_variance_ratio_
 
 # Plot
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
@@ -139,11 +134,10 @@ fig.suptitle('%s samples - PCA after normalisation' % ', '.join(set(samplesheet)
 plt.savefig('./reports/transcriptomics_pca_after_correction.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/transcriptomics_pca_after_correction.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] PCA after normalisation'
 
 sns.set(style='white', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 sns.clustermap(pcs.corr(), linewidths=.3, cmap=sns.diverging_palette(220, 10, n=20, as_cmap=True), figsize=(5, 5))
 plt.savefig('./reports/transcriptomics_clustermap_after_correction.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/transcriptomics_clustermap_after_correction.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] PCA after normalisation'
+print '[INFO] PCA after normalisation: ', './reports/transcriptomics_pca_after_correction.pdf', './reports/transcriptomics_clustermap_after_correction.pdf'

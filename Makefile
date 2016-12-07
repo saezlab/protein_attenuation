@@ -2,12 +2,20 @@
 
 WD=./
 
-overlap:
-	ipython src/protein_attenuation/figures/overlap.py
+# Scripts to assemble TCGA and CPTAC data-sets for the overlapping samples
+assemble_datasets:
+	ipython src/protein_attenuation/preprocess/assemble_clinical.py
+	ipython src/protein_attenuation/preprocess/assemble_proteomics.py
+	ipython src/protein_attenuation/preprocess/assemble_transcriptomics.py
+	ipython src/protein_attenuation/preprocess/assemble_copy_number.py
 
-clean:
-	rm -rf gurobi.log
-	rm -rf .DS_Store
+# Scripts to merge, preprocess and normalise TCGA and CPTAC data-sets
+preprocess_datasets:
+	ipython src/protein_attenuation/preprocess/preprocess_proteomics.py
+	ipython src/protein_attenuation/preprocess/preprocess_transcriptomics.py
+
+# clean:
+# 	rm -rf *.pyc
 
 help:
 	@echo "\t sfd"
