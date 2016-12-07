@@ -1,34 +1,22 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
-import pydot
-import igraph
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import statsmodels.api as sm
-from scipy import stats
-from scipy.stats.stats import pearsonr, ttest_ind
-from matplotlib.gridspec import GridSpec
-from statsmodels.stats.weightstats import ztest
-from protein_attenuation import wd, palette, default_color, palette_cnv_number
-from protein_attenuation.utils import log_likelihood, f_statistic, r_squared
 from sklearn.linear_model import LinearRegression
-from matplotlib_venn import venn3, venn3_circles
+from pandas import DataFrame, Series, read_csv
 from statsmodels.stats.multitest import multipletests
-from pandas import DataFrame, Series, read_csv, concat
-from pymist.utils.corumdb import get_complexes_pairs
-from pymist.utils.map_peptide_sequence import read_uniprot_genename, read_fasta
+from protein_attenuation.utils import log_likelihood, f_statistic, r_squared, read_uniprot_genename, read_fasta, get_complexes_pairs
 
 
 # -- Imports
 # Transcriptomics
-transcriptomics = read_csv('%s/data/tcga_rnaseq_corrected_normalised.csv' % wd, index_col=0)
-print 'transcriptomics', transcriptomics.shape
+transcriptomics = read_csv('./data/tcga_rnaseq_corrected_normalised.csv', index_col=0)
 
 # Proteomics
-proteomics = read_csv('%s/data/cptac_proteomics_corrected_normalised.csv' % wd, index_col=0)
-print 'proteomics', proteomics.shape
+proteomics = read_csv('./data/cptac_proteomics_corrected_normalised.csv', index_col=0)
+
+# Residuals
+residuals = read_csv('./data/residuals_protein_transcript.csv', index_col=0)
+
 
 # -- Overlap
 genes = set(proteomics.index).intersection(transcriptomics.index)
@@ -44,20 +32,6 @@ corum = get_complexes_pairs()
 corum = {(uniprot[s][0], uniprot[t][0]) for p1, p2 in corum for s, t in [(p1, p2), (p2, p1)] if s in uniprot and t in uniprot}
 corum = {(p1, p2) for p1, p2 in corum if p1 in genes and p2 in genes}
 print 'corum', len(corum)
-
-
-# --
-# g = 'ZW10'
-def protein_residual(g):
-    y = proteomics.ix[g, samples].dropna()
-    x = transcriptomics.ix[[g], y.index].T
-
-    lm = LinearRegression().fit(x, y)
-    y_ = y - lm.coef_[0] * x[g] - lm.intercept_
-
-    return y_
-residuals = DataFrame({g: protein_residual(g) for g in genes}).T
-print 'residuals', residuals.shape
 
 
 # -- Regressions: Py Residuals ~ Px CNV
@@ -95,5 +69,5 @@ def regressions(px, py):
 
 ppairs = DataFrame([regressions(px, py) for px, py in corum])
 ppairs['fdr'] = multipletests(ppairs['f_pval'], method='fdr_bh')[1]
-ppairs.to_csv('%s/tables/ppairs_proteomics_regulation_all.csv' % wd, index=False)
-print ppairs.sort('fdr')
+ppairs.sort('fdr').to_csv('./tables/ppairs_proteomics_regulation_all.csv', index=False)
+print '[INFO] Protein complex associations (Residuals ~ Proteomics): ', './tables/ppairs_proteomics_regulation_all.csv'

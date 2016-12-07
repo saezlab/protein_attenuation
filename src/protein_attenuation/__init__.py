@@ -19,18 +19,3 @@ palette_cnv_number = {-2: '#e74c3c', -1: '#F0938A', 0: '#d5d5d5', 1: '#7bc399', 
 # -- Names
 cnv_names = {-2: 'depletion', 0: 'neutral', 2: 'amplification'}
 
-# -- Default filters
-genomic_mod = {
-    'Frame_Shift_Del',
-    'Frame_Shift_Ins',
-    'In_Frame_Del',
-    'In_Frame_Ins',
-    'Indel',
-    'Missense',
-    'Missense_Mutation',
-    'Nonsense_Mutation',
-    'Nonstop_Mutation',
-    'Splice_Site_Del',
-    'Splice_Site_Ins',
-    'Splice_Site_SNP'
-}
