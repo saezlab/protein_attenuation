@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# Copyright (C) 2016  Emanuel Goncalves
+
 from __future__ import division
 import numpy as np
 import rpy2.robjects as ro
@@ -76,18 +79,18 @@ def slapenrich(mutation_m, pathways, background):
 
 def slapenrich_test(error_threshold=1e-10):
     # Imports
-    mutation_m = read_csv('./files/genomics.csv', index_col=0)
+    mutation_m = read_csv('./files/slapenrich_test_genomics.csv', index_col=0)
 
     background = set(mutation_m.index)
 
-    pathways = read_csv('./files/kegg_sets.txt', sep='\t')
+    pathways = read_csv('./files/slapenrich_test_kegg_sets.txt', sep='\t')
     pathways = pathways.groupby('Pathway')['Gene'].agg(lambda x: set(x)).to_dict()
 
     # Run SlapEnrich python implementation
     results = slapenrich(mutation_m, pathways, background)
 
     # Import SlapEnrich R results
-    results_r = read_csv('./files/slapenrich_results_r.csv', index_col=0)
+    results_r = read_csv('./files/slapenrich_test_results_r.csv', index_col=0)
 
     # Evaluate results
     ratios_error = results_r.ix[results.index, 'logoddratios'].subtract(results['logoddratios']).sum()
