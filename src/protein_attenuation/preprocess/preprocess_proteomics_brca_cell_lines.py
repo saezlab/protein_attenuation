@@ -37,4 +37,4 @@ proteomics = DataFrame({p: gkn(proteomics.ix[p].dropna()) for p in proteomics.in
 
 # Export
 proteomics.to_csv('./data/brca_cell_lines_proteomics_preprocessed.csv')
-print 'proteomics', proteomics
+print '[INFO] BRCA cell lines proteomics: ', './data/brca_cell_lines_proteomics_preprocessed.csv'

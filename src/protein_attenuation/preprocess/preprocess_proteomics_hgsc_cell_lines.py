@@ -19,4 +19,4 @@ proteomics = DataFrame({p: gkn(proteomics.ix[p].dropna()) for p in proteomics.in
 
 # -- Export
 proteomics.to_csv('./data/hgsc_cell_lines_proteomics_preprocessed.csv')
-print '[INFO] Exported'
+print '[INFO] HGSC cell lines proteomics: ', './data/hgsc_cell_lines_proteomics_preprocessed.csv'

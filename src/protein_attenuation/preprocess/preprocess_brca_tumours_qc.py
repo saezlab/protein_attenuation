@@ -1,14 +1,9 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
-import seaborn as sns
-import matplotlib.pyplot as plt
 import numpy as np
 from protein_attenuation.utils import gkn
-from sklearn.mixture.gaussian_mixture import GaussianMixture
-from protein_attenuation import palette_cnv_number
-from scipy.stats.stats import ttest_ind
-from pandas import read_csv, DataFrame, pivot_table, Series
+from pandas import read_csv, DataFrame, pivot_table
 
 # -- Proteomics
 proteomics = read_csv('./data/TCGA_Breast_BI_Proteome_CDAP.r2.itraq.tsv', sep='\t', index_col=0)
@@ -40,7 +35,7 @@ proteomics = DataFrame({i: gkn(proteomics.ix[i].dropna()).to_dict() for i in pro
 
 # Export
 proteomics.to_csv('./data/cptac_brca_qc_all_proteomics_normalised.csv')
-print proteomics.shape
+print '[INFO] BRCA tumours protoemics: ', './data/cptac_brca_qc_all_proteomics_normalised.csv'
 
 
 # -- Transcriptomics
@@ -62,7 +57,7 @@ transcriptomics = DataFrame({i: gkn(transcriptomics.ix[i].dropna()).to_dict() fo
 
 # Export
 transcriptomics.to_csv('./data/cptac_brca_qc_all_transcriptomics_normalised.csv')
-print transcriptomics.shape
+print '[INFO] BRCA tumours transcriptomics: ', './data/cptac_brca_qc_all_transcriptomics_normalised.csv'
 
 
 # -- CNV
@@ -86,5 +81,5 @@ cnv.columns = [i[:12] for i in cnv]
 
 # Export
 cnv.to_csv('./data/cptac_brca_qc_all_cnv.csv')
-print cnv.shape
+print '[INFO] BRCA tumours copy-number: ', './data/cptac_brca_qc_all_cnv.csv'
 

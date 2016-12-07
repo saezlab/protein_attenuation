@@ -45,6 +45,8 @@ regressions:
 
 clean:
 	rm -rf '*.pyc'
+	rm -rf 'gurobi.log'
+	rm -rf '.DS_Store'
 
 help:
 	@echo "\t sfd"
