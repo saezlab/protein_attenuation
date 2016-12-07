@@ -14,8 +14,15 @@ preprocess_datasets:
 	ipython src/protein_attenuation/preprocess/preprocess_proteomics.py
 	ipython src/protein_attenuation/preprocess/preprocess_transcriptomics.py
 
-# clean:
-# 	rm -rf *.pyc
+	ipython src/protein_attenuation/preprocess/normalise_proteomics.py
+	ipython src/protein_attenuation/preprocess/normalise_transcriptomics.py
+
+# Script to merge highly similar CORUM complexes (overlaping with the measured proteins)
+corum_redundancy:
+	ipython src/protein_attenuation/corum_complexes_redundancy.py
+
+clean:
+	rm -rf '*.pyc'
 
 help:
 	@echo "\t sfd"

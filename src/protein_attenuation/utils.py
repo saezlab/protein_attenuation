@@ -3,21 +3,12 @@
 
 import numpy as np
 import itertools as it
-from protein_attenuation import wd
 from scipy import stats
 from pandas import read_csv, Series
 from scipy.stats.distributions import hypergeom
 
 
-def get_cancer_genes():
-    types = ['Loss of function', 'Activating']
-
-    table1 = read_csv('%s/files/Cancer5000.oncodriveROLE.0.3-0.7.txt' % wd, sep='\t')
-    table2 = read_csv('%s/files/HCD.oncodriveROLE.0.3-0.7.txt' % wd, sep='\t')
-
-    cancer_genes = {t: set(table1[table1['oncodriveROLE'] == t]['SYM']).union(table2[table2['oncodriveROLE'] == t]['SYM']) for t in types}
-
-    return cancer_genes
+uniprot_fasta = './files/uniprot_sprot_2016_01_11.fasta'
 
 
 def gkn(values):
@@ -117,3 +108,99 @@ def import_kegg():
     tab = read_gmt('./tables/c2.cp.kegg.v5.1.symbols_only_metabolism.gmt')
     tab = {(a, b) for p in tab for a, b in it.combinations(tab[p], 2)}
     return tab
+
+
+# -- Uniprot related functions
+def read_fasta(fasta_file=None, os='Homo sapiens'):
+    fasta_file = uniprot_fasta if fasta_file is None else fasta_file
+
+    sequences = {}
+
+    with open(fasta_file) as f:
+        lines = f.readlines()
+
+        for i in range(len(lines)):
+            if lines[i].startswith('>sp') and (('OS='+os) in lines[i]):
+                uniprot = lines[i].split('|')[1].strip()
+                sequence = ''
+
+                i += 1
+                while (i < len(lines)) and (not lines[i].startswith('>sp')):
+                    sequence += lines[i].strip()
+                    i += 1
+
+                sequences[uniprot] = sequence
+
+    return sequences
+
+
+def match_sequence(sequences, sequence):
+    return [k for k, v in sequences.items() if sequence in v]
+
+
+def read_uniprot_genename(fasta_file=None, os='Homo sapiens'):
+    fasta_file = uniprot_fasta if fasta_file is None else fasta_file
+
+    uniprot2genename = {}
+
+    with open(fasta_file) as f:
+        lines = f.readlines()
+
+        for i in range(len(lines)):
+            if lines[i].startswith('>sp') and (('OS='+os) in lines[i]) and ('GN=' in lines[i]):
+                uniprot = lines[i].split('|')[1].strip()
+                genename = lines[i].split(' GN=')[1].split(' ')[0]
+                accname = lines[i].split('|')[2].strip().split(' ')[0].strip()
+                uniprot2genename[uniprot] = (genename, accname)
+
+    return uniprot2genename
+
+
+def read_uniprot_accname(fasta_file=None, os='Homo sapiens'):
+    fasta_file = uniprot_fasta if fasta_file is None else fasta_file
+
+    uniprot2accname = {}
+
+    with open(fasta_file) as f:
+        lines = f.readlines()
+
+        for i in range(len(lines)):
+            if lines[i].startswith('>sp') and (('OS='+os) in lines[i]):
+                uniprot = lines[i].split('|')[1].strip()
+                accname = lines[i].split('|')[2].strip().split(' ')[0].strip()
+                uniprot2accname[uniprot] = accname
+
+    return uniprot2accname
+
+
+# -- CORUM complexes related functions
+def get_complexes_pairs(organism='Human', corum_file='./files/allComplexesCore.csv'):
+    complexes = read_csv(corum_file, sep=';').dropna(subset=['Complex id'])
+
+    complexes = complexes[complexes['organism'] == organism]
+
+    complexes = {c: {x.replace('(', '').replace(')', '') for p in complexes.loc[complexes['Complex id'] == c, 'subunits (UniProt IDs)'] for x in p.split(',')} for c in complexes['Complex id']}
+
+    complexes_pairs = {(p1, p2) for c in complexes for (p1, p2) in it.combinations(complexes[c], 2)}
+
+    return complexes_pairs
+
+
+def get_complexes_dict(organism='Human', corum_file='./files/allComplexesCore.csv'):
+    complexes = read_csv(corum_file, sep=';').dropna(subset=['Complex name'])
+
+    complexes = complexes[complexes['organism'] == organism]
+
+    complexes = {c: {x.replace('(', '').replace(')', '') for p in complexes.loc[complexes['Complex id'] == c, 'subunits (UniProt IDs)'] for x in p.split(',')} for c in complexes['Complex id']}
+
+    return complexes
+
+
+def get_complexes_name(organism='Human', corum_file='./files/allComplexesCore.csv'):
+    complexes = read_csv(corum_file, sep=';').dropna(subset=['Complex name'])
+
+    complexes = complexes[complexes['organism'] == organism]
+
+    complexes_name = complexes.groupby('Complex id')['Complex name'].first().to_dict()
+
+    return complexes_name
