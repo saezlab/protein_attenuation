@@ -32,8 +32,8 @@ samples = set(brca_proteomics).union(hgsc_proteomics).intersection(transcriptomi
 
 
 # -- Attenuated proteins in tumours
-t_cors = read_csv('./tables/proteins_correlations.csv', index_col=0)
-p_attenuated = set(t_cors[t_cors['cluster'] == 1].index)
+t_cors = read_csv('./tables/protein_attenuation_table.csv', index_col=0)
+p_attenuated = set(t_cors[t_cors['attenuation_potential'] == 'High'].index)
 
 cors = []
 for g in set(brca_proteomics.index).intersection(transcriptomics.index).intersection(cnv.index):
@@ -57,26 +57,25 @@ for g in set(hgsc_proteomics.index).intersection(transcriptomics.index).intersec
     })
 
 cors = DataFrame(cors).dropna()
-cors['diff'] = cors['cnv_tran'] - cors['cnv_prot']
-cors['attenuation'] = [
-    'Low' if i not in p_attenuated else ('High (> %.1f)' % (np.floor((t_cors.ix[i, 'diff'] if t_cors.ix[i, 'diff'] < .5 else .5) * 10) / 10)) for i in cors['gene']
+cors['attenuation'] = cors['cnv_tran'] - cors['cnv_prot']
+cors['attenuation_potential'] = [
+    'Low' if i not in p_attenuated else ('High (> %.1f)' % (np.floor((t_cors.ix[i, 'attenuation'] if t_cors.ix[i, 'attenuation'] < .5 else .5) * 10) / 10)) for i in cors['gene']
 ]
 
 
 # -- Plot
-t, pval = ttest_ind(cors[cors['attenuation'] != 'Low']['diff'], cors[cors['attenuation'] == 'Low']['diff'])
-
 order = ['Low', 'High (> 0.2)', 'High (> 0.3)', 'High (> 0.4)', 'High (> 0.5)']
 pal = dict(zip(*(order, ['#99A3A4'] + sns.light_palette('#E74C3C', 5).as_hex()[1:])))
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
 g = sns.FacetGrid(cors, size=1.25, aspect=2.5)
-g = g.map_dataframe(sns.stripplot, 'diff', 'type', 'attenuation', orient='h', size=2, jitter=.2, alpha=.4, linewidth=.1, edgecolor='white', palette=pal, hue_order=order, split=True)
-g = g.map_dataframe(sns.boxplot, 'diff', 'type', 'attenuation', orient='h', linewidth=.3, sym='', palette=pal, hue_order=order)
+g = g.map_dataframe(sns.stripplot, 'attenuation', 'type', 'attenuation_potential', orient='h', size=2, jitter=.2, alpha=.4, linewidth=.1, edgecolor='white', palette=pal, hue_order=order, split=True)
+g = g.map_dataframe(sns.boxplot, 'attenuation', 'type', 'attenuation_potential', orient='h', linewidth=.3, sym='', palette=pal, hue_order=order)
 g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
 g.set_axis_labels('Attenuation potential (cell lines)', '')
-g.add_legend(title='Tumour attenuation')
-plt.title('Protein attenuation potential\np-value: %.2e' % pval)
+g.add_legend(title='Attenuation potentital\n(tumours)')
+plt.setp(g._legend.get_title(), multialignment='center')
+plt.title('Protein attenuation transfer from tumours to cell lines')
 g.despine(trim=True)
 plt.savefig('./reports/protein_attenuation_validation_boxplots.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/protein_attenuation_validation_boxplots.pdf', bbox_inches='tight')

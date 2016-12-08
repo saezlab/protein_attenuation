@@ -11,7 +11,7 @@ from protein_attenuation.slapenrich import slapenrich
 from pandas import DataFrame, Series, read_csv, concat
 from protein_attenuation import palette, palette_cnv_number
 from sklearn.mixture.gaussian_mixture import GaussianMixture
-from protein_attenuation.utils import get_complexes_name, read_uniprot_genename
+from protein_attenuation.utils import get_complexes_name
 
 
 # -- CORUM
@@ -49,33 +49,28 @@ cors['attenuation'] = cors['cnv_tran'] - cors['cnv_prot']
 
 
 # -- GMM attenuation
-gmm = GaussianMixture(n_components=2).fit(cors[['diff']])
+gmm = GaussianMixture(n_components=2).fit(cors[['attenuation']])
 
-s_type = Series(dict(zip(*(cors[['diff']].index, gmm.predict(cors[['diff']])))))
+s_type = Series(dict(zip(*(cors[['attenuation']].index, gmm.predict(cors[['attenuation']])))))
 clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
 
 cors['cluster'] = [s_type[i] for i in cors.index]
 cors['type'] = [samplesheet.ix[i] for i in cors.index]
 cors['attenuation_potential'] = ['High' if i == clusters.argmax() else 'Low' for i in cors['cluster']]
-cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/sample_attenuation_table.csv')
+cors.sort('attenuation', ascending=False).to_csv('./tables/sample_attenuation_table.csv')
 # cors = read_csv('./tables/sample_attenuation_table.csv', index_col=0)
 # print cors.sort(['cluster', 'diff'], ascending=False)
 print '[INFO] Samples attenuation potential table: ', './tables/sample_attenuation_table.csv'
 
 
 # -- Samples attenuation gene signature
-p_attenuation_cor = []
-for p in transcriptomics.index:
-    df = concat([cors['diff'], transcriptomics.ix[p]], axis=1).dropna()
-    p_attenuation_cor.append({'gene': p, 'cor': df.corr().ix[0, 1]})
-
-p_attenuation_cor = DataFrame(p_attenuation_cor).set_index('gene')
-p_attenuation_cor.sort('cor').to_csv('./tables/samples_attenuation_potential_gene_signature.csv')
+p_attenuation_cor = transcriptomics.T.ix[cors.index].corrwith(cors['attenuation'])
+p_attenuation_cor.sort_values().to_csv('./tables/samples_attenuation_potential_gene_signature.csv')
 print '[INFO] Samples attenuation gene-expression signature: ', './tables/samples_attenuation_potential_gene_signature.csv'
 
 
 # -- Samples attenuation GMM Scatter plot
-pal = {clusters.argmin(): palette['Clinical'], clusters.argmax(): palette['Transcriptomics']}
+pal = {'Low': palette['Clinical'], 'High': palette['Transcriptomics']}
 ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
@@ -84,25 +79,24 @@ g = sns.jointplot(
     space=0, s=15, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.1
 )
 
-g.x = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_tran']
-g.y = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_prot']
-g.plot_joint(sns.regplot, color=pal[clusters.argmax()], fit_reg=False)
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmax()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
-g.plot_marginals(sns.kdeplot, color=pal[clusters.argmax()], shade=True, legend=False)
+g.x = cors.loc[cors['attenuation_potential'] == 'High', 'cnv_tran']
+g.y = cors.loc[cors['attenuation_potential'] == 'High', 'cnv_prot']
+g.plot_joint(sns.regplot, color=pal['High'], fit_reg=False)
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal['High'], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+g.plot_marginals(sns.kdeplot, color=pal['High'], shade=True, legend=False)
 
-g.x = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_tran']
-g.y = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_prot']
-g.plot_joint(sns.regplot, color=pal[clusters.argmin()], fit_reg=False)
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmin()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
-g.plot_marginals(sns.kdeplot, color=pal[clusters.argmin()], shade=True, legend=False)
+g.x = cors.loc[cors['attenuation_potential'] == 'Low', 'cnv_tran']
+g.y = cors.loc[cors['attenuation_potential'] == 'Low', 'cnv_prot']
+g.plot_joint(sns.regplot, color=pal['Low'], fit_reg=False)
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal['Low'], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+g.plot_marginals(sns.kdeplot, color=pal['Low'], shade=True, legend=False)
 
 g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
 
-handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label='Not attenuated' if s else 'Attenuated') for s in pal]
-plt.legend(loc='top left', handles=handles, title='Samples')
-
+handles = [mpatches.Circle([.0, .0], .25, facecolor=pal[s], label=s) for s in pal]
+g.ax_joint.legend(loc='upper left', handles=handles, title='Samples\nattenuation\npotential')
 plt.gcf().set_size_inches(3, 3)
 
 g.set_axis_labels('Copy-number ~ Transcriptomics\n(Pearson)', 'Copy-number ~ Proteomics\n(Pearson)')
@@ -130,7 +124,7 @@ for s in plot_df:
     ax.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
     ax.set_xlabel('Copy-number')
     ax.set_ylabel('Transcriptomics')
-    ax.set_title('%s (attenuation = %.2f)\nPearson = %.2f' % (s, cors.ix[s, 'diff'], cors.ix[s, 'cnv_tran']))
+    ax.set_title('%s (attenuation = %.2f)\nPearson = %.2f' % (s, cors.ix[s, 'attenuation'], cors.ix[s, 'cnv_tran']))
     ax.set_ylim(df['trans'].min() * 1.05, df['trans'].max() * 1.05)
 
     #
@@ -142,7 +136,7 @@ for s in plot_df:
     ax.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
     ax.set_xlabel('Copy-number')
     ax.set_ylabel('Proteomics')
-    ax.set_title('%s (attenuation = %.2f)\nPearson = %.2f' % (s, cors.ix[s, 'diff'], cors.ix[s, 'cnv_prot']))
+    ax.set_title('%s (attenuation = %.2f)\nPearson = %.2f' % (s, cors.ix[s, 'attenuation'], cors.ix[s, 'cnv_prot']))
     ax.set_ylim(df['trans'].min() * 1.05, df['trans'].max() * 1.05)
 
     pos += 2

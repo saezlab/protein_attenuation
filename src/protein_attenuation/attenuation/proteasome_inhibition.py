@@ -37,41 +37,16 @@ plot_df = DataFrame([
 
 plot_df['regulators'] = ['Px' if i in px else ('Py' if i in py else 'Other') for i in plot_df['gene']]
 plot_df['attenuation'] = [
-    'Low' if i not in att_proteins else ('High (> %.1f)' % (np.floor((cors.ix[i, 'diff'] if cors.ix[i, 'diff'] < .5 else .5) * 10) / 10)) for i in plot_df['gene']
+    'Low' if i not in att_proteins else ('High (> %.1f)' % (np.floor((cors.ix[i, 'attenuation'] if cors.ix[i, 'attenuation'] < .5 else .5) * 10) / 10)) for i in plot_df['gene']
 ]
 
-# Plot regulators
 t, pval = ttest_ind(
-    plot_df.loc[plot_df['regulators'] == 'Px', 'fc'],
-    plot_df.loc[plot_df['regulators'] == 'Py', 'fc'],
-    equal_var=False)
-
-order, pal, hue_order = ['2hrs', '4hrs', '8hrs'], ['#2980B9', '#E74C3C', '#99A3A4'], ['Px', 'Py', 'Other']
-
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(plot_df, size=3, aspect=1, legend_out=False)
-g = g.map_dataframe(sns.stripplot, x='condition', y='fc', hue='regulators', orient='v', split=True, size=2, jitter=.2, alpha=.6, linewidth=.1, edgecolor='white', order=order, hue_order=hue_order, palette=pal)
-g = g.map_dataframe(sns.boxplot, x='condition', y='fc', hue='regulators', orient='v', linewidth=.3, sym='', notch=True, order=order, hue_order=hue_order, palette=pal)
-g = g.map(plt.axhline, y=0, ls='-', lw=0.1, c='black', alpha=.5)
-
-g.set_axis_labels('', 'Ubiquitination (Ubq sites log2 FC)')
-g.despine(trim=True)
-g.add_legend(label_order=hue_order)
-plt.suptitle('Proteasome inhibition')
-plt.savefig('./reports/proteosome_inhibition_boxplot.pdf', bbox_inches='tight')
-plt.savefig('./reports/proteosome_inhibition_boxplot.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Protein regulators ubiquitination: ', './reports/proteosome_inhibition_boxplot.pdf'
-
-
-# -- Attenuated proteins
-t, pval = ttest_ind(
-    plot_df.loc[plot_df['attenuation'] == 'Attenuated (> 0.5)', 'fc'],
-    plot_df.loc[plot_df['attenuation'] == 'Not attenuated', 'fc'],
+    plot_df.loc[plot_df['attenuation'] == 'High (> 0.5)', 'fc'],
+    plot_df.loc[plot_df['attenuation'] == 'Low', 'fc'],
     equal_var=False)
 
 order = ['2hrs', '4hrs', '8hrs']
-hue_order = ['Not attenuated', 'Attenuated (> 0.2)', 'Attenuated (> 0.3)', 'Attenuated (> 0.4)', 'Attenuated (> 0.5)']
+hue_order = ['Low', 'High (> 0.2)', 'High (> 0.3)', 'High (> 0.4)', 'High (> 0.5)']
 pal = dict(zip(*(hue_order, ['#99A3A4'] + sns.light_palette('#E74C3C', 5).as_hex()[1:])))
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
@@ -82,7 +57,7 @@ g = g.map(plt.axhline, y=0, ls='-', lw=0.1, c='black', alpha=.5)
 
 g.set_axis_labels('', 'Ubiquitination sites (log2 FC)')
 g.despine(trim=True)
-g.add_legend(label_order=hue_order)
+g.add_legend(label_order=hue_order, title='Protein attenuation potential')
 plt.suptitle('Proteasome inhibition (Bortezomib)')
 plt.savefig('./reports/proteosome_inhibition_attenuation_boxplot.pdf', bbox_inches='tight')
 plt.savefig('./reports/proteosome_inhibition_attenuation_boxplot.png', bbox_inches='tight', dpi=300)

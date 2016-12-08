@@ -83,7 +83,7 @@ print '[INFO] Protein attenuation potential table: ', './tables/protein_attenuat
 
 
 # -- Plot scatter of correlations
-pal = {clusters.argmin(): palette['Clinical'], clusters.argmax(): palette['Transcriptomics']}
+pal = {'Low': palette['Clinical'], 'High': palette['Transcriptomics']}
 ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
@@ -92,24 +92,24 @@ g = sns.jointplot(
     space=0, s=5, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.1
 )
 
-g.x = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_tran']
-g.y = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_prot']
-g.plot_joint(sns.regplot, color=pal[clusters.argmax()], fit_reg=False, scatter_kws={'s': 5, 'alpha': .5})
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmax()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
-g.plot_marginals(sns.kdeplot, color=pal[clusters.argmax()], shade=True, legend=False)
+g.x = cors.loc[cors['attenuation_potential'] == 'High', 'cnv_tran']
+g.y = cors.loc[cors['attenuation_potential'] == 'High', 'cnv_prot']
+g.plot_joint(sns.regplot, color=pal['High'], fit_reg=False, scatter_kws={'s': 5, 'alpha': .5})
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal['High'], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+g.plot_marginals(sns.kdeplot, color=pal['High'], shade=True, legend=False)
 
-g.x = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_tran']
-g.y = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_prot']
-g.plot_joint(sns.regplot, color=pal[clusters.argmin()], fit_reg=False, scatter_kws={'s': 5, 'alpha': .5})
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmin()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
-g.plot_marginals(sns.kdeplot, color=pal[clusters.argmin()], shade=True, legend=False)
+g.x = cors.loc[cors['attenuation_potential'] == 'Low', 'cnv_tran']
+g.y = cors.loc[cors['attenuation_potential'] == 'Low', 'cnv_prot']
+g.plot_joint(sns.regplot, color=pal['Low'], fit_reg=False, scatter_kws={'s': 5, 'alpha': .5})
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal['Low'], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+g.plot_marginals(sns.kdeplot, color=pal['Low'], shade=True, legend=False)
 
 g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
 
-handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label='High' if s else 'Low') for s in [1, 0]]
-plt.legend(loc='upper left', handles=handles, title='Attenuation\npotential')
+handles = [mpatches.Circle([0, 0], .25, facecolor=pal[s], label=s) for s in pal]
+g.ax_joint.legend(loc='upper left', handles=handles, title='Protein\nattenuation\npotential')
 plt.gcf().set_size_inches(3, 3)
 
 g.set_axis_labels('Copy-number ~ Transcriptomics\n(Pearson)', 'Copy-number ~ Proteomics\n(Pearson)')
@@ -148,4 +148,24 @@ plt.gcf().set_size_inches(2, 10)
 plt.savefig('./reports/protein_correlation_difference_enrichment.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/protein_correlation_difference_enrichment.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] Protein attenuation complexes boxplot: ', './reports/protein_correlation_difference_enrichment.pdf'
+print '[INFO] Protein attenuation complexes: ', './reports/protein_correlation_difference_enrichment.pdf'
+
+# Boxplot
+plot_df = df_enrichment[(df_enrichment['length'] > 5) & (df_enrichment['type'] != 'MF')].copy()
+plot_df['escore'] = gkn(plot_df['escore'])
+plot_df['type'] = ['Complex/subunit' if 'COMPLEX' in i or 'SUBUNIT' in i else 'Other' for i in plot_df['signature']]
+
+pal = {'Other': palette['Clinical'], 'Complex/subunit': palette['Transcriptomics']}
+order = ['Complex/subunit', 'Other']
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.FacetGrid(plot_df, size=1, aspect=2)
+g = g.map_dataframe(sns.stripplot, 'escore', 'type', orient='h', size=4, jitter=.2, alpha=.2, linewidth=.1, edgecolor='white', palette=pal, order=order)
+g = g.map_dataframe(sns.boxplot, 'escore', 'type', orient='h', linewidth=.3, sym='', palette=pal, notch=True, order=order)
+g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
+g.set_axis_labels('Normalised GSEA enrichment score')
+g.despine(trim=True)
+plt.savefig('./reports/protein_correlation_difference_enrichment_boxplot.png', bbox_inches='tight', dpi=300)
+plt.savefig('./reports/protein_correlation_difference_enrichment_boxplot.pdf', bbox_inches='tight')
+plt.close('all')
+print '[INFO] Protein attenuation complexes boxplot: ', './reports/protein_correlation_difference_enrichment_boxplot.pdf'
