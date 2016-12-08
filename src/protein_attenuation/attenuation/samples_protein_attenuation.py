@@ -6,55 +6,34 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from scipy.stats.stats import pearsonr
-from sklearn.metrics.regression import r2_score
-from sklearn.mixture.gaussian_mixture import GaussianMixture
-from protein_attenuation.slapenrich import slapenrich
-from protein_attenuation import palette, palette_cnv_number
 from matplotlib.gridspec import GridSpec
+from protein_attenuation.slapenrich import slapenrich
 from pandas import DataFrame, Series, read_csv, concat
-from pymist.utils.corumdb import get_complexes_name
-from pymist.utils.map_peptide_sequence import read_uniprot_genename
+from protein_attenuation import palette, palette_cnv_number
+from sklearn.mixture.gaussian_mixture import GaussianMixture
+from protein_attenuation.utils import get_complexes_name, read_uniprot_genename
 
 
 # -- CORUM
-uniprot = read_uniprot_genename()
+corum_n = get_complexes_name()
 with open('./tables/corum_dict_non_redundant.pickle', 'rb') as handle:
     corum_dict = pickle.load(handle)
-
-corum_n = get_complexes_name()
-
-corum_proteins = {p for k in corum_dict for p in corum_dict[k]}
-print 'corum', len(corum_proteins)
-
-# -- Ploidy
-ploidy = read_csv('./data/ascat_acf_ploidy.tsv', sep='\t')
-ploidy['Sample'] = [s.replace('.', '-') for s in ploidy['Sample']]
-ploidy = ploidy[[s[13:16] == '01A' for s in ploidy['Sample']]]
-ploidy['Sample'] = [s[:12] for s in ploidy['Sample']]
-ploidy = ploidy.groupby('Sample')['Ploidy'].mean()
-
 
 # -- Import data-sets
 # CNV
 cnv = read_csv('./data/tcga_cnv.csv', index_col=0)
-print 'cnv', cnv.shape
 
 # Transcriptomics
 transcriptomics = read_csv('./data/tcga_rnaseq_corrected_normalised.csv', index_col=0)
-print 'transcriptomics', transcriptomics.shape
 
 # Proteomics
 proteomics = read_csv('./data/cptac_proteomics_corrected_normalised.csv', index_col=0)
-print 'proteomics', proteomics.shape
 
 # Samplesheet
 samplesheet = Series.from_csv('./data/samplesheet.csv')
 
-
 # -- Overlap
 samples = set(cnv).intersection(proteomics).intersection(transcriptomics)
-print 'samples', len(samples)
 
 
 # -- Sample attenutaion score
@@ -66,8 +45,7 @@ for s in samples:
 
     cors.append({'sample': s, 'cnv_tran': df.ix['cnv', 'trans'], 'cnv_prot': df.ix['cnv', 'prot']})
 cors = DataFrame(cors).dropna().set_index('sample')
-cors['diff'] = cors['cnv_tran'] - cors['cnv_prot']
-print cors.sort('diff')
+cors['attenuation'] = cors['cnv_tran'] - cors['cnv_prot']
 
 
 # -- GMM attenuation
@@ -78,60 +56,60 @@ clusters = Series(dict(zip(*(range(2), gmm.means_[:, 0]))))
 
 cors['cluster'] = [s_type[i] for i in cors.index]
 cors['type'] = [samplesheet.ix[i] for i in cors.index]
-# cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/samples_correlations.csv')
-# cors = read_csv('./tables/samples_correlations.csv', index_col=0)
-print cors.sort(['cluster', 'diff'], ascending=False)
+cors['attenuation_potential'] = ['High' if i == clusters.argmax() else 'Low' for i in cors['cluster']]
+cors.sort(['cluster', 'diff'], ascending=False).to_csv('./tables/sample_attenuation_table.csv')
+# cors = read_csv('./tables/sample_attenuation_table.csv', index_col=0)
+# print cors.sort(['cluster', 'diff'], ascending=False)
+print '[INFO] Samples attenuation potential table: ', './tables/sample_attenuation_table.csv'
 
 
-# --
-plot_df = cors.copy()
-plot_df['cluster'] = ['Not attenuated' if i else 'Attenuated' for i in plot_df['cluster']]
+# -- Samples attenuation gene signature
+p_attenuation_cor = []
+for p in transcriptomics.index:
+    df = concat([cors['diff'], transcriptomics.ix[p]], axis=1).dropna()
+    p_attenuation_cor.append({'gene': p, 'cor': df.corr().ix[0, 1]})
 
-order = ['COREAD', 'HGSC', 'BRCA']
-pal = {'Not attenuated': palette['Clinical'], 'Attenuated': palette['Transcriptomics']}
-
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
-sns.boxplot(x='diff', y='type', hue='cluster', data=plot_df, palette=pal, linewidth=.5, notch=False, sym='', order=order, orient='h')
-sns.stripplot(x='diff', y='type', hue='cluster', data=plot_df, palette=pal, linewidth=.3, jitter=True, size=2, alpha=.5, order=order, split=True, orient='h')
-plt.axvline(0.0, ls='-', lw=0.3, c='black', alpha=.5)
-sns.despine(trim=True)
-plt.legend(loc=4)
-handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label=s) for s in pal]
-plt.legend(loc='bottom right', handles=handles, title='Samples', bbox_to_anchor=(1, 0.5))
-plt.gcf().set_size_inches(3, 1)
-plt.xlabel('Attenuation score')
-plt.ylabel('')
-plt.savefig('./reports/overlap_proteins.pdf', bbox_inches='tight')
-plt.savefig('./reports/overlap_proteins.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Done'
+p_attenuation_cor = DataFrame(p_attenuation_cor).set_index('gene')
+p_attenuation_cor.sort('cor').to_csv('./tables/samples_attenuation_potential_gene_signature.csv')
+print '[INFO] Samples attenuation gene-expression signature: ', './tables/samples_attenuation_potential_gene_signature.csv'
 
 
-# -- Correlations scatter plot
+# -- Samples attenuation GMM Scatter plot
+pal = {clusters.argmin(): palette['Clinical'], clusters.argmax(): palette['Transcriptomics']}
 ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
 g = sns.jointplot(
     'cnv_tran', 'cnv_prot', cors, 'scatter', color='#808080', xlim=[ax_min, ax_max], ylim=[ax_min, ax_max],
-    space=0, s=15, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.3
+    space=0, s=15, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.1
 )
-g.plot_marginals(sns.kdeplot, shade=True, color='#99A3A4', lw=.3)
+
+g.x = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_tran']
+g.y = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_prot']
+g.plot_joint(sns.regplot, color=pal[clusters.argmax()], fit_reg=False)
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmax()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+g.plot_marginals(sns.kdeplot, color=pal[clusters.argmax()], shade=True, legend=False)
+
+g.x = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_tran']
+g.y = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_prot']
+g.plot_joint(sns.regplot, color=pal[clusters.argmin()], fit_reg=False)
+g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmin()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+g.plot_marginals(sns.kdeplot, color=pal[clusters.argmin()], shade=True, legend=False)
 
 g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
 
-g.x = cors['cnv_tran']
-g.y = cors['cnv_prot']
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette('#99A3A4', as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
+handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label='Not attenuated' if s else 'Attenuated') for s in pal]
+plt.legend(loc='top left', handles=handles, title='Samples')
 
 plt.gcf().set_size_inches(3, 3)
 
 g.set_axis_labels('Copy-number ~ Transcriptomics\n(Pearson)', 'Copy-number ~ Proteomics\n(Pearson)')
-plt.savefig('./reports/samples_correlation_difference_lmplot_corr.png', bbox_inches='tight', dpi=600)
-plt.savefig('./reports/samples_correlation_difference_lmplot_corr.pdf', bbox_inches='tight')
+plt.savefig('./reports/correlation_difference_lmplot_corr_samples.png', bbox_inches='tight', dpi=600)
+plt.savefig('./reports/correlation_difference_lmplot_corr_samples.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] Plot done'
+print '[INFO] Samples attenuation scatter: ', './reports/correlation_difference_lmplot_corr_samples.png'
 
 
 # -- Sample correlation representative cases
@@ -173,58 +151,17 @@ plt.gcf().set_size_inches(6, 9)
 plt.savefig('./reports/samples_correlation_difference_scatter_corr.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/samples_correlation_difference_scatter_corr.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] Plot done'
-
-
-# -- Samples attenuation GMM Scatter plot
-pal = {clusters.argmin(): palette['Clinical'], clusters.argmax(): palette['Transcriptomics']}
-ax_min, ax_max = np.min([cors['cnv_tran'].min() * 1.10, cors['cnv_prot'].min() * 1.10]), np.max([cors['cnv_tran'].max() * 1.10, cors['cnv_prot'].max() * 1.10])
-
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'lines.linewidth': .75})
-g = sns.jointplot(
-    'cnv_tran', 'cnv_prot', cors, 'scatter', color='#808080', xlim=[ax_min, ax_max], ylim=[ax_min, ax_max],
-    space=0, s=15, edgecolor='w', linewidth=.1, marginal_kws={'hist': False, 'rug': False}, stat_func=None, alpha=.1
-)
-
-g.x = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_tran']
-g.y = cors.loc[cors['cluster'] == clusters.argmax(), 'cnv_prot']
-g.plot_joint(sns.regplot, color=pal[clusters.argmax()], fit_reg=False)
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmax()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
-g.plot_marginals(sns.kdeplot, color=pal[clusters.argmax()], shade=True, legend=False)
-
-g.x = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_tran']
-g.y = cors.loc[cors['cluster'] == clusters.argmin(), 'cnv_prot']
-g.plot_joint(sns.regplot, color=pal[clusters.argmin()], fit_reg=False)
-g.plot_joint(sns.kdeplot, cmap=sns.light_palette(pal[clusters.argmin()], as_cmap=True), legend=False, shade=False, shade_lowest=False, n_levels=9, alpha=.8, lw=.1)
-g.plot_marginals(sns.kdeplot, color=pal[clusters.argmin()], shade=True, legend=False)
-
-g.ax_joint.axhline(0, ls='-', lw=0.1, c='black', alpha=.3)
-g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
-g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
-
-handles = [mpatches.Circle([.5, .5], .5, facecolor=pal[s], label='Not attenuated' if s else 'Attenuated') for s in pal]
-plt.legend(loc='top left', handles=handles, title='Samples')
-
-plt.gcf().set_size_inches(3, 3)
-
-g.set_axis_labels('Copy-number ~ Transcriptomics\n(Pearson)', 'Copy-number ~ Proteomics\n(Pearson)')
-plt.savefig('./reports/samples_correlation_difference_lmplot_corr_attenuated.png', bbox_inches='tight', dpi=600)
-plt.savefig('./reports/samples_correlation_difference_lmplot_corr_attenuated.pdf', bbox_inches='tight')
-plt.close('all')
-print '[INFO] Plot done'
+print '[INFO] Samples attenuation representative cases: ', './reports/samples_correlation_difference_scatter_corr.pdf'
 
 
 # -- Slapenrich complexes amplifications
 m_matrix = (cnv.loc[:, cors[cors['cluster'] == clusters.argmax()].index] > 1).astype(int)
 m_matrix = m_matrix.loc[:, m_matrix.sum() > 0]
-print m_matrix.shape
 
 res, pp = slapenrich(m_matrix, corum_dict, set(cnv.index))
 res['name'] = [corum_n[int(i.split(':')[0])] for i in res.index]
 res.sort('fdr').to_csv('./tables/slapenrich_tumours.csv')
-print res[res['fdr'] < .05].sort('fdr')
-
-print Series(dict(zip(*(np.unique([p for i in res[res['fdr'] < .05].index for p in corum_dict[i]], return_counts=True))))).sort_values()
+print '[INFO] Samples attenuation complexes amplification enrichment table: ', './tables/slapenrich_tumours.csv'
 
 # Plot
 plot_df = res[res['fdr'] < .05].copy().sort('logoddratios', ascending=False)
@@ -241,7 +178,7 @@ plt.title('Complex amplification enrichment (FDR < 5%)')
 plt.savefig('./reports/samples_correlation_difference_complex.pdf', bbox_inches='tight')
 plt.savefig('./reports/samples_correlation_difference_complex.png', bbox_inches='tight', dpi=300)
 plt.close('all')
-print '[INFO] Done'
+print '[INFO] Samples attenuation complexes amplifcations enrichment: ', './reports/samples_correlation_difference_complex.pdf'
 
 # Plot
 plot_df = DataFrame([{'protein': p, 'cnv': m_matrix.ix[p].sum()} for c in res[res['fdr'] < .05].index for p in corum_dict[c]])
@@ -260,4 +197,4 @@ plt.title('Complex amplified genes')
 plt.savefig('./reports/samples_correlation_difference_complex_amplifications.pdf', bbox_inches='tight')
 plt.savefig('./reports/samples_correlation_difference_complex_amplifications.png', bbox_inches='tight', dpi=300)
 plt.close('all')
-print '[INFO] Done'
+print '[INFO] Samples attenuation complexes genes amplifcated: ', './reports/samples_correlation_difference_complex_amplifications.pdf'

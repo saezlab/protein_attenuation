@@ -19,10 +19,6 @@ from pymist.utils.map_peptide_sequence import read_uniprot_genename
 from pandas import read_csv, pivot_table, concat, Series, DataFrame
 
 
-# -- Attenuated proteins
-cors = read_csv('./tables/proteins_correlations.csv', index_col=0)
-
-
 # -- Import data
 # Samplesheets
 samplesheet = read_csv('./data/sanger_samplesheet.csv', index_col=0).dropna(subset=['TCGA'])
@@ -37,9 +33,9 @@ drug = read_csv('./data/sanger_drug_response_auc.csv', index_col=1).drop('cosmic
 drug = drug.loc[:, drug.count() > drug.shape[0] * .75]
 
 # --
-burden = Series.from_csv('./tables/cell_lines_predicted_attenuation_score.csv')
-burden.name = 'burden'
-print burden.sort_values()
+s_attenuation = Series.from_csv('./tables/cell_lines_predicted_attenuation_score.csv')
+s_attenuation.name = 'attenuation'
+
 
 # --
 # d = 'CP466722'
@@ -76,7 +72,6 @@ ppairs['fdr'] = multipletests(ppairs['f_pval'], method='fdr_bh')[1]
 ppairs['pearson_fdr'] = multipletests(ppairs['pearson_pval'], method='fdr_bh')[1]
 ppairs['targets'] = [';'.join(d_targets.ix[i]) if i in d_targets.index else 'NaN' for i in ppairs['drug']]
 ppairs['targets'] = [set(i.replace(' ', '').replace('(', ',').replace(')', ',').split(',')) for i in ppairs['targets']]
-ppairs['attenuation'] = [('Attenuated (> %.1f)' % (np.floor((cors.ix[i, 'diff'].max() if cors.ix[i, 'diff'].max() < .5 else .5) * 10) / 10)) if (len(i.intersection(cors.index)) != 0) and (cors.ix[i, 'cluster'].max() == 1) else 'Not attenuated' for i in ppairs['targets']]
 ppairs['Putative_target'] = ['; '.join(d_targets[i.split('.')[0]]) if i in d_targets else 'NaN' for i in ppairs['drug']]
 # ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
 # ppairs = read_csv('./tables/drug_response.csv')
@@ -140,24 +135,5 @@ g.set_axis_labels('Drug response association (beta)', '')
 g.despine(trim=True)
 plt.savefig('./reports/drug_response_associations_attenuation_boxplot.pdf', bbox_inches='tight')
 plt.savefig('./reports/drug_response_associations_attenuation_boxplot.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Done'
-
-# Scatter
-d = '(5Z)-7-Oxozeaenol'
-
-df = concat([burden, drug.ix[d]], axis=1).dropna()
-
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-sns.regplot(x='burden', y=d, data=df, fit_reg=True, scatter=True, truncate=True, line_kws={'linewidth': .3})
-sns.despine()
-plt.axhline(0, ls='--', lw=0.3, c='black', alpha=.5)
-plt.axvline(0, ls='--', lw=0.3, c='black', alpha=.5)
-# plt.set_xlabel('%s (proteomics)' % px)
-# plt.set_ylabel('%s (proteomics)' % py)
-# plt.set_title('Pearson\'s r: %.2f, p-value: %.2e' % pearsonr(df[px], df[py]))
-# plt.set_ylim(df[py].min() * 1.05, df[py].max() * 1.05)
-plt.savefig('./reports/drug_response_associations_scatter.png', bbox_inches='tight', dpi=600)
-plt.savefig('./reports/drug_response_associations_scatter.pdf', bbox_inches='tight')
 plt.close('all')
 print '[INFO] Done'

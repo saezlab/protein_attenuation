@@ -62,8 +62,8 @@ reg_table = reg_table[[(px, py) in associations['Transcriptomics'] for px, py in
 reg_table_counts = Series(dict(zip(*(np.unique(reg_table['px'], return_counts=True)))))
 reg_table['counts'] = [1. / reg_table_counts.ix[px] for px in reg_table['px']]
 
-reg_table.sort(['counts', 'f_pval']).drop('counts', axis=1)[['px', 'py', 'beta', 'fdr']].to_csv('./tables/complex_regulators.txt', index=False)
-print '[INFO] Export regulations table: ', './tables/protein_complex_regulators.txt'
+reg_table.sort(['counts', 'f_pval']).drop('counts', axis=1)[['px', 'py', 'beta', 'fdr']].to_csv('./tables/complex_regulators.csv', index=False)
+print '[INFO] Export regulations table: ', './tables/protein_complex_regulators.csv'
 
 
 # -- Volcano: Transcriptomics

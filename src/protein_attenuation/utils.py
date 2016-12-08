@@ -99,13 +99,13 @@ def jaccard(x, y):
 
 
 def import_signor():
-    tab = read_csv('./tables/human_phosphorylations_26_09_16.csv', sep=';')
+    tab = read_csv('./files/human_phosphorylations_26_09_16.csv', sep=';')
     tab = {(a, b) for a, b in tab[['ENTITYA', 'ENTITYB']].values}
     return tab
 
 
 def import_kegg():
-    tab = read_gmt('./tables/c2.cp.kegg.v5.1.symbols_only_metabolism.gmt')
+    tab = read_gmt('./files/c2.cp.kegg.v5.1.symbols_only_metabolism.gmt')
     tab = {(a, b) for p in tab for a, b in it.combinations(tab[p], 2)}
     return tab
 
