@@ -4,7 +4,6 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from scipy.stats.stats import ttest_ind
 from pandas import DataFrame, read_csv, pivot_table
 
 
@@ -72,8 +71,8 @@ g = sns.FacetGrid(cors, size=1.25, aspect=2.5)
 g = g.map_dataframe(sns.stripplot, 'attenuation', 'type', 'attenuation_potential', orient='h', size=2, jitter=.2, alpha=.4, linewidth=.1, edgecolor='white', palette=pal, hue_order=order, split=True)
 g = g.map_dataframe(sns.boxplot, 'attenuation', 'type', 'attenuation_potential', orient='h', linewidth=.3, sym='', palette=pal, hue_order=order)
 g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
-g.set_axis_labels('Attenuation potential (cell lines)', '')
-g.add_legend(title='Attenuation potentital\n(tumours)')
+g.set_axis_labels('Protein attenuation (cell lines)', '')
+g.add_legend(title='Protein attenuation\n(tumours)')
 plt.setp(g._legend.get_title(), multialignment='center')
 plt.title('Protein attenuation transfer from tumours to cell lines')
 g.despine(trim=True)

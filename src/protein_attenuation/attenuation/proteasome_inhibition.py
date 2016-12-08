@@ -57,7 +57,7 @@ g = g.map(plt.axhline, y=0, ls='-', lw=0.1, c='black', alpha=.5)
 
 g.set_axis_labels('', 'Ubiquitination sites (log2 FC)')
 g.despine(trim=True)
-g.add_legend(label_order=hue_order, title='Protein attenuation potential')
+g.add_legend(label_order=hue_order, title='Protein attenuation')
 plt.suptitle('Proteasome inhibition (Bortezomib)')
 plt.savefig('./reports/proteosome_inhibition_attenuation_boxplot.pdf', bbox_inches='tight')
 plt.savefig('./reports/proteosome_inhibition_attenuation_boxplot.png', bbox_inches='tight', dpi=300)

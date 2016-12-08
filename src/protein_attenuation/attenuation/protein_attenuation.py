@@ -109,7 +109,7 @@ g.ax_joint.axvline(0, ls='-', lw=0.1, c='black', alpha=.3)
 g.ax_joint.plot([ax_min, ax_max], [ax_min, ax_max], 'k--', lw=.3)
 
 handles = [mpatches.Circle([0, 0], .25, facecolor=pal[s], label=s) for s in pal]
-g.ax_joint.legend(loc='upper left', handles=handles, title='Protein\nattenuation\npotential')
+g.ax_joint.legend(loc='upper left', handles=handles, title='Protein\nattenuation')
 plt.gcf().set_size_inches(3, 3)
 
 g.set_axis_labels('Copy-number ~ Transcriptomics\n(Pearson)', 'Copy-number ~ Proteomics\n(Pearson)')

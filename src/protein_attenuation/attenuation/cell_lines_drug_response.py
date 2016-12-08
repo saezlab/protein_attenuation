@@ -1,19 +1,14 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
-import pickle
 import numpy as np
-import statsmodels.api as sm
 import seaborn as sns
 import matplotlib.pyplot as plt
-from protein_attenuation import palette
-from protein_attenuation.slapenrich import slapenrich
-from scipy.stats import chi2
-from scipy.stats.stats import pearsonr, spearmanr, ttest_ind
+from scipy.stats.stats import pearsonr, ttest_ind
 from sklearn.linear_model import LinearRegression
 from statsmodels.stats.multitest import multipletests
-from protein_attenuation.utils import log_likelihood, f_statistic, r_squared
 from pandas import read_csv, concat, Series, DataFrame, pivot_table
+from protein_attenuation.utils import log_likelihood, f_statistic, r_squared, hypergeom_test
 
 
 # -- Import data
