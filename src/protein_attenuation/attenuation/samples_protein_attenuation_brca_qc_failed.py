@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
+import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.mixture.gaussian_mixture import GaussianMixture
+from pandas import read_csv, DataFrame, Series
 from protein_attenuation import palette_cnv_number
-from scipy.stats.stats import ttest_ind
-from pandas import read_csv, DataFrame, pivot_table, Series
+from sklearn.mixture.gaussian_mixture import GaussianMixture
 
 # -- Imports
 proteomics = read_csv('./data/cptac_brca_qc_all_proteomics_normalised.csv', index_col=0)

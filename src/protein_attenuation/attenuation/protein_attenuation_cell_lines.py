@@ -4,9 +4,8 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from protein_attenuation import palette
 from scipy.stats.stats import ttest_ind
-from pandas import DataFrame, Series, read_csv, pivot_table
+from pandas import DataFrame, read_csv, pivot_table
 
 
 # -- Cell lines: protoemics

@@ -77,3 +77,6 @@ data/clinical/*
 tcga_pancan_cna_gistic_thresholded.tsv
 GSE62944_merged_expression_voom.tsv
 uniprot_sprot_2016_01_11.fasta
+9606.protein.links.v10.txt
+9606_reviewed_uniprot_2_string.04_2015.tsv
+9606.protein.actions.v10.txt

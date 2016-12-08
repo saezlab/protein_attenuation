@@ -1,66 +1,41 @@
 #!/usr/bin/env python
 # Copyright (C) 2016  Emanuel Goncalves
 
-import os
-import pickle
 import pydot
 import igraph
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from pymist.enrichment.gsea import gsea
-from sklearn.feature_selection.univariate_selection import f_regression
-from statsmodels.stats.multitest import multipletests
-from protein_attenuation.slapenrich import slapenrich
-from protein_attenuation.utils import read_gmt
-from protein_attenuation import palette, palette_cnv_number, default_color
-from matplotlib.gridspec import GridSpec
 from scipy.stats.stats import pearsonr
+from matplotlib.gridspec import GridSpec
 from matplotlib_venn import venn2, venn2_circles
 from pandas import DataFrame, Series, read_csv, concat
-from pymist.utils.corumdb import get_complexes_dict, get_complexes_name
-from pymist.utils.map_peptide_sequence import read_uniprot_genename
+from protein_attenuation import palette, palette_cnv_number, default_color
 
 
 # -- Import data-sets
 # CNV
 cnv = read_csv('./data/tcga_cnv.csv', index_col=0)
-print 'cnv', cnv.shape
 
 # Transcriptomics
 transcriptomics = read_csv('./data/tcga_rnaseq_corrected_normalised.csv', index_col=0)
-print 'transcriptomics', transcriptomics.shape
 
 # Proteomics
 proteomics = read_csv('./data/cptac_proteomics_corrected_normalised.csv', index_col=0)
-print 'proteomics', proteomics.shape
 
 # Residuals
 residuals = read_csv('./data/residuals_protein_transcript.csv', index_col=0)
-print 'residuals', residuals.shape
 
 
 # -- Overlap
 samples = set(cnv).intersection(proteomics).intersection(transcriptomics)
-print 'samples', len(samples)
 
 
 # -- Improt regression results
 ppairs_cnv = read_csv('./tables/ppairs_cnv_regulation_all.csv')
-print ppairs_cnv.sort('fdr')
-
 ppairs_trans = read_csv('./tables/ppairs_transcriptomics_regulation_all.csv')
-print ppairs_trans.sort('fdr')
 
 px_highlight = ['EIF3A', 'RPA2', 'COG3', 'COG6', 'SMARCA2']
-
-
-# -- E3 and DUB ligases
-e3_proteins = {(p1, p2) for p1, p2 in read_csv('./tables/E3_target_pairs.csv')[['Source', 'Target']].values}
-print 'e3_proteins', len(e3_proteins)
-
-dup_proteins = {(p1, p2) for p1, p2 in read_csv('./tables/DUB_target_pairs.csv')[['Source', 'Target']].values}
-print 'dup_proteins', len(dup_proteins)
 
 
 # -- Venn: overlap between transcriptomics and CNV
@@ -77,7 +52,18 @@ venn2_circles(associations.values(), linestyle='solid', color='white')
 plt.savefig('./reports/regressions_associations_venn.pdf', bbox_inches='tight')
 plt.savefig('./reports/regressions_associations_venn.png', bbox_inches='tight', dpi=300)
 plt.close('all')
-print '[INFO] Done'
+print '[INFO] Venn overlap between transcriptomics and CNV: ', './reports/regressions_associations_venn.pdf'
+
+
+# -- Export regulations table
+reg_table = ppairs_cnv[ppairs_cnv['fdr'] < .05].copy()
+reg_table = reg_table[[(px, py) in associations['Transcriptomics'] for px, py in reg_table[['px', 'py']].values]]
+
+reg_table_counts = Series(dict(zip(*(np.unique(reg_table['px'], return_counts=True)))))
+reg_table['counts'] = [1. / reg_table_counts.ix[px] for px in reg_table['px']]
+
+reg_table.sort(['counts', 'f_pval']).drop('counts', axis=1)[['px', 'py', 'beta', 'fdr']].to_csv('./tables/complex_regulators.txt', index=False)
+print '[INFO] Export regulations table: ', './tables/protein_complex_regulators.txt'
 
 
 # -- Volcano: Transcriptomics
@@ -107,12 +93,12 @@ plt.ylabel('Adj. p-value (-log10)')
 plt.xlabel('Beta')
 plt.gcf().set_size_inches(4.5, 7)
 plt.savefig('./reports/regressions_associations_volcano_transcriptomics.png', bbox_inches='tight', dpi=600)
-# plt.savefig('./reports/regressions_associations_volcano.pdf', bbox_inches='tight')
+# plt.savefig('./reports/regressions_associations_volcano_transcriptomics.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] Done'
+print '[INFO] Volcano transcriptomics:, ', './reports/regressions_associations_volcano_transcriptomics.png'
 
 
-# -- Volcano: Transcriptomics
+# -- Volcano: Copy-nymber
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 
 plot_df = ppairs_cnv.copy()
@@ -139,13 +125,13 @@ sns.despine()
 plt.ylabel('Adj. p-value (-log10)')
 plt.xlabel('Beta')
 plt.gcf().set_size_inches(4.5, 7)
-plt.savefig('./reports/regressions_associations_volcano.png', bbox_inches='tight', dpi=600)
-# plt.savefig('./reports/regressions_associations_volcano.pdf', bbox_inches='tight')
+plt.savefig('./reports/regressions_associations_volcano_copy_number.png', bbox_inches='tight', dpi=600)
+# plt.savefig('./reports/regressions_associations_volcano_copy_number.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] Done'
+print '[INFO] Volcano copy-nymber', './reports/regressions_associations_volcano_copy_number.png'
 
 
-# --
+# -- Regression associations count
 plot_df = DataFrame([
     ('Copy-number variation', 'Positive', ppairs_cnv[(ppairs_cnv['fdr'] < .05) & (ppairs_cnv['beta'] > 0)].shape[0]),
     ('Copy-number variation', 'Negative', ppairs_cnv[(ppairs_cnv['fdr'] < .05) & (ppairs_cnv['beta'] < 0)].shape[0]),
@@ -163,18 +149,7 @@ plt.gcf().set_size_inches(1.5, 4)
 plt.savefig('./reports/regressions_associations_count.pdf', bbox_inches='tight')
 plt.savefig('./reports/regressions_associations_count.png', bbox_inches='tight', dpi=300)
 plt.close('all')
-print '[INFO] Done'
-
-
-# -- Export regulations table
-reg_table = ppairs_cnv[ppairs_cnv['fdr'] < .05].copy()
-reg_table = reg_table[[(px, py) in associations['Transcriptomics'] for px, py in reg_table[['px', 'py']].values]]
-
-reg_table_counts = Series(dict(zip(*(np.unique(reg_table['px'], return_counts=True)))))
-reg_table['counts'] = [1. / reg_table_counts.ix[px] for px in reg_table['px']]
-
-reg_table.sort(['counts', 'f_pval']).drop('counts', axis=1)[['px', 'py', 'beta', 'fdr']].to_csv('./tables/complex_regulators.txt', index=False)
-print '[INFO] Export done'
+print '[INFO] Regression associations count: ', './reports/regressions_associations_count.pdf'
 
 
 # -- Create network
@@ -186,11 +161,9 @@ vertices = list({p for px, py in edges for p in (px, py)})
 
 # Add nodes
 network_i.add_vertices(vertices)
-print network_i.summary()
 
 # Add edges
 network_i.add_edges(edges)
-print network_i.summary()
 
 # Draw network
 graph = pydot.Dot(graph_type='digraph')
@@ -223,7 +196,7 @@ for i in edges.index:
 
 graph.write_png('./reports/regressions_associations_network.png')
 graph.write_pdf('./reports/regressions_associations_network.pdf')
-print '[INFO] Network PDF exported'
+print '[INFO] Regulators network exported: ', './reports/regressions_associations_network.pdf'
 
 
 # -- Scatter
@@ -278,29 +251,4 @@ plt.gcf().set_size_inches(6, 3 * len(plot_df))
 plt.savefig('./reports/regressions_associations_scatter.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/regressions_associations_scatter.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] Plot done'
-
-
-# -- Px and Py attenuation scores histograms
-types = DataFrame([{'Px': px, 'Py': py} for px, py in associations['Copy-number variation'].intersection(associations['Transcriptomics'])])
-
-plot_df = read_csv('./tables/proteins_correlations.csv', index_col=0)
-plot_df = DataFrame(plot_df['CNV_Transcriptomics'] - plot_df['CNV_Proteomics'])
-plot_df['type'] = ['Px' if i in set(types['Px']) else ('Py' if i in set(types['Py']) else 'Other') for i in plot_df.index]
-plot_df.columns = ['diff', 'type']
-
-pal = {'Px': '#2980B9', 'Py': '#E74C3C', 'Other': '#99A3A4'}
-
-sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-for t in ['Px', 'Py', 'Other']:
-    sns.distplot(plot_df.ix[plot_df['type'] == t, 'diff'], hist=False, kde_kws={'shade': True, 'linewidth': .3}, label=t, color=pal[t])
-
-plt.axvline(0, ls='-', lw=0.3, c='black', alpha=.5)
-sns.despine(trim=True)
-plt.xlabel('Copy-number correlation attenuation')
-plt.ylabel('Density')
-plt.gcf().set_size_inches(3, 2)
-plt.savefig('./reports/protein_attenuation_histogram.pdf', bbox_inches='tight')
-plt.savefig('./reports/protein_attenuation_histogram.png', bbox_inches='tight', dpi=300)
-plt.close('all')
-print '[INFO] Done'
+print '[INFO] Regulators scatter: ', './reports/regressions_associations_scatter.pdf'

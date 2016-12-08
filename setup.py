@@ -21,7 +21,9 @@ setup(
         'matplotlib>=1.4.3',
         'seaborn>=0.7.1',
         'sklearn>=0.18.1',
-        'statsmodels>=0.6.1'
+        'statsmodels>=0.6.1',
+        'igraph>=0.7.1',
+        'fastcluster>=1.1.20'
     ],
     long_description=open('README.md').read()
 )

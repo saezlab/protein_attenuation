@@ -204,3 +204,70 @@ def get_complexes_name(organism='Human', corum_file='./files/allComplexesCore.cs
     complexes_name = complexes.groupby('Complex id')['Complex name'].first().to_dict()
 
     return complexes_name
+
+
+# -- STRING related functions
+def get_stringdb(threshold=850, stringdb_file='./files/9606.protein.links.v10.txt', stringdb_map_file='./files/9606_reviewed_uniprot_2_string.04_2015.tsv'):
+    """
+    Import String DB interactions and convert IDs to Uniprot
+
+    :param threshold: Stirng combined score threshold (default:850). Selects interactions with score greater than threshold
+    :param stringdb_file: File path to String DB file
+    :param stringdb_map_file: File path to String DB id map
+
+    :return: {(protein 1, protein 2)}: Set of protein pairs
+    """
+    # Import ENG to Uniprot map
+    string_map = read_csv(stringdb_map_file, sep='\t')
+
+    duplicated = {e for e, n in zip(*(np.unique(string_map['string_id'], return_counts=True))) if n > 1}
+    string_map = string_map[[i not in duplicated for i in string_map['string_id']]]
+
+    string_map['uniprot_ac'] = [i.split('|')[0] for i in string_map['uniprot_ac|uniprot_id']]
+    string_map = string_map.set_index('string_id')['uniprot_ac'].to_dict()
+
+    # Import String DB interactions
+    stringdb = read_csv(stringdb_file, sep=' ')
+    stringdb = stringdb[stringdb['combined_score'] > threshold]
+    stringdb['p1'] = [p.split('.')[1] for p in stringdb['protein1']]
+    stringdb['p2'] = [p.split('.')[1] for p in stringdb['protein2']]
+
+    stringdb = {(string_map[p1], string_map[p2]) for p1, p2 in stringdb[['p1', 'p2']].values if p1 in string_map and p2 in string_map}
+
+    return stringdb
+
+
+def get_stringdb_actions(threshold=850, stringdb_file='./files/9606.protein.actions.v10.txt', stringdb_map_file='./files/9606_reviewed_uniprot_2_string.04_2015.tsv'):
+    """
+    Import String DB interactions and convert IDs to Uniprot
+
+    :param threshold: Stirng combined score threshold (default:850). Selects interactions with score greater than threshold
+    :param stringdb_file: File path to String DB file
+    :param stringdb_map_file: File path to String DB id map
+
+    :return: {(protein 1, protein 2)}: Set of protein pairs
+    """
+    # Import ENG to Uniprot map
+    string_map = read_csv(stringdb_map_file, sep='\t')
+
+    duplicated = {e for e, n in zip(*(np.unique(string_map['string_id'], return_counts=True))) if n > 1}
+    string_map = string_map[[i not in duplicated for i in string_map['string_id']]]
+
+    string_map['uniprot_ac'] = [i.split('|')[0] for i in string_map['uniprot_ac|uniprot_id']]
+    string_map = string_map.set_index('string_id')['uniprot_ac'].to_dict()
+
+    # Import String DB interactions
+    stringdb = read_csv(stringdb_file, sep='\t')
+    stringdb = stringdb[stringdb['score'] > threshold]
+    stringdb['p1'] = [p.split('.')[1] for p in stringdb['item_id_a']]
+    stringdb['p2'] = [p.split('.')[1] for p in stringdb['item_id_b']]
+
+    # Map Uniprot IDs
+    stringdb = stringdb[[p1 in string_map and p2 in string_map for p1, p2 in stringdb[['p1', 'p2']].values]]
+
+    stringdb['p1'] = [string_map[p] for p in stringdb['p1']]
+    stringdb['p2'] = [string_map[p] for p in stringdb['p2']]
+
+    stringdb['interaction'] = [(p1, p2) for p1, p2 in stringdb[['p1', 'p2']].values]
+
+    return stringdb
