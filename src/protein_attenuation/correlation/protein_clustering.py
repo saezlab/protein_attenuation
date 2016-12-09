@@ -8,9 +8,11 @@ import numpy as np
 import seaborn as sns
 import fastcluster as fst
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from pandas import read_csv
+from protein_attenuation import palette
 from scipy.cluster.hierarchy import leaves_list
-from protein_attenuation.utils import get_complexes_pairs, get_complexes_dict, get_complexes_name, read_uniprot_genename
+from protein_attenuation.utils import get_complexes_pairs, get_complexes_dict, get_complexes_name, read_uniprot_genename, jaccard
 
 
 # -- Import
@@ -41,7 +43,19 @@ p_corr.columns.name = 'Proteins'
 p_corr.index.name = 'Proteins'
 
 
-# -- Protein correlation heatmap
+# -- Correlation heatmap color bar
+cmap = sns.diverging_palette(220, 20, sep=40, n=5)
+
+sns.set(style='ticks', font_scale=1., rc={'xtick.direction': 'in', 'ytick.direction': 'in', 'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
+sns.palplot(cmap)
+plt.title('Pearson correlation')
+plt.gcf().set_size_inches(3, .5)
+plt.savefig('./reports/protein_clustering_heatmap_cbar.pdf', bbox_inches='tight')
+plt.close('all')
+print '[INFO] Heatmap color bar: ', './reports/protein_clustering_heatmap_cbar.pdf'
+
+
+# -- Calculate correlation matrix
 plot_df = p_corr.copy()
 
 lkg = fst.linkage_vector(plot_df.values, method='median', metric='euclidean')
@@ -52,10 +66,20 @@ plot_df = plot_df.ix[order, order]
 mask = np.zeros_like(plot_df)
 mask[np.triu_indices_from(mask, k=0)] = True
 
-sns.set(style='white', font_scale=1.)
-g = sns.heatmap(plot_df, cmap='YlGnBu', center=0, vmax=1, vmin=-1, square=True, mask=mask, linewidths=.0, cbar=False, xticklabels=False, yticklabels=False)
 
-plt.gcf().set_size_inches(3, 3)
+# -- Protein correlation heatmap
+cmap = sns.diverging_palette(220, 20, sep=40, n=7, as_cmap=True)
+
+sns.set(style='white', font_scale=.3)
+g = sns.heatmap(plot_df, cmap=cmap, center=0, vmax=1, vmin=-1, square=True, mask=mask, linewidths=.0, cbar=False, xticklabels=False, yticklabels=False)
+
+# [i for i, p in zip(*(range(len(plot_df.index)), plot_df.index)) if 'MCM' in p]
+for n, r in [('COG complex', [2637, 2638, 2639, 2640, 2641, 2642, 2643]), ('MCM complex', [3030, 3031, 3032, 3033, 3034, 3035])]:
+    g.add_patch(
+        patches.Rectangle((min(r), p_corr.shape[0] - max(r) - 1), len(r), len(r), facecolor='none', edgecolor='black', lw=1.)
+    )
+
+plt.gcf().set_size_inches(4, 4)
 
 plt.suptitle('Protein pairwise correlation')
 plt.savefig('./reports/protein_clustering_heatmap.png', bbox_inches='tight', dpi=300)
@@ -65,7 +89,7 @@ print '[INFO] Pairwise correlation heatmap: ', './reports/protein_clustering_hea
 
 # -- Representative complexes
 sns.set(style='white', font_scale=.75)
-for c, s, t in [(387, 6, 'MCM complex'), (162, 5, 'COG complex')]:
+for c, s, t in [(387, 6, 'MCM complex'), (162, 5, 'COG complex'), (389, 5, 'ORC complex')]:
     plot_df = p_corr.ix[corum_dict[c], corum_dict[c]]
 
     lkg = fst.linkage_vector(plot_df.values, method='median', metric='euclidean')
@@ -78,21 +102,10 @@ for c, s, t in [(387, 6, 'MCM complex'), (162, 5, 'COG complex')]:
 
     plt.gcf().set_size_inches(2, 2)
 
-    # g = sns.clustermap(plot_df, figsize=(6, 6), cmap=cmap, center=0, vmax=1, vmin=-1, annot=True, fmt='.2f')
-    g = sns.heatmap(plot_df, cmap='YlGnBu', center=0, vmax=1, vmin=-1, annot=True, fmt='.2f', square=True, mask=mask, linewidths=.3, annot_kws={'size': s}, cbar=False)
+    g = sns.heatmap(plot_df, cmap=cmap, center=0, vmax=1, vmin=-1, annot=True, fmt='.2f', square=True, mask=mask, linewidths=.3, annot_kws={'size': s}, cbar=False)
 
     plt.suptitle(t)
     plt.savefig('./reports/protein_clustering_heatmap_%d.png' % c, bbox_inches='tight', dpi=300)
     plt.savefig('./reports/protein_clustering_heatmap_%d.pdf' % c, bbox_inches='tight')
     plt.close('all')
     print '[INFO] Representative complexes: ', './reports/protein_clustering_heatmap_%d.pdf' % c
-
-
-# -- Correlation heatmap color bar
-sns.set(style='ticks', font_scale=1., rc={'xtick.direction': 'in', 'ytick.direction': 'in', 'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
-sns.palplot(sns.color_palette('YlGnBu', n_colors=7))
-plt.title('Pearson correlation')
-plt.gcf().set_size_inches(3, .5)
-plt.savefig('./reports/protein_clustering_heatmap_cbar.pdf', bbox_inches='tight')
-plt.close('all')
-print '[INFO] Heatmap color bar: ', './reports/protein_clustering_heatmap_cbar.pdf'

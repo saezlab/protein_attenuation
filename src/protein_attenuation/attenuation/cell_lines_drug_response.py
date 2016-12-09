@@ -38,7 +38,7 @@ cell_lines_attenuation.name = 'attenuation'
 
 
 # -- Drug response associations regressions with samples protein attenuation potential
-# d = 'CP466722'
+# d = 'AUY922'
 def regressions(d):
     df = concat([drug.ix[d], cell_lines_attenuation], axis=1).dropna()
 
