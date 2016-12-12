@@ -8,7 +8,7 @@ from scipy.stats.stats import pearsonr, ttest_ind
 from sklearn.linear_model import LinearRegression
 from statsmodels.stats.multitest import multipletests
 from pandas import read_csv, concat, Series, DataFrame, pivot_table
-from protein_attenuation.utils import log_likelihood, f_statistic, r_squared, hypergeom_test
+from protein_attenuation.utils import log_likelihood, f_statistic, r_squared
 
 
 # -- Import data
@@ -77,7 +77,7 @@ print '[INFO] Drug response associations table: ', './tables/drug_response.csv'
 
 
 # -- Plot
-h_drugs = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
+h_drugs = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159', 'Nutlin-3a', 'JNJ-26854165']
 
 # Volcano
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
@@ -88,9 +88,9 @@ plt.scatter(
     edgecolor=['black' if f < .05 else sns.light_palette('#99A3A4').as_hex()[1] for f in ppairs['fdr']]
 )
 
-for fdr, beta, d in ppairs[['fdr', 'beta', 'drug']].values:
-    if fdr < .05 and d in h_drugs:
-        plt.text(beta, -np.log10(fdr), '%s' % d, fontsize=6)
+# for fdr, beta, d in ppairs[['fdr', 'beta', 'drug']].values:
+#     if fdr < .05 and d in h_drugs:
+#         plt.text(beta, -np.log10(fdr), '%s' % d, fontsize=6)
 
 plt.axhline(-np.log10(0.01), c='#99A3A4', ls='--', lw=.5, alpha=.7)
 plt.axhline(-np.log10(0.05), c='#99A3A4', ls='--', lw=.5, alpha=.7)
