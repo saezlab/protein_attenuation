@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from scipy.stats.stats import pearsonr, ttest_ind
 from sklearn.linear_model import LinearRegression
 from statsmodels.stats.multitest import multipletests
-from pandas import read_csv, concat, Series, DataFrame, pivot_table
-from protein_attenuation.utils import log_likelihood, f_statistic, r_squared
+from pandas import read_csv, concat, Series, DataFrame
+from protein_attenuation.utils import f_statistic, r_squared
 
 
 # -- Import data
@@ -24,8 +24,7 @@ drug = read_csv('./data/sanger_drug_response_auc.csv', index_col=1).drop('cosmic
 drug = drug.loc[:, drug.count() > drug.shape[0] * .75]
 
 # Gene expression
-trans = read_csv('./data/sanger_gene_experssion_rma.tsv', sep='\t')
-trans = pivot_table(trans, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_SCORE', fill_value=np.nan, aggfunc=np.mean)
+trans = read_csv('./data/sanger_gene_experssion_rma_preprocessed.csv', index_col=0)
 
 
 # -- Import tumour gene-expression signature of protein attenuation
@@ -51,9 +50,6 @@ def regressions(d):
     # Predict
     y_true, y_pred = df[d].copy(), Series(dict(zip(*(df.index, lm.predict(df[['attenuation']])))))
 
-    # Log likelihood
-    l_lm = log_likelihood(y_true, y_pred)
-
     # F-statistic
     f, f_pval = f_statistic(y_true, y_pred, len(y_true), df[['attenuation']].shape[1])
 
@@ -61,9 +57,9 @@ def regressions(d):
     r = r_squared(y_true, y_pred)
 
     res = {
-        'drug': d, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm, 'beta': lm.coef_[0], 'pearson': cor, 'pearson_pval': pval
+        'drug': d, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'beta': lm.coef_[0], 'pearson': cor, 'pearson_pval': pval
     }
-    print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e, ll: %.2f' % (d, res['rsquared'], res['f'], res['f_pval'], res['ll'])
+    print '%s: Rsquared: %.2f, F: %.2f, F pval: %.2e' % (d, res['rsquared'], res['f'], res['f_pval'])
 
     return res
 
@@ -77,20 +73,21 @@ print '[INFO] Drug response associations table: ', './tables/drug_response.csv'
 
 
 # -- Plot
-h_drugs = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159', 'Nutlin-3a', 'JNJ-26854165']
+h_drugs = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159']
+h_drugs_all = ['Bortezomib', 'MG-132', 'AUY922', 'SNX-2112', '17-AAG', 'Elesclomol', 'CCT018159', 'Nutlin-3a', 'JNJ-26854165']
 
 # Volcano
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3})
 plt.scatter(
-    x=ppairs['beta'], y=-np.log10(ppairs['fdr']), s=25, alpha=.5,
+    x=ppairs['beta'], y=-np.log10(ppairs['fdr']), s=25, alpha=.4,
     linewidths=[.5 if i < .05 else 0.01 for i in ppairs['fdr']],
     c=['#E74C3C' if d in h_drugs else ('#99A3A4' if f < .05 else sns.light_palette('#99A3A4').as_hex()[1]) for f, d in ppairs[['fdr', 'drug']].values],
     edgecolor=['black' if f < .05 else sns.light_palette('#99A3A4').as_hex()[1] for f in ppairs['fdr']]
 )
 
-# for fdr, beta, d in ppairs[['fdr', 'beta', 'drug']].values:
-#     if fdr < .05 and d in h_drugs:
-#         plt.text(beta, -np.log10(fdr), '%s' % d, fontsize=6)
+for fdr, beta, d in ppairs[['fdr', 'beta', 'drug']].values:
+    if fdr < .05 and d in h_drugs_all:
+        plt.text(beta, -np.log10(fdr), '%s' % d, fontsize=6)
 
 plt.axhline(-np.log10(0.01), c='#99A3A4', ls='--', lw=.5, alpha=.7)
 plt.axhline(-np.log10(0.05), c='#99A3A4', ls='--', lw=.5, alpha=.7)
