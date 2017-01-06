@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2016  Emanuel Goncalves
+# Copyright (C) 2017 Emanuel Goncalves
 #
 # Heatmap annotation thanks to Marco Galardini:
 # https://github.com/mgalardini/python_plotting_snippets/blob/master/notebooks/clusters.ipynb

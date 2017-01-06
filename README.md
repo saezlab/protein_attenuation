@@ -7,4 +7,4 @@ The effect of CNVs on the cellular proteome of tumours is poorly understood and 
 This study presents novel insights into the widespread importance of post-transcriptional mechanisms in cancer that allow cells to cope with their altered genomic profile.
 
 
-###### Copyright (C) 2016  Emanuel Goncalves
+###### Copyright (C) 2017 Emanuel Goncalves

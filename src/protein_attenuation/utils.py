@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2016  Emanuel Goncalves
+# Copyright (C) 2017 Emanuel Goncalves
 
 import numpy as np
 import itertools as it
@@ -65,6 +65,13 @@ def read_gmt(file_path):
         signatures = {l.split('\t')[0]: set(l.strip().split('\t')[2:]) for l in f.readlines()}
 
     return signatures
+
+
+def merge_dicts(*dict_args):
+    result = {}
+    for dictionary in dict_args:
+        result.update(dictionary)
+    return result
 
 
 def hypergeom_test(signature, background, sublist):

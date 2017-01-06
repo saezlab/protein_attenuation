@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2016  Emanuel Goncalves
+# Copyright (C) 2017 Emanuel Goncalves
 
 from sklearn.linear_model import LinearRegression
 from pandas import DataFrame, Series, read_csv

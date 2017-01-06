@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2016  Emanuel Goncalves
+# Copyright (C) 2017 Emanuel Goncalves
 
 import numpy as np
 from pandas import Series, read_csv, pivot_table

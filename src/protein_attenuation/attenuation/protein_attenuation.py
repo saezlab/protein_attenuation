@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2016  Emanuel Goncalves
+# Copyright (C) 2017 Emanuel Goncalves
 
 import os
 import numpy as np
@@ -11,7 +11,7 @@ from pymist.enrichment.gsea import gsea
 from sklearn.mixture import GaussianMixture
 from statsmodels.stats.multitest import multipletests
 from pandas import read_csv, DataFrame, Series, concat
-from protein_attenuation.utils import read_gmt, gkn, get_complexes_pairs, get_complexes_dict, get_complexes_name, read_uniprot_genename
+from protein_attenuation.utils import read_gmt, gkn, get_complexes_pairs, read_uniprot_genename
 
 
 # -- Imports
@@ -35,13 +35,6 @@ uniprot = read_uniprot_genename()
 
 corum = get_complexes_pairs()
 corum = {uniprot[g][0] for p in corum for g in p if g in uniprot}.intersection(genes)
-
-corum_dict = get_complexes_dict()
-corum_dict = {k: {uniprot[g][0] for g in corum_dict[k] if g in uniprot and uniprot[g][0] in genes} for k in corum_dict}
-
-corum_proteins = {p for k in corum_dict for p in corum_dict[k]}
-
-corum_name = get_complexes_name()
 
 
 # -- GO terms
