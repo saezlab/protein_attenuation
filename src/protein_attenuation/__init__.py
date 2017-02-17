@@ -6,8 +6,8 @@ default_color = '#808080'
 
 palette = {
     'BRCA': '#F8C471', 'COREAD': '#B2BABB', 'HGSC': '#F1948A',
-    'Proteomics': '#5DADE2', 'Transcriptomics': '#E74C3C', 'Copy-number variation': '#2980B9', 'Clinical': '#99A3A4',
-    'Overlap': '#FFF6E5',
+    'Proteomics': '#5DADE2', 'Transcriptomics': '#E74C3C', 'Copy-number variation': '#2980B9', 'Clinical': '#99A3A4', 'Phosphoproteomics': '#E2925D',
+    'Overlap': '#FFF6E5'
 }
 
 palette_dbs = {'All': '#d8d8d8', 'CORUM': '#e39e54', 'STRING': '#d64d4d', 'BioGRID': '#4d7358', 'OmniPath': '#81A949'}

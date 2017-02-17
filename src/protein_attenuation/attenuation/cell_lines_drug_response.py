@@ -3,6 +3,7 @@
 
 import numpy as np
 import seaborn as sns
+import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from scipy.stats.stats import pearsonr, ttest_ind
 from sklearn.linear_model import LinearRegression
@@ -34,6 +35,18 @@ p_attenuation_sig = Series.from_csv('./tables/samples_attenuation_potential_gene
 # -- Cell lines correlation with protein attenuation gene-expression signature
 cell_lines_attenuation = trans.ix[p_attenuation_sig.index].corrwith(p_attenuation_sig)
 cell_lines_attenuation.name = 'attenuation'
+
+
+# -- Tissue specificity of samples attenuation profile
+plot_df = DataFrame(cell_lines_attenuation)
+plot_df['TCGA'] = [samplesheet.ix[i, 'TCGA'] if i in samplesheet.index else np.nan for i in plot_df.index]
+plot_df = plot_df.dropna()
+
+x = sm.add_constant(plot_df['TCGA'].str.get_dummies())
+y = plot_df['attenuation']
+
+lm = sm.OLS(y, x).fit()
+print lm.summary()
 
 
 # -- Drug response associations regressions with samples protein attenuation potential

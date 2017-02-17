@@ -35,7 +35,7 @@ samples = set(cnv).intersection(proteomics).intersection(transcriptomics)
 ppairs_cnv = read_csv('./tables/ppairs_cnv_regulation_all.csv')
 ppairs_trans = read_csv('./tables/ppairs_transcriptomics_regulation_all.csv')
 
-px_highlight = ['EIF3A', 'RPA2', 'COG3', 'COG6', 'SMARCA2']
+px_highlight = ['EIF3A', 'RPA2', 'COG3', 'COG6', 'SMARCA2', 'AP3B1', 'GTF2E2']
 
 
 # -- Venn: overlap between transcriptomics and CNV
@@ -112,7 +112,7 @@ plt.scatter(
 )
 
 for fdr, beta, px, py in plot_df[['fdr', 'beta', 'px', 'py']].values:
-    if fdr < .05 and px in px_highlight:
+    if fdr < .05 and px in px_highlight and py not in ['AP3M2']:
         plt.text(beta, -np.log10(fdr), '%s ~ %s' % (px, py), fontsize=6)
 
 plt.axhline(-np.log10(0.01), c='#99A3A4', ls='--', lw=.5, alpha=.7)
@@ -156,7 +156,7 @@ print '[INFO] Regression associations count: ', './reports/regressions_associati
 network_i = igraph.Graph(directed=True)
 
 # Initialise network lists
-edges = [(px, py) for px, py in ppairs_cnv[ppairs_cnv['fdr'] < .05][['px', 'py']].values if (px, py) in associations['Transcriptomics']]
+edges = [(px, py) for px, py in associations['Copy-number variation'] if (px, py) in associations['Transcriptomics'] and px in ['GTF2E2'] and py not in ['AP3M2']]
 vertices = list({p for px, py in edges for p in (px, py)})
 
 # Add nodes
@@ -166,17 +166,18 @@ network_i.add_vertices(vertices)
 network_i.add_edges(edges)
 
 # Draw network
-graph = pydot.Dot(graph_type='digraph')
+graph = pydot.Dot(graph_type='digraph', rankdir='LR')
 
-graph.set_graph_defaults(packMode='clust', pack='true')
+graph.set_graph_defaults()
 graph.set_node_defaults(fontcolor='white', penwidth='5', fillcolor='#CCCCCC', width='1', height='1', fontsize='20', fontname='sans-serif')
-graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee', penwidth='2.')
+graph.set_edge_defaults(color='#CCCCCC', arrowhead='vee', penwidth='.3')
 
 edges = DataFrame([{'index': i.index, 'degree': network_i.degree(i.index, mode='OUT'), 'fdr': -np.log10(ppairs_cnv.loc[ppairs_cnv['px'] == i['name'], 'fdr'].min())} for i in network_i.vs])
 edges = edges[edges['degree'] != 0]
 edges = edges.sort(['degree', 'fdr'], ascending=False)
 
-nodes_highlight = {'EIF3A', 'EIF3E', 'EIF3H', 'EIF3L', 'EIF3D', 'COG6', 'COG3', 'COG2', 'COG4', 'RPA1', 'RPA2', 'RPA3', 'SMARCA2', 'SMARCA4', 'GTF2E2', 'GTF2E1', 'AP3B1', 'AP3M1'}
+# nodes_highlight = {'EIF3A', 'EIF3E', 'EIF3H', 'EIF3L', 'EIF3D', 'COG6', 'COG3', 'COG2', 'COG4', 'RPA1', 'RPA2', 'RPA3', 'SMARCA2', 'SMARCA4', 'GTF2E2', 'GTF2E1', 'AP3B1', 'AP3M1'}
+nodes_highlight = {'AP3B1', 'AP3M1', 'GTF2E2', 'GTF2E1'}
 
 for i in edges.index:
     for edge in network_i.es[network_i.incident(i)]:
@@ -186,7 +187,7 @@ for i in edges.index:
         source.set_fillcolor(palette['Copy-number variation'] if source_id in nodes_highlight else sns.light_palette(palette['Copy-number variation']).as_hex()[1])
 
         target = pydot.Node(target_id, style='filled', shape='ellipse', penwidth='0')
-        target.set_fillcolor(palette['Proteomics'] if source_id in nodes_highlight else sns.light_palette(palette['Proteomics']).as_hex()[1])
+        target.set_fillcolor(palette['Proteomics'] if target_id in nodes_highlight else sns.light_palette(palette['Proteomics']).as_hex()[1])
 
         graph.add_node(source)
         graph.add_node(target)
@@ -204,7 +205,7 @@ def ppair_correlation(px, py):
     x, y = zip(*proteomics.ix[[px, py]].T.dropna().values)
     return pearsonr(x, y)
 
-plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(['COG3', 'SMARCA2'])) & (ppairs_cnv['fdr'] < .05)]
+plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(['AP3B1', 'GTF2E2'])) & (ppairs_cnv['py'].isin(['AP3M1', 'GTF2E1'])) & (ppairs_cnv['fdr'] < .05)]
 plot_df['cor'] = [ppair_correlation(px, py)[0] for px, py in plot_df[['px', 'py']].values]
 
 # px, py = 'COG3', 'COG2'

@@ -63,7 +63,6 @@ def ztest(targets, mu, var):
 def read_gmt(file_path):
     with open(file_path) as f:
         signatures = {l.split('\t')[0]: set(l.strip().split('\t')[2:]) for l in f.readlines()}
-
     return signatures
 
 
