@@ -4,7 +4,7 @@
 from pandas import DataFrame, Series, read_csv
 from sklearn.linear_model import LinearRegression
 from statsmodels.stats.multitest import multipletests
-from protein_attenuation.utils import log_likelihood, f_statistic, r_squared, read_uniprot_genename, read_fasta, get_complexes_pairs
+from protein_attenuation.utils import f_statistic, r_squared, read_uniprot_genename, read_fasta, get_complexes_pairs
 
 
 # -- Imports
@@ -49,7 +49,7 @@ print len(biogrid)
 
 # -- Concat and expand interactions set
 interactions = corum.union(biogrid)
-interactions = {(psite, py) for px, py in interactions for psite in psites_map[px]}
+interactions = {(psite, py) for px, py in interactions if px in psites_map for psite in psites_map[px]}
 print len(interactions)
 
 
@@ -67,9 +67,6 @@ def regressions(px, py):
         # Predict
         y_true, y_pred = y.copy(), Series(dict(zip(*(x.index, lm.predict(x)))))
 
-        # Log likelihood
-        l_lm = log_likelihood(y_true, y_pred)
-
         # F-statistic
         f, f_pval = f_statistic(y_true, y_pred, len(y), x.shape[1])
 
@@ -77,15 +74,15 @@ def regressions(px, py):
         r = r_squared(y_true, y_pred)
 
         res = {
-            'px': px, 'py': py, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'll': l_lm, 'beta': lm.coef_[0]
+            'px': px, 'py': py, 'rsquared': r, 'f': f, 'f_pval': f_pval, 'beta': lm.coef_[0]
         }
 
-        print 'Px (%s), Py (%s): Rsquared: %.2f, F: %.2f, F pval: %.2e' % (px, py, res['rsquared'], res['f'], res['f_pval'])
+        # print 'Px (%s), Py (%s): Rsquared: %.2f, F: %.2f, F pval: %.2e' % (px, py, res['rsquared'], res['f'], res['f_pval'])
         # print sm.OLS(y, sm.add_constant(x, has_constant='add')).fit().summary()
 
         return res
 
-ppairs = [regressions(px, py) for px, py in biogrid]
+ppairs = [regressions(px, py) for px, py in interactions]
 ppairs = DataFrame([i for i in ppairs if i])
 ppairs['fdr'] = multipletests(ppairs['f_pval'], method='fdr_bh')[1]
 ppairs.sort('fdr').to_csv('./tables/ppairs_phospho_regulation_all_tmt.csv', index=False)

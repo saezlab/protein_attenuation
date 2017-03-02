@@ -6,7 +6,7 @@ default_color = '#808080'
 
 palette = {
     'BRCA': '#F8C471', 'COREAD': '#B2BABB', 'HGSC': '#F1948A',
-    'Proteomics': '#5DADE2', 'Transcriptomics': '#E74C3C', 'Copy-number variation': '#2980B9', 'Clinical': '#99A3A4', 'Phosphoproteomics': '#E2925D',
+    'Proteomics': '#5DADE2', 'Transcriptomics': '#E74C3C', 'Copy-number variation': '#2980B9', 'Clinical': '#99A3A4', 'Phosphoproteomics': '#F8C471',
     'Overlap': '#FFF6E5'
 }
 
