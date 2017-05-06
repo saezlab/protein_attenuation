@@ -12,8 +12,7 @@ brca_proteomics = read_csv('./data/brca_cell_lines_proteomics_preprocessed.csv',
 hgsc_proteomics = read_csv('./data/hgsc_cell_lines_proteomics_preprocessed.csv', index_col=0)
 
 # -- Cell lines: transcriptomics
-transcriptomics = read_csv('./data/sanger_gene_experssion_rma.tsv', sep='\t')
-transcriptomics = pivot_table(transcriptomics, index='GENE_NAME', columns='SAMPLE_NAME', values='Z_SCORE', fill_value=np.nan, aggfunc=np.mean)
+transcriptomics = read_csv('./data/sanger_gene_experssion_rma_preprocessed.csv', index_col=0)
 
 # -- Cell lines: Copy-number
 cnv = read_csv('./data/sanger_copy_number.tsv', sep='\t')
@@ -67,15 +66,15 @@ order = ['Low', 'High (> 0.2)', 'High (> 0.3)', 'High (> 0.4)', 'High (> 0.5)']
 pal = dict(zip(*(order, ['#99A3A4'] + sns.light_palette('#E74C3C', 5).as_hex()[1:])))
 
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
-g = sns.FacetGrid(cors, size=1.25, aspect=2.5)
+g = sns.FacetGrid(cors, size=1.25, aspect=2.5, legend_out=True)
 g = g.map_dataframe(sns.stripplot, 'attenuation', 'type', 'attenuation_potential', orient='h', size=2, jitter=.2, alpha=.4, linewidth=.1, edgecolor='white', palette=pal, hue_order=order, split=True)
 g = g.map_dataframe(sns.boxplot, 'attenuation', 'type', 'attenuation_potential', orient='h', linewidth=.3, sym='', palette=pal, hue_order=order)
 g = g.map(plt.axvline, x=0, ls='-', lw=0.1, c='black', alpha=.5)
+g.despine(trim=True)
 g.set_axis_labels('Protein attenuation (cell lines)', '')
 g.add_legend(title='Protein attenuation\n(tumours)')
 plt.setp(g._legend.get_title(), multialignment='center')
 plt.title('Protein attenuation transfer from tumours to cell lines')
-g.despine(trim=True)
 plt.savefig('./reports/protein_attenuation_validation_boxplots.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/protein_attenuation_validation_boxplots.pdf', bbox_inches='tight')
 plt.close('all')

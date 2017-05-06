@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from protein_attenuation import palette
-from pymist.enrichment.gsea import gsea
+from protein_attenuation.enrichment.gsea import gsea
 from sklearn.mixture import GaussianMixture
 from statsmodels.stats.multitest import multipletests
 from pandas import read_csv, DataFrame, Series, concat

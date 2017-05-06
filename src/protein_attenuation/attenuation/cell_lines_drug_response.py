@@ -35,6 +35,7 @@ p_attenuation_sig = Series.from_csv('./tables/samples_attenuation_potential_gene
 # -- Cell lines correlation with protein attenuation gene-expression signature
 cell_lines_attenuation = trans.ix[p_attenuation_sig.index].corrwith(p_attenuation_sig)
 cell_lines_attenuation.name = 'attenuation'
+cell_lines_attenuation.to_csv('./tables/cell_lines_attenuation_score.csv')
 
 
 # -- Tissue specificity of samples attenuation profile

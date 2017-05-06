@@ -149,6 +149,34 @@ print '[INFO] Samples attenuation representative cases: ', './reports/samples_co
 
 
 # -- Slapenrich complexes amplifications
+# Depletions
+m_matrix = (cnv.loc[:, cors[cors['cluster'] == clusters.argmax()].index] < -1).astype(int)
+m_matrix = m_matrix.loc[:, m_matrix.sum() > 0]
+
+res, pp = slapenrich(m_matrix, corum_dict, set(cnv.index))
+res['name'] = [corum_n[int(i.split(':')[0])] for i in res.index]
+res.sort('fdr').to_csv('./tables/slapenrich_tumours_depletions.csv')
+print '[INFO] Samples attenuation complexes amplification enrichment table: ', './tables/slapenrich_tumours_depletions.csv'
+
+# Plot
+plot_df = res[res['fdr'] < .05].copy().sort('logoddratios', ascending=False)
+plot_df['name'] = [i.split(' ')[0] for i in plot_df['name']]
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.factorplot(x='logoddratios', y='name', data=plot_df, kind='bar', ci=None, legend_out=False, lw=.3, orient='h', color=palette['Clinical'])
+g.despine(trim=True)
+plt.xlabel('Log odd ratios')
+plt.ylabel('')
+plt.gcf().set_size_inches(4, 4)
+plt.xticks(np.arange(.0, 1., .2))
+plt.title('Complex depletion enrichment (FDR < 5%)')
+plt.savefig('./reports/samples_correlation_difference_complex_depletions.pdf', bbox_inches='tight')
+plt.savefig('./reports/samples_correlation_difference_complex_depletions.png', bbox_inches='tight', dpi=300)
+plt.close('all')
+print '[INFO] Samples attenuation complexes amplifcations enrichment: ', './reports/samples_correlation_difference_complex_depletions.pdf'
+
+
+# Amplifications
 m_matrix = (cnv.loc[:, cors[cors['cluster'] == clusters.argmax()].index] > 1).astype(int)
 m_matrix = m_matrix.loc[:, m_matrix.sum() > 0]
 
