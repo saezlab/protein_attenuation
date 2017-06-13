@@ -6,12 +6,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
 from protein_attenuation.enrichment.gsea import gsea
-from sklearn.feature_selection import SelectFdr, f_classif
+from sklearn.feature_selection import SelectFdr, f_classif, f_regression
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.linear_model.logistic import LogisticRegressionCV
 from statsmodels.stats.multitest import multipletests
 from protein_attenuation.utils import read_gmt
 from pandas import DataFrame, Series, read_csv, concat
+from scipy.stats.distributions import hypergeom
 
 
 # -- Imports
@@ -23,6 +24,8 @@ signature = Series.from_csv('./tables/samples_attenuation_potential_gene_signatu
 msigdb_go_bp = read_gmt('./files/c5.bp.v5.1.symbols.gmt')
 msigdb_go_cc = read_gmt('./files/c5.cc.v5.1.symbols.gmt')
 msigdb_go_mf = read_gmt('./files/c5.mf.v5.1.symbols.gmt')
+
+msigdb = read_gmt('./files/c2.cp.v6.0.symbols.gmt')
 
 
 # -- Logistic regression with bootstrap
@@ -71,8 +74,8 @@ print(df_enrichment)
 # Plot - Striplot
 plot_df = df_enrichment[(df_enrichment['length'] > 5)].copy()
 plot_df['fdr'] = multipletests(plot_df['pvalue'], method='fdr_bh')[1]
-plot_df = plot_df[plot_df['fdr'].abs() < .05].sort('escore')
-plot_df['signature'] = [i.replace('_', ' ').lower() for i in plot_df['signature']]
+plot_df = plot_df[plot_df['fdr'].abs() < .05].sort_values('escore')
+plot_df['signature'] = [i.replace('_', ' ').lower().replace(' i', ' I').replace('rna ', 'RNA ').replace('g1 ', 'G1 ').replace('adp ', 'ADP') for i in plot_df['signature']]
 plot_df = concat([plot_df.head(30), plot_df.tail(30)])
 
 pal = dict(zip(*(set(plot_df['type']), sns.color_palette('Set1', n_colors=4).as_hex())))
@@ -88,4 +91,55 @@ plt.gcf().set_size_inches(2, 10)
 plt.savefig('./reports/sample_attenuation_enrichment.png', bbox_inches='tight', dpi=300)
 plt.savefig('./reports/sample_attenuation_enrichment.pdf', bbox_inches='tight')
 plt.close('all')
-print '[INFO] Protein attenuation complexes: ', './reports/protein_correlation_difference_enrichment.pdf'
+
+# Negative correlated genes
+plot_df = df_enrichment[(df_enrichment['length'] > 5)].copy()
+plot_df['fdr'] = multipletests(plot_df['pvalue'], method='fdr_bh')[1]
+
+N = [g for t, s in plot_df[['type', 'signature']].values for g in signatures[t][s]]
+N = Series(dict(zip(*np.unique(N, return_counts=True))))
+
+plot_df = plot_df[(plot_df['fdr'] < 0.05) & (plot_df['escore'] < 0)]
+plot_df = [g for t, s in plot_df[['type', 'signature']].values for g in signatures[t][s]]
+
+plot_df = Series(dict(zip(*np.unique(plot_df, return_counts=True))))
+
+plot_df = DataFrame({'counts': plot_df, 'freq': plot_df.astype(float).divide(N)}).dropna().reset_index()
+plot_df = plot_df[plot_df['counts'] > 5]
+plot_df = plot_df.sort_values(['freq', 'counts'], ascending=False).head(40)
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+sns.stripplot(y='index', x='counts', data=plot_df, color='#888888', s=8, orient='h')
+sns.despine(trim=True)
+plt.xlabel('Counts')
+plt.ylabel('')
+plt.title('Counts within negatively significantly\nenriched gene-sets')
+plt.gcf().set_size_inches(3, 5)
+plt.savefig('./reports/sample_attenuation_enrichment_negative_genes.pdf', bbox_inches='tight')
+plt.close('all')
+
+# Positive correlated genes
+plot_df = df_enrichment[(df_enrichment['length'] > 5)].copy()
+plot_df['fdr'] = multipletests(plot_df['pvalue'], method='fdr_bh')[1]
+
+N = [g for t, s in plot_df[['type', 'signature']].values for g in signatures[t][s]]
+N = Series(dict(zip(*np.unique(N, return_counts=True))))
+
+plot_df = plot_df[(plot_df['fdr'] < 0.05) & (plot_df['escore'] > 0)]
+plot_df = [g for t, s in plot_df[['type', 'signature']].values for g in signatures[t][s]]
+
+plot_df = Series(dict(zip(*np.unique(plot_df, return_counts=True))))
+
+plot_df = DataFrame({'counts': plot_df, 'freq': plot_df.astype(float).divide(N)}).dropna()
+plot_df = plot_df[plot_df['counts'] > 5]
+plot_df = plot_df.sort_values(['freq', 'counts'], ascending=False).head(30).reset_index()
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+sns.stripplot(y='index', x='counts', data=plot_df, color='#888888', s=8, orient='h')
+sns.despine(trim=True)
+plt.xlabel('Counts')
+plt.ylabel('')
+plt.title('Counts within positively significantly\nenriched gene-sets')
+plt.gcf().set_size_inches(3, 5)
+plt.savefig('./reports/sample_attenuation_enrichment_positive_genes.pdf', bbox_inches='tight')
+plt.close('all')

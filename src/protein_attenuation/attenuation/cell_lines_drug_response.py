@@ -83,6 +83,7 @@ ppairs['pearson_fdr'] = multipletests(ppairs['pearson_pval'], method='fdr_bh')[1
 ppairs['targets'] = [';'.join(d_targets.ix[i]) if i in d_targets.index else 'NaN' for i in ppairs['drug']]
 ppairs['Putative_target'] = ['; '.join(d_targets[i.split('.')[0]]) if i in d_targets else 'NaN' for i in ppairs['drug']]
 ppairs.sort('fdr').to_csv('./tables/drug_response.csv', index=False)
+# ppairs = read_csv('./tables/drug_response.csv')
 print '[INFO] Drug response associations table: ', './tables/drug_response.csv'
 
 
@@ -112,7 +113,7 @@ plt.ylim(0)
 sns.despine()
 plt.ylabel('Adj. p-value (-log10)')
 plt.xlabel('Beta')
-plt.gcf().set_size_inches(2.5, 5)
+plt.gcf().set_size_inches(1.5, 5)
 plt.savefig('./reports/drug_response_associations_volcano.png', bbox_inches='tight', dpi=600)
 plt.savefig('./reports/drug_response_associations_volcano.pdf', bbox_inches='tight')
 plt.close('all')

@@ -205,8 +205,23 @@ def ppair_correlation(px, py):
     x, y = zip(*proteomics.ix[[px, py]].T.dropna().values)
     return pearsonr(x, y)
 
-plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(['AP3B1', 'GTF2E2'])) & (ppairs_cnv['py'].isin(['AP3M1', 'GTF2E1'])) & (ppairs_cnv['fdr'] < .05)]
+# 'AP3B1', 'AP3M1', 'GTF2E2', 'GTF2E1'
+plot_df = ppairs_cnv[(ppairs_cnv['px'].isin(['AP3B1', 'AP3M1', 'GTF2E2', 'GTF2E1'])) & (ppairs_cnv['py'].isin(['AP3B1', 'AP3M1', 'GTF2E2', 'GTF2E1']))]
 plot_df['cor'] = [ppair_correlation(px, py)[0] for px, py in plot_df[['px', 'py']].values]
+plot_df['name'] = ['%s -> %s' % (px, py) for px, py in plot_df[['px', 'py']].values]
+
+sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
+g = sns.barplot('name', 'beta', data=plot_df, ci=None, lw=.3, color='#34495e')
+sns.despine()
+plt.xlabel('')
+plt.ylabel('Beta')
+plt.setp(g.get_xticklabels(), rotation=45, ha="right")
+plt.gcf().set_size_inches(1, 3)
+plt.savefig('./reports/regressions_associations_barplot.png', bbox_inches='tight', dpi=300)
+plt.savefig('./reports/regressions_associations_barplot.pdf', bbox_inches='tight')
+plt.close('all')
+print '[INFO] Regulators scatter: ', './reports/regressions_associations_scatter.pdf'
+
 
 # px, py = 'COG3', 'COG2'
 sns.set(style='ticks', font_scale=.75, rc={'axes.linewidth': .3, 'xtick.major.width': .3, 'ytick.major.width': .3, 'xtick.direction': 'out', 'ytick.direction': 'out'})
